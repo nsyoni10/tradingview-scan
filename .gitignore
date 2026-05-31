@@ -1,0 +1,24 @@
+# Data files
+*.csv
+*.CSV
+*.json
+*.jpg
+*.html
+
+# Debug & test scripts
+debug_*.py
+test_*.py
+find_*.py
+get_*.py
+step*.py
+read_*.py
+check_*.py
+search_*.py
+identify_*.py
+capture_*.py
+
+# Old files
+OldFiles/
+
+# Keep skill docs
+!*_SKILL.md
