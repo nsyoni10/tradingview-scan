@@ -1,50 +1,36 @@
 ---
 name: coffee
-description: "☕ Coffee — סקירת שוק יומית בעברית. בודק מדדים (S&P, QQQ, VIX, נפט, זהב, אגח 10Y), חוזים עתידיים (ES, NQ, YM, RTY), מחשב ציון שוק 0-100, מציג דגל צבעוני, ממליץ כמה LONG/SHORT ואיזה מינוף להיום. כולל סקירה מילולית וחדשות כלכליות מתורגמות לעברית. הפעל כאשר המשתמש כותב: coffee, קופי, סקירת שוק, מצב שוק, coffee news, חדשות שוק."
+description: "☕ Coffee — סריקת בוקר יומית. מביא מדדי שוק (S&P, QQQ, VIX, נפט, זהב, אגח 10Y), חוזים עתידיים (ES, NQ, YM, RTY), מריץ morning-note, ומציג טבלאות TOP LONG/SHORT מ-dayscan_pivot עם כל השדות והציונים. הפעל כאשר המשתמש כותב: coffee, קופי, סקירת בוקר."
 ---
 
-# ☕ COFFEE — סקירת שוק יומית מלאה
+# ☕ Coffee — סריקת בוקר
 
-## שלב 1: הרץ סקירת חדשות ונתונים
-```
-python C:\Users\nsyon\SCAN\coffee_news.py
-```
+## הרץ:
+cd C:\Users\nsyon\SCAN
+python build_coffee.py
 
-הסקריפט מושך ומציג:
-• מדדים: S&P 500, QQQ, VIX, נפט גולמי, זהב, אגח 10Y
-• חוזים עתידיים: ES=F, NQ=F, YM=F, RTY=F (מחיר + % שינוי)
-• חדשות: 40 כותרות מ-Yahoo Finance, CNBC, MarketWatch
-• תרגום: 12 כותרות מובילות לעברית
-• ניתוח: התראות / שים לב / נקודות חיוביות
-• נושאים: Fed, ריבית, נפט, אינפלציה, מלחמה, טראמפ, סין
-• שומר: C:\Users\nsyon\SCAN\coffee_news.html
+## פתח בדפדפן:
+start C:\Users\nsyon\SCAN\coffee_pivot.html
 
-המתן עד שמופיעה השורה:
-"נשמר: C:\Users\nsyon\SCAN\coffee_news.html"
+## הסקריפט מייצר קובץ אחד עם:
+- 6 מדדים: S&P, QQQ, VIX, נפט, זהב, אגח 10Y
+- 4 חוזים עתידיים: ES, NQ, YM, RTY
+- Morning Note — סיכום בוקר עם כותרת ראשית, התפתחויות לילה, אירועים, רעיונות מסחר
+- TOP LONG — כל השדות מ-trading-analysis + ציון
+  - ה-TOP 10 שנבחרו (מ-_top10_long.json) מופיעים ראשונים לפי סדר הבחירה
+  - שורות TOP 10 מוצגות בצבע צהוב
+- TOP SHORT — כל השדות מ-trading-analysis + ציון
+  - ה-TOP 10 שנבחרו (מ-_top10_short.json) מופיעים ראשונים לפי סדר הבחירה
+  - שורות TOP 10 מוצגות בצבע צהוב
+- כותרות עמודות מיושרות לצד ימין (RTL)
+- הערות ריצה מ-dayscan_pivot
 
-## שלב 2: הרץ חישוב דגל ומינוף
-```
-python C:\Users\nsyon\SCAN\coffee.py
-```
+## תלויות:
+- _trading_analysis_long.json (מ-dayscan_pivot שלב 2)
+- _trading_analysis_short.json (מ-dayscan_pivot שלב 2)
+- _top10_long.json (מ-dayscan_pivot שלב 3)
+- _top10_short.json (מ-dayscan_pivot שלב 3)
+- dayscan_pivot_notes.html (מ-dayscan_pivot שלב 4)
 
-הסקריפט:
-• מחשב ציון שוק 0-100
-• קובע דגל: 🟢 ירוק(75+) ⬜ לבן(60-74) 🟡 צהוב(45-59) 🟠 כתום(30-44) 🔴 אדום(15-29) ⬛ שחור(0-14)
-• ממליץ: כמה LONG / SHORT / איזה מינוף
-• שומר: C:\Users\nsyon\SCAN\coffee_results.html
-
-## שלב 3: פתח את שני הדפים בדפדפן
-```
-start C:\Users\nsyon\SCAN\coffee_news.html
-start C:\Users\nsyon\SCAN\coffee_results.html
-```
-
-## שלב 4: הצג בצ'אט סיכום מלא
-לאחר ההרצה הצג:
-
-📊 **מדדים:** S&P | QQQ | VIX | נפט | זהב | אגח 10Y
-⚡ **חוזים:** ES | NQ | YM | RTY עם % שינוי וחץ ↑↓
-🚩 **דגל + ציון + המלצת LONG/SHORT/מינוף**
-🚨 **התראות** (אם יש)
-👁️ **שים לב** (אם יש)
-✅ **נקודות חיוביות**
+## הערה:
+הגרסה הישנה שמורה כ-coffee_old_SKILL.md ומריצה coffee_news.py → coffee.html

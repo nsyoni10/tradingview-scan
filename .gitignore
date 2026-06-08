@@ -17,6 +17,10 @@ search_*.py
 identify_*.py
 capture_*.py
 
+# Python cache
+__pycache__/
+*.pyc
+
 # Old files
 OldFiles/
 

@@ -1,0 +1,356 @@
+import requests, sys, warnings, time
+from datetime import datetime
+import xml.etree.ElementTree as ET
+warnings.filterwarnings("ignore")
+sys.stdout.reconfigure(encoding="utf-8")
+
+now = datetime.now().strftime("%Y-%m-%d %H:%M")
+H = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+
+# ---- FETCH ----
+def fetch(sym):
+    try:
+        u = "https://query1.finance.yahoo.com/v8/finance/chart/"+sym+"?interval=1d&range=5d"
+        m = requests.get(u,headers=H,verify=False,timeout=15).json()["chart"]["result"][0]["meta"]
+        p = m.get("regularMarketPrice") or m.get("previousClose",0)
+        c = m.get("chartPreviousClose") or m.get("regularMarketPreviousClose") or m.get("previousClose",p)
+        if not p or p==0: return {"p":0,"chg":0,"ok":False}
+        chg = round((p-c)/c*100,2) if c and c!=0 else 0
+        return {"p":round(p,2),"chg":chg,"ok":True}
+    except:
+        return {"p":0,"chg":0,"ok":False}
+
+# ---- TRANSLATE ----
+_cache = {}
+def translate_he(text):
+    if not text or len(text)<4: return text
+    if text in _cache: return _cache[text]
+    try:
+        from urllib.parse import quote
+        url = "https://api.mymemory.translated.net/get?q="+quote(text[:400])+"&langpair=en|he"
+        r = requests.get(url,verify=False,timeout=10)
+        res = r.json()["responseData"]["translatedText"]
+        if res and len(res)>3 and res!=text and not res.startswith("MYMEMORY"):
+            _cache[text] = res
+            return res
+        return text
+    except:
+        return text
+
+# ---- RSS NEWS ----
+def fetch_rss(url, label):
+    try:
+        r = requests.get(url,headers=H,verify=False,timeout=10)
+        root = ET.fromstring(r.content)
+        items = []
+        for item in root.findall(".//item")[:8]:
+            t = item.find("title")
+            d = item.find("description")
+            if t is not None and t.text:
+                items.append({
+                    "title": t.text.strip(),
+                    "desc": (d.text.strip()[:150] if d is not None and d.text else ""),
+                    "source": label
+                })
+        return items
+    except:
+        return []
+
+# ---- FETCH ALL DATA ----
+print("מביא נתוני שוק...")
+sp   = fetch("^GSPC")
+qq   = fetch("QQQ")
+vx   = fetch("^VIX")
+ol   = fetch("CL=F")
+gold = fetch("GC=F")
+bond = fetch("^TNX")
+es   = fetch("ES=F")
+nq   = fetch("NQ=F")
+ym   = fetch("YM=F")
+rty  = fetch("RTY=F")
+
+print(f"S&P:{sp['p']} | QQQ:{qq['p']} | VIX:{vx['p']} | נפט:{ol['p']} | זהב:{gold['p']} | אגח10Y:{bond['p']}%")
+print(f"ES:{es['p']} ({es['chg']:+.2f}%) | NQ:{nq['p']} ({nq['chg']:+.2f}%) | YM:{ym['p']} ({ym['chg']:+.2f}%) | RTY:{rty['p']} ({rty['chg']:+.2f}%)")
+
+print("מביא חדשות...")
+all_news = []
+all_news += fetch_rss("https://feeds.finance.yahoo.com/rss/2.0/headline?s=^GSPC&region=US&lang=en-US","יאהו פיננס")
+all_news += fetch_rss("https://feeds.finance.yahoo.com/rss/2.0/headline?s=CL=F&region=US&lang=en-US","חדשות נפט")
+all_news += fetch_rss("https://feeds.finance.yahoo.com/rss/2.0/headline?s=^VIX&region=US&lang=en-US","חדשות VIX")
+all_news += fetch_rss("https://www.cnbc.com/id/100003114/device/rss/rss.html","CNBC שווקים")
+all_news += fetch_rss("https://feeds.marketwatch.com/marketwatch/topstories/","MarketWatch")
+print(f"סך כותרות: {len(all_news)}")
+
+# ---- ANALYSIS ----
+alerts=[]; watch=[]; good=[]
+oil_chg=ol["chg"]; sp_chg=sp["chg"]; qq_chg=qq["chg"]; vix_val=vx["p"]
+
+if abs(oil_chg)>=5:
+    d="עלייה חדה" if oil_chg>0 else "ירידה חדה"
+    alerts.append(f"🛢️ נפט: {d} של {abs(oil_chg):.1f}% — בדוק חדשות גיאופוליטיות (מזרח תיכון / OPEC)")
+    if oil_chg<-5: watch.append("ירידת נפט חדה = ירידה בציפיות אינפלציה = טוב לשוק המניות")
+    else: watch.append("עלייה חדה בנפט = לחץ אינפלציוני = רע לשוק המניות")
+elif abs(oil_chg)>=2:
+    alerts.append(f"🛢️ נפט: {oil_chg:+.1f}% — תנועה משמעותית, שים עין")
+
+if vix_val>=30:   alerts.append(f"⚠️ VIX {vix_val} — פחד קיצוני בשוק! הקטן פוזיציות ל-x1 מקסימום")
+elif vix_val>=25: alerts.append(f"⚠️ VIX {vix_val} — חשש בשוק, הזהר ממינוף גבוה")
+elif vix_val>=20: watch.append(f"VIX {vix_val} — מעט מוגבר, היה ערני")
+elif vix_val<15:  good.append(f"✅ VIX {vix_val} — שוק רגוע מאוד, אפשר להגדיל פוזיציות")
+
+if bond["ok"] and bond["p"]>0:
+    bc=bond["chg"]
+    if bc>=3:   alerts.append(f"📊 תשואת אגח 10Y עלתה {bc:+.1f}% ({bond['p']}%) — לחץ על מניות טק")
+    elif bc<=-3: good.append(f"📊 תשואת אגח 10Y ירדה {bc:+.1f}% ({bond['p']}%) — תמיכה בטק וצמיחה")
+    else:        watch.append(f"📊 אגח 10Y: {bond['p']}% (שינוי {bc:+.1f}%) — תשואה יציבה")
+
+if gold["ok"] and gold["p"]>0:
+    gc=gold["chg"]
+    if gc>=1.5:   alerts.append(f"🥇 זהב עולה {gc:+.1f}% (${gold['p']:,}) — חשש גיאופוליטי או כלכלי")
+    elif gc<=-1.5: good.append(f"🥇 זהב יורד {gc:+.1f}% (${gold['p']:,}) — אמון בשוק המניות")
+
+if abs(sp_chg-qq_chg)>=1.5:
+    if qq_chg>sp_chg: good.append("טק (QQQ) מוביל את השוק — כוח בצמיחה")
+    else: watch.append("S&P חזק מ-QQQ — רוטציה לסקטורים ערך/דפנסיביים")
+
+if es["chg"]>=0.5: good.append(f"📈 ES=F (S&P עתידי) {es['chg']:+.1f}% — צפויה פתיחה חיובית מחר")
+elif es["chg"]<=-0.5: alerts.append(f"📉 ES=F (S&P עתידי) {es['chg']:+.1f}% — צפויה פתיחה שלילית, הזהר")
+
+if nq["chg"]>es["chg"]+0.5: good.append(f"💻 NQ=F (נאסד\"ק עתידי) {nq['chg']:+.1f}% מוביל — יום טכנולוגיה, חזק ל-LONG")
+elif nq["chg"]<es["chg"]-0.5: watch.append(f"💻 NQ=F (נאסד\"ק עתידי) {nq['chg']:+.1f}% פגור — רוטציה לסקטורים ערך")
+
+if rty["chg"]>=1.0: good.append(f"🏘️ RTY=F (ראסל 2000) {rty['chg']:+.1f}% — תיאבון סיכון גבוה, טוב לסטאפים!")
+elif rty["chg"]<=-1.0: watch.append(f"🏘️ RTY=F (ראסל 2000) {rty['chg']:+.1f}% — בריחה מסיכון, הקטן פוזיציות")
+
+# ---- KEYWORDS ----
+kw_map={"fed":"🏦 Fed/ריבית","rate":"📈 ריבית","inflation":"🔥 אינפלציה","recession":"📉 מיתון",
+         "war":"⚔️ מלחמה","oil":"🛢️ נפט","china":"🇨🇳 סין","tariff":"💰 מכסים",
+         "earnings":"📋 דיווחי רווחים","crash":"🚨 קריסה","opec":"🛢️ OPEC",
+         "ukraine":"🇺🇦 אוקראינה","israel":"🇮🇱 ישראל","trump":"🇺🇸 טראמפ","jobs":"👷 תעסוקה"}
+found_kw={}
+for item in all_news:
+    txt=(item["title"]+" "+item["desc"]).lower()
+    for kw,lbl in kw_map.items():
+        if kw in txt and kw not in found_kw:
+            found_kw[kw]={"label":lbl,"headline":item["title"][:80]}
+
+# ---- TRANSLATE HEADLINES ----
+print("מתרגם לעברית...")
+seen=set(); headlines=[]
+for item in all_news:
+    t=item["title"][:90]
+    if t not in seen and len(t)>20:
+        seen.add(t)
+        t_he=translate_he(t)
+        time.sleep(0.3)
+        desc=item.get("desc","")
+        d_he=translate_he(desc) if desc and len(desc)>10 else ""
+        if desc: time.sleep(0.3)
+        headlines.append({"title":t_he,"desc":d_he,"src":item["source"]})
+    if len(headlines)>=12: break
+
+# ---- TRANSLATE KEYWORDS ----
+kw_items=[]
+for kw,data in list(found_kw.items())[:8]:
+    h_he=translate_he(data["headline"])
+    time.sleep(0.2)
+    kw_items.append(f'<div class="ki"><span class="kl">{data["label"]}</span><div class="kh">{h_he}</div></div>')
+
+# ---- BUILD SUMMARY HTML ----
+def pct_color(v,inv=False):
+    if inv: return "#ff4444" if v>=0 else "#00cc66"
+    return "#00cc66" if v>=0 else "#ff4444"
+
+def fmt_p(v,prefix="$"):
+    if not v or v==0: return "N/A"
+    return f"{prefix}{v:,}"
+
+def fmt_bond(v):
+    if not v or v==0: return "N/A"
+    return f"{v:.3f}%"
+
+sum_html=""
+if alerts:
+    sum_html+="<div class='sum-section'><div class='sum-title'>🚨 התראות חשובות היום</div>"
+    for a in alerts: sum_html+=f"<div class='sum-item alert'>{a}</div>"
+    sum_html+="</div>"
+if watch:
+    sum_html+="<div class='sum-section'><div class='sum-title'>👁️ שים לב ל...</div>"
+    for w in watch: sum_html+=f"<div class='sum-item watch'>• {w}</div>"
+    sum_html+="</div>"
+if good:
+    sum_html+="<div class='sum-section'><div class='sum-title'>✅ נקודות חיוביות</div>"
+    for g in good: sum_html+=f"<div class='sum-item good'>{g}</div>"
+    sum_html+="</div>"
+if not alerts and not watch and not good:
+    sum_html="<div class='sum-item good'>✅ שוק יציב — אין התראות מיוחדות היום</div>"
+
+hl_html=""
+src_colors={"יאהו פיננס":"#8888ff","חדשות נפט":"#ff8c00","CNBC שווקים":"#ff4444","MarketWatch":"#00cc66","חדשות VIX":"#ffd700"}
+for h in headlines:
+    sc=src_colors.get(h["src"],"#666")
+    dh=f'<div class="hl-desc">{h["desc"]}</div>' if h.get("desc") else ""
+    hl_html+=f'<div class="hl-item"><span class="hl-src" style="background:{sc}22;color:{sc}">{h["src"]}</span><div class="hl-body"><div class="hl-text">{h["title"]}</div>{dh}</div></div>'
+
+kw_html="".join(kw_items) if kw_items else "<div style='color:#555'>לא נמצאו נושאים מיוחדים</div>"
+
+FUTURES=[
+    ("ES=F",es,"S&P 500 עתידי","כיוון כללי — פתיחת שוק מחר"),
+    ("NQ=F",nq,"נאסד\"ק עתידי","כיוון מניות הטכנולוגיה"),
+    ("YM=F",ym,"דאו ג'ונס עתידי","שוק מסורתי — בנקים ותעשייה"),
+    ("RTY=F",rty,"ראסל 2000 עתידי","מד סיכון — מניות קטנות"),
+]
+
+fut_rows=""
+for sym,d,name,desc in FUTURES:
+    color=pct_color(d["chg"])
+    p_str=f"${d['p']:,}" if d["ok"] else "N/A"
+    c_str=f"{d['chg']:+.2f}%" if d["ok"] else "N/A"
+    fut_rows+=f"""<tr>
+      <td style='padding:11px 14px;border-bottom:1px solid #1a1a2a;font-weight:bold;color:#aaaaff'>{sym}</td>
+      <td style='padding:11px 14px;border-bottom:1px solid #1a1a2a'>{name}</td>
+      <td style='padding:11px 14px;border-bottom:1px solid #1a1a2a;font-weight:bold'>{p_str}</td>
+      <td style='padding:11px 14px;border-bottom:1px solid #1a1a2a;font-weight:bold;color:{color}'>{c_str}</td>
+      <td style='padding:11px 14px;border-bottom:1px solid #1a1a2a;font-size:12px;color:#888'>{desc}</td>
+    </tr>"""
+
+macro_note=""
+dow=datetime.now().weekday()
+if dow==4: macro_note="⚠️ יום שישי — נזילות נמוכה אחר הצהריים, הזהר ממינוף גבוה"
+elif dow==0: macro_note="📅 יום שני — Gap שבועי אפשרי, המתן ל-9:45 EST"
+
+# ---- HTML ----
+html=f"""<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>☕ Coffee — חדשות שוק {now}</title>
+<style>
+*{{box-sizing:border-box;margin:0;padding:0}}
+body{{font-family:Segoe UI,Arial,sans-serif;background:#0d0d1a;color:#e0e0e0;padding:24px;direction:rtl}}
+.C{{background:#12122a;border-radius:14px;padding:20px 24px;margin-bottom:20px}}
+.ST{{font-size:16px;color:#8888cc;font-weight:bold;margin-bottom:14px;border-bottom:1px solid #333;padding-bottom:6px}}
+.metrics{{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}}
+.metric{{background:#1a1a2e;border-radius:10px;padding:14px;text-align:center}}
+.mp{{font-size:22px;font-weight:bold;margin-bottom:4px}}
+.mc{{font-size:14px;font-weight:bold;margin-bottom:4px}}
+.ml{{font-size:11px;color:#555}}
+.sum-section{{margin-bottom:16px}}
+.sum-title{{font-size:14px;color:#aaa;font-weight:bold;margin-bottom:8px}}
+.sum-item{{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:14px;line-height:1.6}}
+.sum-item.alert{{background:#2a0d0d;border-left:3px solid #ff4444;color:#ffaaaa}}
+.sum-item.watch{{background:#2a1f0d;border-left:3px solid #ffd700;color:#ffe9aa}}
+.sum-item.good{{background:#0d2a1a;border-left:3px solid #00cc66;color:#aaffcc}}
+.ki{{background:#1a1a2e;border-radius:8px;padding:10px 14px;margin-bottom:8px}}
+.kl{{font-size:12px;font-weight:bold;color:#8888cc;display:block;margin-bottom:4px}}
+.kh{{font-size:13px;color:#ccc;line-height:1.4}}
+.hl-item{{padding:10px 14px;border-bottom:1px solid #1a1a2a;display:flex;align-items:flex-start;gap:10px}}
+.hl-src{{font-size:10px;padding:3px 8px;border-radius:4px;white-space:nowrap;margin-top:2px;flex-shrink:0;font-weight:bold}}
+.hl-body{{flex:1}}
+.hl-text{{font-size:13px;color:#ccc;font-weight:bold;line-height:1.4}}
+.hl-desc{{font-size:12px;color:#888;line-height:1.5;margin-top:4px}}
+table{{width:100%;border-collapse:collapse}}
+th{{background:#1e1e3a;color:#8888cc;padding:10px 14px;text-align:right;font-size:12px;border-bottom:1px solid #333}}
+.macro{{background:#1e1e3a;border:1px solid #444;border-radius:8px;padding:10px 16px;font-size:13px;color:#aaa;margin-bottom:16px}}
+</style>
+</head>
+<body>
+
+<div class="C">
+  <div style="font-size:26px;font-weight:bold;color:#aaaaff">☕ Coffee — סקירת שוק יומית</div>
+  <div style="font-size:13px;color:#555;margin-top:6px">{now} | מקורות: יאהו פיננס, CNBC, MarketWatch</div>
+</div>
+
+{"<div class='C'><div class='macro'>" + macro_note + "</div></div>" if macro_note else ""}
+
+<div class="C">
+  <div class="ST">📊 מדדים מרכזיים</div>
+  <div class="metrics">
+    <div class="metric">
+      <div class="mp">${sp['p']:,}</div>
+      <div class="mc" style="color:{pct_color(sp_chg)}">{sp_chg:+.2f}%</div>
+      <div class="ml">S&P 500</div>
+    </div>
+    <div class="metric">
+      <div class="mp">${qq['p']:,}</div>
+      <div class="mc" style="color:{pct_color(qq_chg)}">{qq_chg:+.2f}%</div>
+      <div class="ml">QQQ (נאסד"ק)</div>
+    </div>
+    <div class="metric">
+      <div class="mp">{vx['p']}</div>
+      <div class="mc" style="color:{pct_color(vx['chg'],inv=True)}">{vx['chg']:+.2f}%</div>
+      <div class="ml">VIX (מדד פחד)</div>
+    </div>
+    <div class="metric">
+      <div class="mp">${ol['p']}</div>
+      <div class="mc" style="color:{pct_color(oil_chg)}">{oil_chg:+.2f}%</div>
+      <div class="ml">נפט גולמי</div>
+    </div>
+    <div class="metric">
+      <div class="mp">{"${:,}".format(gold['p']) if gold['ok'] else "N/A"}</div>
+      <div class="mc" style="color:{pct_color(gold['chg']) if gold['ok'] else '#666'}">{""+f"{gold['chg']:+.2f}%" if gold['ok'] else "---"}</div>
+      <div class="ml">🥇 זהב</div>
+    </div>
+    <div class="metric">
+      <div class="mp">{fmt_bond(bond['p'])}</div>
+      <div class="mc" style="color:{pct_color(bond['chg'],inv=True) if bond['ok'] else '#666'}">{""+f"{bond['chg']:+.2f}%" if bond['ok'] else "---"}</div>
+      <div class="ml">📊 אגח 10Y</div>
+    </div>
+  </div>
+</div>
+
+<div class="C">
+  <div class="ST">⚡ חוזים עתידיים</div>
+  <table>
+    <thead>
+      <tr>
+        <th>טיקר</th>
+        <th>שם</th>
+        <th>מחיר</th>
+        <th>שינוי</th>
+        <th>למה חשוב</th>
+      </tr>
+    </thead>
+    <tbody>{fut_rows}</tbody>
+  </table>
+</div>
+
+<div class="C">
+  <div class="ST">🧠 סקירה מילולית — מה חשוב היום</div>
+  {sum_html}
+</div>
+
+<div class="C">
+  <div class="ST">🔍 נושאים בחדשות היום</div>
+  {kw_html}
+</div>
+
+<div class="C">
+  <div class="ST">📰 כותרות מובילות — מתורגם לעברית</div>
+  {hl_html}
+</div>
+
+<div style="text-align:center;color:#333;font-size:11px;margin-top:10px">
+  ☕ Coffee | {now} | יאהו פיננס · CNBC · MarketWatch · MyMemory
+</div>
+</body>
+</html>"""
+
+with open("C:/Users/nsyon/SCAN/coffee_news.html","w",encoding="utf-8") as f:
+    f.write(html)
+
+print("\n"+"="*45)
+print("סקירת שוק "+now)
+print("-"*45)
+if alerts:
+    print("🚨 התראות:")
+    for a in alerts: print("  "+a)
+if watch:
+    print("👁️ שים לב:")
+    for w in watch: print("  • "+w)
+if good:
+    print("✅ חיובי:")
+    for g in good: print("  "+g)
+print("🔍 נושאים: "+", ".join(list(found_kw.keys())[:6]))
+print("="*45)
+print("נשמר: C:\\Users\\nsyon\\SCAN\\coffee_news.html")
