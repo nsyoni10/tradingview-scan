@@ -26,3 +26,8 @@ OldFiles/
 
 # Keep skill docs
 !*_SKILL.md
+
+# Keep report data (ticker_report / checkup)
+!reports/*.json
+!checkup_data/*.json
+!checkup_data/*.csv
