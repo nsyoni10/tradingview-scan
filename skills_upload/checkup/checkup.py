@@ -4,7 +4,7 @@ checkup.py — סקיל checkup: דוח לונג יומי לרשימת "Check li
 מוסיף על ticker_report.py: מעל SMA150 יומי, ווליום יחסי (RVOL) ≥ 1.2.
 הפלט הוא xlsx שמועלה ל-Google Drive ומומר ל-Google Sheet בשם "Summary of <date>".
 
-קלט JSON כמו ב-ticker_report.py, ובנוסף לכל טיקר: "SMA150", "RVOL".
+קלט JSON כמו ב-ticker_report.py, ובנוסף לכל טיקר: "SMA150", "RVOL", ואופציונלית "last_vol" (ווליום הבר האחרון; אם קיים — RVOL מחושב = last_vol / vol10).
 שימוש:  python3 checkup.py checkup_data/data_YYYY-MM-DD.json out.xlsx
 """
 import csv
@@ -78,6 +78,12 @@ def build(data, out):
 
     rows = []
     for sym, d in data["tickers"].items():
+        rvol_note = None
+        if d.get("last_vol") and d.get("vol10"):
+            own = d["last_vol"] / d["vol10"]
+            if d.get("RVOL") and abs(own - d["RVOL"]) / d["RVOL"] > 0.15:
+                rvol_note = f"RVOL של טריידינגוויו ({d['RVOL']:.2f}) שונה מהחישוב לפי הנר האחרון ({own:.2f})"
+            d["RVOL"] = own
         tr = trend(d)
         cd = candle(d, tr)
         res, sup = levels(d)
@@ -86,7 +92,7 @@ def build(data, out):
         above = c > d["SMA150"]
         rvol_ok = d["RVOL"] >= RVOL_MIN
 
-        notes = []
+        notes = [rvol_note] if rvol_note else []
         if d["ATR"] / c < 0.005:
             notes.append("תנודתיות כמעט אפסית — מחיר 'קפוא'. לא לסחור טכנית")
             sc = 0
@@ -165,7 +171,7 @@ def build(data, out):
     lines = [
         ("מקור", f"רשימת המעקב '{data.get('watchlist', 'Check list')}' בטריידינגוויו, גרף יומי. נר אחרון: {data.get('bar_date', data['date'])}"),
         ("מעל SMA150", "סגירה מעל הממוצע הנע הפשוט של 150 ימים = ✅"),
-        ("RVOL ≥ 1.2", "ווליום היום האחרון חלקי ממוצע 10 ימים. 1.2 ומעלה = ✅"),
+        ("RVOL ≥ 1.2", "ווליום יום המסחר האחרון שנסגר חלקי ממוצע 10 ימים. 1.2 ומעלה = ✅. בלי פרה/אפטר-מרקט"),
         ("ATR / ADX", "ATR(14) ו-ADX(14) יומיים. ADX ≥ 25 = מגמה חזקה, 20-25 = מתפתחת, < 20 = אין מגמה"),
         ("מגמה", "עולה: סגירה > EMA20 > EMA50 ו-+DI > -DI. יורדת: ההפך. אחרת: מעורבת"),
         ("פטיש / איש תלוי", "צל תחתון ≥ 2× גוף, צל עליון ≤ 30% מהטווח. במגמה עולה = איש תלוי, אחרת = פטיש"),
