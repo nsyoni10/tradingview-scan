@@ -3,6 +3,10 @@ name: dayscan_pivot
 description: "Daily stock scan using trading-analysis and us-stock-analysis skills. Reads CoffeeL/CoffeeS screeners, runs trading-analysis on all tickers, scores and selects TOP 10 LONG/SHORT, runs us-stock-analysis on TOP 10, and draws on charts."
 ---
 
+## שפה
+**תמיד לענות למשתמש בעברית**, גם כשהוא כותב באנגלית. מונחים טכניים (ATR, ADX, RSI, טיקרים, קוד) אפשר להשאיר באנגלית.
+
+
 ## Step 0 — Launch TradingView with CDP
 
 Run via PowerShell:

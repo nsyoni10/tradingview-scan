@@ -3,6 +3,10 @@ name: brew
 description: "מנהל את watchlists CoffeeL (לונג) ו-CoffeeS (שורט) — ניקוי, הוספת מועמדים, והעתקה בין רשימות. תשתית לסקילים שמאכלסים את הרשימות לפני הרצת dayscan_pivot."
 ---
 
+## שפה
+**תמיד לענות למשתמש בעברית**, גם כשהוא כותב באנגלית. מונחים טכניים (ATR, ADX, RSI, טיקרים, קוד) אפשר להשאיר באנגלית.
+
+
 ## מתי להשתמש
 - כשהמשתמש כותב: `brew clean`, `brew cleanL`, `brew cleanS`, `brew demoL`, `brew demoS`
 - כשהמשתמש כותב: `brew copy2L <שם>`, `brew copy2S <שם>`
