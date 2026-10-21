@@ -3,10 +3,6 @@ name: dayscan
 description: "Daily stock watchlist scan on TradingView — reads CoffeeL/CoffeeS screeners, fetches data from Yahoo Finance, marks Entry, Stop Loss and Take Profit levels using EMA20/EMA50 with 2:1 R:R ratio"
 ---
 
-## שפה
-**תמיד לענות למשתמש בעברית**, גם כשהוא כותב באנגלית. מונחים טכניים (ATR, ADX, RSI, טיקרים, קוד) אפשר להשאיר באנגלית.
-
-
 Step 0 — Launch TradingView with CDP
 
 Run via PowerShell:

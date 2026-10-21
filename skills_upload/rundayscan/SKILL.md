@@ -3,10 +3,6 @@ name: rundayscan
 description: "\"\\\"Reads dayscan_results.html, adds stocks to DAYSCAN watchlist in TradingView, marks Entry/SL/TP on charts, and writes dashboard. Triggers on: 'הפעל דייסקן', 'RunDayscan', 'show dayscan dashboard', 'daily scan'.\\\"\""
 ---
 
-## שפה
-**תמיד לענות למשתמש בעברית**, גם כשהוא כותב באנגלית. מונחים טכניים (ATR, ADX, RSI, טיקרים, קוד) אפשר להשאיר באנגלית.
-
-
 Do NOT run DAYSCAN. Only read the existing HTML file.
 
 ## STEP 1 — Read data

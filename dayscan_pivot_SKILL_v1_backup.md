@@ -3,10 +3,6 @@ name: dayscan_pivot
 description: "Daily stock watchlist scan using Pivot Points — reads CoffeeL/CoffeeS screeners, fetches data from Yahoo Finance, calculates Pivot Points (P, R1, S1) as Entry/TP/SL, estimates trade duration in days using ATR, and generates an HTML dashboard."
 ---
 
-## שפה
-**תמיד לענות למשתמש בעברית**, גם כשהוא כותב באנגלית. מונחים טכניים (ATR, ADX, RSI, טיקרים, קוד) אפשר להשאיר באנגלית.
-
-
 Step 0 — Launch TradingView with CDP
 
 Run via PowerShell:
