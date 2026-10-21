@@ -1,5 +1,5 @@
 """
-ticker_report.py — דוח אקסל לרשימת טיקרים: ציון, ATR, ADX, זיהוי נר אחרון, תמיכה/התנגדות.
+ticker_report.py — דוח אקסל לרשימת טיקרים (לונג בלבד): ציון, ATR, ADX, זיהוי נר אחרון, תמיכה/התנגדות.
 
 קלט: קובץ JSON עם נתוני TradingView לכל טיקר (נמשך דרך TradingView MCP):
   {"date": "YYYY-MM-DD", "tickers": {"NASDAQ:XXX": {
@@ -32,7 +32,7 @@ def trend(d):
     return "MIXED"
 
 
-# ── זיהוי נר ──────────────────────────────────────────────────────────
+# ── זיהוי נר (מנקודת מבט של לונג) ─────────────────────────────────────
 def candle(d, tr):
     o, h, l, c = d["last"]
     po, ph, pl, pc = d["prev"]
@@ -41,61 +41,62 @@ def candle(d, tr):
     upper = h - max(o, c)
     lower = min(o, c) - l
     green = c > o
+    red = c < o
     prev_green = pc > po
     prev_red = pc < po
 
     tags = []
-    signal = 0  # +1 בעד המגמה, -1 נגד המגמה
+    pts = 10  # בסיס; טווח סופי 0-25
 
     # פטיש / איש תלוי: צל תחתון ≥ 2×גוף, צל עליון קטן
     if lower >= 2 * body and upper <= 0.3 * rng and body > 0:
         if tr == "UP":
             tags.append("איש תלוי (Hanging Man)")
-            signal -= 1
+            pts -= 8
         else:
             tags.append("פטיש (Hammer)")
-            signal += 1 if tr != "DOWN" else -1  # פטיש במגמת ירידה = היפוך נגד השורט
+            pts += 10
     # פטיש הפוך / כוכב נופל: צל עליון ≥ 2×גוף
     elif upper >= 2 * body and lower <= 0.3 * rng and body > 0:
         if tr == "UP":
             tags.append("כוכב נופל (Shooting Star)")
-            signal -= 1
+            pts -= 8
         else:
             tags.append("פטיש הפוך (Inverted Hammer)")
-            signal += -1 if tr == "DOWN" else 0
+            pts += 4
 
-    # נר חזק 2/3 בכיוון המגמה אחרי נר נגדי
+    # נר ירוק 2/3 אחרי נר אדום (חזרה ללונג)
     strong = body / rng >= BODY_RATIO_STRONG
-    if strong and tr == "UP" and green and not prev_green:
-        tags.append("נר 2/3 חזרה למגמה ▲")
-        signal += 2
-    elif strong and tr == "DOWN" and c < o and prev_green:
-        tags.append("נר 2/3 חזרה למגמה ▼")
-        signal += 2
+    if strong and green and prev_red:
+        tags.append("נר 2/3 ירוק אחרי אדום ▲")
+        pts += 15 if tr == "UP" else 8
     elif strong:
         tags.append("נר גוף מלא " + ("ירוק" if green else "אדום"))
+        pts += 3 if green else -5
 
     # בולעני
     if green and prev_red and o <= pc and c >= po:
         tags.append("בולעני עולה")
-        signal += 1 if tr == "UP" else (-1 if tr == "DOWN" else 0)
-    if c < o and prev_green and o >= pc and c <= po:
+        pts += 10
+    if red and prev_green and o >= pc and c <= po:
         tags.append("בולעני יורד")
-        signal += 1 if tr == "DOWN" else (-1 if tr == "UP" else 0)
+        pts -= 10
 
     if body / rng < 0.1:
         tags.append("דוג'י")
-    elif tr == "UP":
-        signal += 0.5 if green else -0.5
-    elif tr == "DOWN":
-        signal += 0.5 if c < o else -0.5
+    elif red and not any("פטיש" in t for t in tags):
+        if not tags:
+            tags.append("נר אדום")
+        pts -= 5
+    elif green:
+        pts += 3
 
-    color = "ירוק" if green else ("אדום" if c < o else "ניטרלי")
+    color = "ירוק" if green else ("אדום" if red else "ניטרלי")
     return {
         "color": color,
         "tags": ", ".join(tags) if tags else "—",
         "body_pct": body / rng,
-        "signal": signal,
+        "pts": max(min(pts, 25), 0),
     }
 
 
@@ -127,39 +128,36 @@ def levels(d):
     return res, sup
 
 
-# ── ציון 0-100 לטרייד בכיוון המגמה ────────────────────────────────────
+# ── ציון לונג 0-100 ───────────────────────────────────────────────────
 def score(d, tr, cd, res, sup):
     pts = {}
-    adx = d["ADX"]
-    pts["ADX"] = 25 if adx >= 25 else 15 if adx >= 20 else 5
-    pts["DI"] = min(abs(d["DIp"] - d["DIm"]) / 25 * 15, 15)
-
     c, e20, e50 = d["last"][3], d["EMA20"], d["EMA50"]
-    if tr == "MIXED":
-        pts["EMA"] = 5
+    adx, dip, dim = d["ADX"], d["DIp"], d["DIm"]
+
+    # מבנה מגמה (25)
+    pts["EMA"] = (10 if c > e20 else 0) + (10 if e20 > e50 else 0) + (5 if c > e50 else 0)
+
+    # ADX בכיוון הלונג (20)
+    if dip > dim:
+        pts["ADX"] = 20 if adx >= 25 else 14 if adx >= 20 else 6
     else:
-        pts["EMA"] = 20
+        pts["ADX"] = 0 if adx >= 25 else 4
 
-    pts["נר"] = max(min(10 + cd["signal"] * 7.5, 25), 0)
+    # עליונות +DI (10)
+    pts["DI"] = max(min((dip - dim) / 20 * 10, 10), 0)
 
+    # נר אחרון (25)
+    pts["נר"] = cd["pts"]
+
+    # RSI (10)
     rsi = d["RSI"]
-    if tr == "UP":
-        pts["RSI"] = 15 if 50 <= rsi <= 68 else 8 if rsi < 75 else 0
-    elif tr == "DOWN":
-        pts["RSI"] = 15 if 32 <= rsi <= 50 else 8 if rsi > 25 else 0
-    else:
-        pts["RSI"] = 5
+    pts["RSI"] = 10 if 45 <= rsi <= 68 else 5 if 35 <= rsi < 45 or 68 < rsi <= 75 else 0
 
-    # מרחק לרמה הבאה בכיוון הטרייד (ביחידות ATR)
-    target = res if tr != "DOWN" else sup
-    room = abs(target[0][0] - c) / d["ATR"] if target else 3
+    # מרחב עד ההתנגדות הקרובה (10)
+    room = (res[0][0] - c) / d["ATR"] if res else 3
     pts["מרחב"] = 10 if room >= 1.5 else 5 if room >= 0.75 else 0
 
-    if tr == "MIXED":
-        total = sum(pts.values()) * 0.6
-    else:
-        total = sum(pts.values())
-    return round(total), room
+    return round(sum(pts.values())), room
 
 
 def build(data, out):
@@ -169,11 +167,11 @@ def build(data, out):
     ws.sheet_view.rightToLeft = True
 
     headers = [
-        "טיקר", "ציון", "כיוון", "סגירה", "שינוי %", "ATR", "ATR %", "ADX", "+DI", "-DI",
+        "טיקר", "ציון לונג", "מגמה", "סגירה", "שינוי %", "ATR", "ATR %", "ADX", "+DI", "-DI",
         "RSI", "EMA20", "EMA50", "צבע נר", "גוף/טווח", "דפוס נר",
         "התנגדות 1", "מקור R1", "מרחק R1 (ATR)", "התנגדות 2", "מקור R2",
         "תמיכה 1", "מקור S1", "מרחק S1 (ATR)", "תמיכה 2", "מקור S2",
-        "מרחב לרמה (ATR)", "נפח ממוצע 10י", "הערות",
+        "מרחב להתנגדות (ATR)", "נפח ממוצע 10י", "הערות",
     ]
     ws.append(headers)
 
@@ -189,8 +187,10 @@ def build(data, out):
         if d["ATR"] / c < 0.005:
             notes.append("תנודתיות כמעט אפסית — מחיר 'קפוא' (ייתכן מיזוג/רכישה). לא לסחור טכנית")
             sc = 0
-        if d["RSI"] < 30 and tr == "DOWN":
-            notes.append("RSI מכור-יתר — סיכון לקפיצת תיקון לשורט")
+        if tr == "DOWN":
+            notes.append("מגמת ירידה — לונג נגד המגמה")
+        if d["RSI"] < 30:
+            notes.append("RSI מכור-יתר — פוטנציאל לתיקון כלפי מעלה")
         if d["RSI"] > 70 and tr == "UP":
             notes.append("RSI קנוי-יתר")
 
@@ -203,7 +203,7 @@ def build(data, out):
         s2, s2n = lvl(sup, 1)
         rows.append([
             sym.split(":")[1], sc,
-            {"UP": "לונג ▲", "DOWN": "שורט ▼", "MIXED": "מעורב"}[tr],
+            {"UP": "עולה ▲", "DOWN": "יורדת ▼", "MIXED": "מעורבת"}[tr],
             c, (c / pc - 1) * 100, d["ATR"], d["ATR"] / c * 100,
             d["ADX"], d["DIp"], d["DIm"], d["RSI"], d["EMA20"], d["EMA50"],
             cd["color"], cd["body_pct"], cd["tags"],
@@ -238,7 +238,7 @@ def build(data, out):
                 cell.number_format = fmt[cell.column]
         row[0].font = Font(bold=True)
         row[1].font = Font(bold=True, size=12)
-        row[2].fill = green if "לונג" in row[2].value else red if "שורט" in row[2].value else PatternFill()
+        row[2].fill = green if "עולה" in row[2].value else red if "יורדת" in row[2].value else PatternFill()
         row[13].fill = green if row[13].value == "ירוק" else red if row[13].value == "אדום" else PatternFill()
         row[15].alignment = Alignment(horizontal="right", vertical="center", wrap_text=True)
         row[28].alignment = Alignment(horizontal="right", vertical="center", wrap_text=True)
@@ -264,13 +264,13 @@ def build(data, out):
     lines = [
         ("נתונים", f"TradingView, גרף יומי. נר אחרון שנסגר: {data['date']}"),
         ("ATR / ADX", "ATR(14) ו-ADX(14) יומיים. ADX ≥ 25 = מגמה חזקה, 20-25 = מתפתחת, < 20 = אין מגמה"),
-        ("כיוון", "לונג: סגירה > EMA20 > EMA50 ו-+DI > -DI. שורט: ההפך. אחרת: מעורב"),
+        ("מגמה", "עולה: סגירה > EMA20 > EMA50 ו-+DI > -DI. יורדת: ההפך. אחרת: מעורבת"),
         ("פטיש / איש תלוי", "צל תחתון ≥ 2× גוף, צל עליון ≤ 30% מהטווח. אחרי עלייה = איש תלוי, אחרת = פטיש"),
-        ("נר 2/3 חזרה למגמה", "גוף ≥ 2/3 מטווח הנר, בכיוון המגמה, אחרי נר קודם בצבע נגד המגמה"),
+        ("נר 2/3", "נר ירוק שגופו ≥ 2/3 מטווח הנר, אחרי נר אדום. בונוס מלא במגמה עולה"),
         ("תמיכה/התנגדות", "Pivot חודשי (PP/R1/R2/S1/S2), שיא/שפל חודש ו-3 חודשים, EMA20/50, גבוה/נמוך 2 נרות אחרונים. "
                           "רמות במרחק < 0.25 ATR מאוחדות (המקור מראה כמה רמות חופפות — יותר = רמה חזקה יותר)"),
-        ("ציון 0-100", "ציון לטרייד בכיוון המגמה: ADX עד 25 | פער DI עד 15 | יישור EMA 20 | נר עד 25 | "
-                       "RSI עד 15 | מרחב לרמה הבאה עד 10. מגמה מעורבת × 0.6"),
+        ("ציון 0-100", "ציון ללונג בלבד: מבנה EMA עד 25 (סגירה>EMA20, EMA20>EMA50, סגירה>EMA50) | ADX עם +DI>-DI עד 20 | "
+                       "עליונות +DI עד 10 | נר עד 25 | RSI 45-68 עד 10 | מרחב להתנגדות ≥1.5 ATR עד 10"),
         ("שים לב", "הציון הוא כלי מיון, לא המלצת השקעה"),
     ]
     for k, v in lines:
