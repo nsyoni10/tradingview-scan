@@ -3,10 +3,6 @@ name: rundayscan_pivot
 description: "Reads dayscan_pivot_results.html, adds stocks to DAYSCAN watchlist in TradingView, marks Entry/SL/TP on charts, and writes dashboard with full Pivot Points data."
 ---
 
-## שפה
-**תמיד לענות למשתמש בעברית**, גם כשהוא כותב באנגלית. מונחים טכניים (ATR, ADX, RSI, טיקרים, קוד) אפשר להשאיר באנגלית.
-
-
 Do NOT run DAYSCAN_PIVOT. Only read the existing files.
 
 ## ⚠️ CRITICAL RULE — NEVER OPEN CHROME
