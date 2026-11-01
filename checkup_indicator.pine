@@ -132,16 +132,16 @@ else
     stColor := color.blue
 
 // ── ציור על הגרף ─────────────────────────────────────────────────────
-// צבע, עובי והסתרה של כל קו — בהגדרות האינדיקטור, לשונית Style (כמו בכל אינדיקטור מובנה)
-plot(ema20,  "EMA20",  color.orange, 1)
-plot(ema50,  "EMA50",  color.purple, 1)
-plot(sma150, "SMA150", color.black, 2)
-pU = plot(bbUp,  "בולינגר עליון יומי", color.new(color.teal, 30))
-plot(bbMid,      "בולינגר אמצע יומי",  color.new(color.teal, 60))
-pL = plot(bbLow, "בולינגר תחתון יומי", color.new(color.teal, 30))
-fill(pU, pL, color.new(color.teal, 93), "רקע בולינגר יומי")
-plot(wUp, "בולינגר עליון שבועי", color.new(color.red, 20), 2, plot.style_stepline)
-plotshape(isMaru(0), "מרובוזו", shape.triangleup, location.belowbar, color.green, size = size.tiny)
+// צבעים קבועים (hex) כדי שטריידינגוויו יציג לכל קו בלשונית Style: הצגה, צבע, עובי וסוג קו
+plot(ema20,  title = "EMA20",  color = #FF9800, linewidth = 1)
+plot(ema50,  title = "EMA50",  color = #9C27B0, linewidth = 1)
+plot(sma150, title = "SMA150", color = #000000, linewidth = 2)
+pU = plot(bbUp,  title = "בולינגר עליון יומי", color = #00897B, linewidth = 1)
+plot(bbMid,      title = "בולינגר אמצע יומי",  color = #80CBC4, linewidth = 1)
+pL = plot(bbLow, title = "בולינגר תחתון יומי", color = #00897B, linewidth = 1)
+fill(pU, pL, title = "רקע בולינגר יומי", color = #00897B12)
+plot(wUp, title = "בולינגר עליון שבועי", color = #F44336, linewidth = 2, style = plot.style_stepline)
+plotshape(isMaru(0), title = "מרובוזו", style = shape.triangleup, location = location.belowbar, color = #4CAF50, size = size.tiny)
 
 // ── טבלה ─────────────────────────────────────────────────────────────
 var table t = table.new(position.top_right, 2, 15, border_width = 1)
