@@ -142,7 +142,7 @@ fill(b5p1, b5p2, title = "בולינגר ארוך Background", color=color.rgb(3
 SHARED = "חייב להיות זהה להגדרה של האינדיקטור המובנה על הגרף. אם משנים שם — לשנות גם כאן לאותו ערך."
 
 // Directional Movement Index
-dmiG = "DMI ⚠ — זהה ל-DMI שעל הגרף"
+dmiG = "DMI ⚠"
 lensig = input.int(14, title="ADX Smoothing ⚠", minval=1, group = dmiG, tooltip = SHARED)
 dmiLen = input.int(14, minval=1, title="DI Length ⚠", group = dmiG, tooltip = SHARED)
 dmiUp = ta.change(high)
@@ -156,7 +156,7 @@ dmiSum = plus + minus
 adx = 100 * ta.rma(math.abs(plus - minus) / (dmiSum == 0 ? 1 : dmiSum), lensig)
 
 // Average True Range
-atrG = "ATR ⚠ — זהה ל-ATR שעל הגרף"
+atrG = "ATR ⚠"
 atrLength = input.int(title="Length ⚠", defval=14, minval=1, group = atrG, tooltip = SHARED)
 atrSmoothing = input.string(title="Smoothing ⚠", defval="RMA", options=["RMA", "SMA", "EMA", "WMA"], group = atrG, tooltip = SHARED)
 ma_function(source, length) =>
@@ -168,90 +168,18 @@ ma_function(source, length) =>
 atr = ma_function(ta.tr(true), atrLength)
 
 // Commodity Channel Index
-cciG = "CCI ⚠ — זהה ל-CCI שעל הגרף"
+cciG = "CCI ⚠"
 cciLength = input.int(20, minval=1, title="Length ⚠", group = cciG, tooltip = SHARED)
 cciSrc = input(hlc3, title="Source ⚠", group = cciG, tooltip = SHARED)
 cciMa = ta.sma(cciSrc, cciLength)
 cci = (cciSrc - cciMa) / (0.015 * ta.dev(cciSrc, cciLength))
 
-volG = "טבלה"
-// ══ טבלה — סטטוס כמו בסקיל checkup ════════════════════════════════════
-showTable = input.bool(true, "להציג את הטבלה", group = volG)
-minAvgVol = input.int(500000, "ווליום ממוצע מינימלי", minval = 0, group = volG)
-rvolMin   = input.float(1.2, "RVOL מינימלי", minval = 0, step = 0.1, group = volG)
-adxMin    = input.float(20, "ADX מינימלי", minval = 0, group = volG)
-
 // Volume — ממוצע ווליום ו-RVOL (לא חלק מהאינדיקטור המובנה Volume; נדרש לסקיל)
-volMaLen = input.int(10, minval=1, title="ממוצע ווליום (ימים)", group = volG)
+volG = "Volume"
+volMaLen = input.int(10, minval=1, title="MA Length", group = volG)
 volMa = ta.sma(volume, volMaLen)
 rvol = volume / ta.sma(volume, volMaLen)[1]
 
-// מיקום הסגירה ברצועה ביחידות σ: 0 = על ה-Basis, +2 = על הרצועה העליונה
-bbPos(c, basis, dev, mult) => dev > 0 ? (c - basis) / (dev / mult) : na
-bd = bbPos(close, b4basis, b4dev, b4mult)
-bw = bbPos(close, b5basis, b5dev, b5mult)
-dirUp = plus > minus
-cciUp = cci > cci[1]
-
-string status = ""
-string why = ""
-color stColor = color.gray
-if volMa < minAvgVol
-    status := "⛔ לא לסחור"
-    why := "ווליום ממוצע נמוך"
-else if atr / close < 0.005
-    status := "⛔ לא לסחור"
-    why := "מחיר קפוא"
-else if not dirUp and adx >= adxMin
-    status := "⛔ לא לסחור"
-    why := "מגמת ירידה: -DI מעל +DI, ADX גבוה"
-else if not dirUp or (adx < adxMin and adx <= adx[1])
-    status := "⛔ לא לסחור"
-    why := "אין עדיין כיוון ללונג"
-else if not na(bw) and bw > b5mult
-    status := "🔴 מתוחה בשבועי"
-    why := "מעל הרצועה העליונה של בולינגר ארוך"
-    stColor := color.red
-else if not na(bd) and bd > b4mult
-    status := "👁 מעקב"
-    why := "מתוחה ביומי, טובה בשבועי — לבדוק שוב"
-    stColor := color.orange
-else if adx >= adxMin
-    status := "✅ יש מקום"
-    why := "טובה בשבועי וביומי, +DI מעל -DI, ADX גבוה"
-    stColor := color.green
-else
-    status := "🔵 כמעט שם"
-    why := "טובה בשבועי וביומי, ADX נמוך ועולה"
-    stColor := color.blue
-
-var table t = table.new(position.top_right, 3, 11, border_width = 1)
-okBg  = color.new(color.green, 75)
-badBg = color.new(color.red, 75)
-nBg   = color.new(color.gray, 85)
-row(i, k, v, ok) =>
-    table.cell(t, 0, i, k, text_color = color.white, bgcolor = color.navy, text_size = size.small)
-    table.cell(t, 1, i, v, text_color = color.black, bgcolor = nBg, text_size = size.small)
-    table.cell(t, 2, i, ok ? "✅" : "❌", text_color = color.black, bgcolor = ok ? okBg : badBg, text_size = size.small)
-
-if barstate.islast
-    table.clear(t, 0, 0, 2, 10)
-    if showTable and timeframe.period != "D"
-        table.cell(t, 0, 0, "Checkup", text_color = color.white, bgcolor = color.navy)
-        table.cell(t, 1, 0, "הטבלה עובדת על גרף יומי (D)", text_color = color.black, bgcolor = color.yellow)
-    else if showTable
-        table.cell(t, 0, 0, "סטטוס", text_color = color.white, bgcolor = color.navy, text_size = size.small)
-        table.cell(t, 1, 0, status, text_color = color.black, bgcolor = color.new(stColor, 60), text_size = size.small)
-        table.cell(t, 2, 0, "", bgcolor = nBg)
-        table.cell(t, 0, 1, "סיבה", text_color = color.white, bgcolor = color.navy, text_size = size.small)
-        table.cell(t, 1, 1, why, text_color = color.black, bgcolor = nBg, text_size = size.small)
-        table.cell(t, 2, 1, "", bgcolor = nBg)
-        row(2,  "ווליום ממוצע " + str.tostring(volMaLen) + " ימים ≥ " + str.tostring(minAvgVol, "#,###"), str.tostring(volMa, "#,###"), volMa >= minAvgVol)
-        row(3,  "DMI: +DI מעל -DI", str.tostring(plus, "0.0") + " / " + str.tostring(minus, "0.0"), dirUp)
-        row(4,  "DMI: ADX ≥ " + str.tostring(adxMin), str.tostring(adx, "0.0") + (adx > adx[1] ? " ↑" : " ↓"), adx >= adxMin)
-        row(5,  "בולינגר ארוך ≤ +" + str.tostring(b5mult) + "σ", (na(bw) ? "—" : str.tostring(bw, "+0.00;-0.00")) + "σ", na(bw) or bw <= b5mult)
-        row(6,  "בולינגר קצר ≤ +" + str.tostring(b4mult) + "σ", (na(bd) ? "—" : str.tostring(bd, "+0.00;-0.00")) + "σ", na(bd) or bd <= b4mult)
-        row(7,  "מעל SMA", str.tostring(s3out, "0.00"), close > s3out)
-        row(8,  "RVOL ≥ " + str.tostring(rvolMin), str.tostring(rvol, "0.00"), rvol >= rvolMin)
-        row(9,  "CCI עולה", str.tostring(cci, "0") + " (אתמול " + str.tostring(cci[1], "0") + ")", cciUp)
-        row(10, "ATR", str.tostring(atr, "0.00") + " (" + str.tostring(atr / close * 100, "0.0") + "%)", atr / close >= 0.005)
+// הסבר בתחתית חלון ההגדרות
+NOTE = "השדות המסומנים ⚠ צריכים להיות זהים להגדרות של האינדיקטורים המובנים DMI, ATR ו-CCI על הגרף."
+sharedNote = input.string(NOTE, "⚠ הסבר", options = [NOTE], group = "⚠ הסבר")
