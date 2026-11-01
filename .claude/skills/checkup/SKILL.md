@@ -1,6 +1,6 @@
 ---
 name: checkup
-description: "Checkup — קורא את רשימת המעקב 'Check list' בטריידינגוויו, מנקד כל מניה לכניסה ללונג בתחילת מהלך (0-100) ומפיק Google Sheet בשם 'Summary of [תאריך]': מעל SMA150, RVOL ≥ 1.2, כיוון DI/ADX, CCI, מרובוזו ב-3 ימים, נר אחרון, תמיכות והתנגדויות. הפעל כאשר המשתמש כותב: checkup, צ'קאפ."
+description: "Checkup — קורא את רשימת המעקב 'Red list' בטריידינגוויו, מנקד כל מניה לכניסה ללונג בתחילת מהלך (0-100) ומפיק Google Sheet בשם 'Summary of [תאריך]': מעל SMA150, RVOL ≥ 1.2, כיוון DI/ADX, CCI, מרובוזו ב-3 ימים, נר אחרון, תמיכות והתנגדויות. הפעל כאשר המשתמש כותב: checkup, צ'קאפ."
 ---
 
 ## מתי מריצים — רק כשהשוק סגור
@@ -10,12 +10,13 @@ description: "Checkup — קורא את רשימת המעקב 'Check list' בט�
 
 ## מתי להשתמש
 - המשתמש כותב `checkup` / `צ'קאפ`
-- המשתמש מבקש סיכום יומי של רשימת "Check list"
+- המשתמש מבקש סיכום יומי של רשימת "Red list"
 
 ---
 
 ## שלב 1 — קריאת הרשימה
-`mcp-watchlist-list-watchlists` → הרשימה ששמה **`Check list`**.
+`mcp-watchlist-list-watchlists` → הרשימה ששמה **`Red list`**.
+- זו רשימת הדגל האדומה של טריידינגוויו (`type: colored`, `color: red`). לזהות לפי השם `Red list`; אם השם לא נמצא — לקחת את הרשימה עם `type: colored` ו-`color: red` ולציין זאת למשתמש.
 - דלג על שורות שמתחילות ב-`###` (כותרות סקשן) ועל סימבולים בלי בורסה (בלי `:`).
 
 ## שלב 2 — אינדיקטורים (קריאה אחת, עד 50 סימבולים)
@@ -41,7 +42,7 @@ Pivot.M.Classic.S1 Pivot.M.Classic.S2 High.1M Low.1M High.3M Low.3M
 שמור כ-`checkup_data/data_YYYY-MM-DD.json` (תאריך הבקשה לפי שעון ישראל):
 
 ```json
-{"date": "YYYY-MM-DD", "bar_date": "YYYY-MM-DD", "watchlist": "Check list", "tickers": {"NASDAQ:XXX": {
+{"date": "YYYY-MM-DD", "bar_date": "YYYY-MM-DD", "watchlist": "Red list", "tickers": {"NASDAQ:XXX": {
   "bars": [[o,h,l,c,v], ...12],
   "ATR": 0, "ADX": 0, "ADX1": 0, "DIp": 0, "DIm": 0, "CCI": 0, "CCI1": 0, "EMA20": 0, "EMA50": 0,
   "SMA150": 0, "RVOL": 0,

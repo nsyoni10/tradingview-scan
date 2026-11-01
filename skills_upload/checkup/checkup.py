@@ -1,5 +1,5 @@
 """
-checkup.py — סקיל checkup: דוח לונג יומי לרשימת "Check list" מטריידינגוויו.
+checkup.py — סקיל checkup: דוח לונג יומי לרשימת "Red list" מטריידינגוויו.
 
 ציון כניסה ללונג בתחילת מהלך אחרי תיקון: כיוון (DI/ADX), מרובוזו, ווליום, CCI, SMA150.
 הפלט הוא xlsx שמועלה ל-Google Drive ומומר ל-Google Sheet בשם "Summary of <date>".
@@ -197,7 +197,7 @@ def build(data, out):
     ex = wb.create_sheet("הסבר")
     ex.sheet_view.rightToLeft = True
     lines = [
-        ("מקור", f"רשימת המעקב '{data.get('watchlist', 'Check list')}' בטריידינגוויו, גרף יומי. נר אחרון: {data.get('bar_date', data['date'])}"),
+        ("מקור", f"רשימת המעקב '{data.get('watchlist', 'Red list')}' בטריידינגוויו, גרף יומי. נר אחרון: {data.get('bar_date', data['date'])}"),
         ("מעל SMA150", "סגירה מעל הממוצע הנע הפשוט של 150 ימים = ✅"),
         ("RVOL ≥ 1.2", "ווליום יום המסחר האחרון שנסגר חלקי ממוצע 10 הימים שלפניו (בלי היום עצמו), מחושב מהנרות. "
                        "1.2 ומעלה = ✅. בלי פרה/אפטר-מרקט"),
