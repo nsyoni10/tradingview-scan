@@ -5,22 +5,19 @@ indicator(title="Checkup", shorttitle="Checkup", overlay=true)
 len1 = input.int(20, minval=1, title="Length", group="EMA 1")
 src1 = input(close, title="Source", group="EMA 1")
 off1 = input.int(0, title="Offset", minval=-500, maxval=500, group="EMA 1")
-col1 = input.color(color.blue, "Color", group="EMA 1")
-plot(ta.ema(src1, len1), title="EMA 1", color=col1, offset=off1)
+plot(ta.ema(src1, len1), title="EMA 1", color=color.blue, offset=off1)
 
 // EMA 2
 len2 = input.int(50, minval=1, title="Length", group="EMA 2")
 src2 = input(close, title="Source", group="EMA 2")
 off2 = input.int(0, title="Offset", minval=-500, maxval=500, group="EMA 2")
-col2 = input.color(color.orange, "Color", group="EMA 2")
-plot(ta.ema(src2, len2), title="EMA 2", color=col2, offset=off2)
+plot(ta.ema(src2, len2), title="EMA 2", color=color.orange, offset=off2)
 
 // SMA 150 — כמו Moving Average Simple המובנה
 len3 = input.int(150, minval=1, title="Length", group="SMA 150")
 src3 = input(close, title="Source", group="SMA 150")
 off3 = input.int(0, title="Offset", minval=-500, maxval=500, group="SMA 150")
-col3 = input.color(color.purple, "Color", group="SMA 150")
-plot(ta.sma(src3, len3), title="SMA 150", color=col3, offset=off3)
+plot(ta.sma(src3, len3), title="SMA 150", color=color.purple, offset=off3)
 
 // ── Bollinger Bands — העתק של האינדיקטור המובנה ─────────────────────
 ma(source, length, _type) =>
@@ -39,12 +36,10 @@ bbsMult   = input.float(2.0, minval=0.001, maxval=50, title="StdDev", group="ב�
 bbsOffset = input.int(0, "Offset", minval = -500, maxval = 500, group="בולינגר קצר")
 bbsBasis  = ma(bbsSrc, bbsLength, bbsMaType)
 bbsDev    = bbsMult * ta.stdev(bbsSrc, bbsLength)
-bbsColBasis = input.color(#FF6D00, "Basis Color", group="בולינגר קצר")
-bbsColBand  = input.color(#2962FF, "Bands Color", group="בולינגר קצר")
-plot(bbsBasis, "בולינגר קצר Basis", color=bbsColBasis, offset = bbsOffset)
-bbsP1 = plot(bbsBasis + bbsDev, "בולינגר קצר Upper", color=bbsColBand, offset = bbsOffset)
-bbsP2 = plot(bbsBasis - bbsDev, "בולינגר קצר Lower", color=bbsColBand, offset = bbsOffset)
-fill(bbsP1, bbsP2, title = "בולינגר קצר Background", color=color.new(bbsColBand, 95))
+plot(bbsBasis, "בולינגר קצר Basis", color=#FF6D00, offset = bbsOffset)
+bbsP1 = plot(bbsBasis + bbsDev, "בולינגר קצר Upper", color=#2962FF, offset = bbsOffset)
+bbsP2 = plot(bbsBasis - bbsDev, "בולינגר קצר Lower", color=#2962FF, offset = bbsOffset)
+fill(bbsP1, bbsP2, title = "בולינגר קצר Background", color=color.rgb(33, 150, 243, 95))
 
 // בולינגר ארוך
 bblLength = input.int(20, minval=1, title="Length", group="בולינגר ארוך")
@@ -54,12 +49,10 @@ bblMult   = input.float(2.0, minval=0.001, maxval=50, title="StdDev", group="ב�
 bblOffset = input.int(0, "Offset", minval = -500, maxval = 500, group="בולינגר ארוך")
 bblTf     = input.timeframe("W", "Timeframe", group="בולינגר ארוך")
 [bblBasis, bblDev] = request.security(syminfo.tickerid, bblTf, [ma(bblSrc, bblLength, bblMaType), bblMult * ta.stdev(bblSrc, bblLength)])
-bblColBasis = input.color(#F44336, "Basis Color", group="בולינגר ארוך")
-bblColBand  = input.color(#F44336, "Bands Color", group="בולינגר ארוך")
-plot(bblBasis, "בולינגר ארוך Basis", color=bblColBasis, offset = bblOffset)
-bblP1 = plot(bblBasis + bblDev, "בולינגר ארוך Upper", color=bblColBand, linewidth=2, offset = bblOffset)
-bblP2 = plot(bblBasis - bblDev, "בולינגר ארוך Lower", color=bblColBand, linewidth=2, offset = bblOffset)
-fill(bblP1, bblP2, title = "בולינגר ארוך Background", color=color.new(bblColBand, 97))
+plot(bblBasis, "בולינגר ארוך Basis", color=#FF6D00, offset = bblOffset)
+bblP1 = plot(bblBasis + bblDev, "בולינגר ארוך Upper", color=#2962FF, offset = bblOffset)
+bblP2 = plot(bblBasis - bblDev, "בולינגר ארוך Lower", color=#2962FF, offset = bblOffset)
+fill(bblP1, bblP2, title = "בולינגר ארוך Background", color=color.rgb(33, 150, 243, 95))
 
 // ── סטטוס: ספים (רק באינדיקטור הזה) ─────────────────────────────────
 showTable = input.bool(true, "להציג את הטבלה", group="סטטוס")
