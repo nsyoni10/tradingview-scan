@@ -3,9 +3,12 @@ indicator(title="Checkup תחתון", shorttitle="Checkup תחתון", overlay=f
 // חלון אחד מתחת למחיר: DMI כקווים. ATR, CCI, Volume ו-RVOL כמספרים בשורת הערכים
 // (כל אחד מהם בסולם אחר — כקו באותו חלון הוא היה מוחץ את ה-DMI)
 
+// ⚠ כל ההגדרות כאן קיימות גם ב-Checkup (בשביל הטבלה) — לשנות בשניהם
+SHARED = "קיים גם ב-Checkup. אם משנים כאן — לשנות גם שם לאותו ערך."
+
 // Directional Movement Index — העתק של האינדיקטור המובנה
-lensig = input.int(14, title="ADX Smoothing", minval=1, maxval=50, group="DMI")
-dmiLen = input.int(14, minval=1, title="DI Length", group="DMI")
+lensig = input.int(14, title="ADX Smoothing ⚠", minval=1, maxval=50, group="DMI ⚠", tooltip=SHARED)
+dmiLen = input.int(14, minval=1, title="DI Length ⚠", group="DMI ⚠", tooltip=SHARED)
 dmiUp = ta.change(high)
 dmiDown = -ta.change(low)
 plusDM = na(dmiUp) ? na : (dmiUp > dmiDown and dmiUp > 0 ? dmiUp : 0)
@@ -20,8 +23,8 @@ plot(plus, color=#2962FF, title="+DI")
 plot(minus, color=#FF6D00, title="-DI")
 
 // Average True Range — העתק של האינדיקטור המובנה
-atrLength = input.int(title="Length", defval=14, minval=1, group="ATR")
-atrSmoothing = input.string(title="Smoothing", defval="RMA", options=["RMA", "SMA", "EMA", "WMA"], group="ATR")
+atrLength = input.int(title="Length ⚠", defval=14, minval=1, group="ATR ⚠", tooltip=SHARED)
+atrSmoothing = input.string(title="Smoothing ⚠", defval="RMA", options=["RMA", "SMA", "EMA", "WMA"], group="ATR ⚠", tooltip=SHARED)
 atrMa(source, length) =>
     switch atrSmoothing
         "RMA" => ta.rma(source, length)
@@ -32,16 +35,19 @@ atr = atrMa(ta.tr(true), atrLength)
 plot(atr, title="ATR", color=#B71C1C, display=display.status_line + display.data_window)
 
 // Commodity Channel Index — העתק של האינדיקטור המובנה
-cciLength = input.int(20, minval=1, title="Length", group="CCI")
-cciSrc = input(hlc3, title="Source", group="CCI")
+cciLength = input.int(20, minval=1, title="Length ⚠", group="CCI ⚠", tooltip=SHARED)
+cciSrc = input(hlc3, title="Source ⚠", group="CCI ⚠", tooltip=SHARED)
 cciMa = ta.sma(cciSrc, cciLength)
 cci = (cciSrc - cciMa) / (0.015 * ta.dev(cciSrc, cciLength))
 plot(cci, title="CCI", color=#2962FF, display=display.status_line + display.data_window)
 
 // Volume — ווליום, ממוצע ו-RVOL
-volMaLen = input.int(10, minval=1, title="MA Length", group="Volume")
+volMaLen = input.int(10, minval=1, title="MA Length ⚠", group="Volume ⚠", tooltip=SHARED)
 volMa = ta.sma(volume, volMaLen)
 rvol = volume / ta.sma(volume, volMaLen)[1]
 plot(volume, title="Volume", color=#787B86, display=display.status_line + display.data_window)
 plot(volMa, title="Volume MA", color=#787B86, display=display.status_line + display.data_window)
 plot(rvol, title="RVOL", color=#787B86, display=display.status_line + display.data_window)
+
+// הסבר בתחתית חלון ההגדרות
+sharedNote = input.string("השדות המסומנים ⚠ קיימים גם ב-Checkup. כשמשנים אחד מהם כאן — לשנות גם שם לאותו ערך, אחרת הטבלה ב-Checkup לא תתאים לחלון הזה.", "⚠ הסבר", options=["השדות המסומנים ⚠ קיימים גם ב-Checkup. כשמשנים אחד מהם כאן — לשנות גם שם לאותו ערך, אחרת הטבלה ב-Checkup לא תתאים לחלון הזה."], group="⚠ הסבר")
