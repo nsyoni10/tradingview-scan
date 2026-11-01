@@ -1,0 +1,81 @@
+//@version=6
+indicator(title="Checkup תחתון", shorttitle="Checkup תחתון", overlay=false, format=format.price, precision=2)
+// חלון אחד מתחת למחיר. כל אינדיקטור מועתק מקוד המקור של TradingView (גרסה 6) כמו שהוא.
+// מה ששונה רק כדי שכולם ייכנסו לחלון אחד: שמות המשתנים (קידומת), קבוצה לכל אינדיקטור, שמות הקווים מתחילים בשם הקבוצה.
+
+SHARED = "קיים גם ב-Checkup. אם משנים כאן — לשנות גם שם לאותו ערך."
+
+// ══ DMI — Directional Movement Index ══════════════════════════════════
+dmiG = "DMI ⚠"
+lensig = input.int(14, title="ADX Smoothing ⚠", minval=1, group = dmiG, tooltip = SHARED)
+dmiLen = input.int(14, minval=1, title="DI Length ⚠", group = dmiG, tooltip = SHARED)
+dmiUp = ta.change(high)
+dmiDown = -ta.change(low)
+plusDM = na(dmiUp) ? na : (dmiUp > dmiDown and dmiUp > 0 ? dmiUp : 0)
+minusDM = na(dmiDown) ? na : (dmiDown > dmiUp and dmiDown > 0 ? dmiDown : 0)
+trur = ta.rma(ta.tr, dmiLen)
+plus = fixnan(100 * ta.rma(plusDM, dmiLen) / trur)
+minus = fixnan(100 * ta.rma(minusDM, dmiLen) / trur)
+dmiSum = plus + minus
+adx = 100 * ta.rma(math.abs(plus - minus) / (dmiSum == 0 ? 1 : dmiSum), lensig)
+plot(adx, color=#F50057, title="DMI ADX")
+plot(plus, color=#2962FF, title="DMI +DI")
+plot(minus, color=#FF6D00, title="DMI -DI")
+
+// ══ ATR — Average True Range ══════════════════════════════════════════
+atrG = "ATR ⚠"
+atrLength = input.int(title="Length ⚠", defval=14, minval=1, group = atrG, tooltip = SHARED)
+atrSmoothing = input.string(title="Smoothing ⚠", defval="RMA", options=["RMA", "SMA", "EMA", "WMA"], group = atrG, tooltip = SHARED)
+ma_function(source, length) =>
+	switch atrSmoothing
+		"RMA" => ta.rma(source, length)
+		"SMA" => ta.sma(source, length)
+		"EMA" => ta.ema(source, length)
+		=> ta.wma(source, length)
+plot(ma_function(ta.tr(true), atrLength), title = "ATR", color=color.new(#B71C1C, 0))
+
+// ══ CCI — Commodity Channel Index ═════════════════════════════════════
+cciG = "CCI ⚠"
+cciLength = input.int(20, minval=1, title="Length ⚠", group = cciG, tooltip = SHARED)
+cciSrc = input(hlc3, title="Source ⚠", group = cciG, tooltip = SHARED)
+cciMa = ta.sma(cciSrc, cciLength)
+cci = (cciSrc - cciMa) / (0.015 * ta.dev(cciSrc, cciLength))
+plot(cci, "CCI", color=#2962FF)
+cciBand1 = hline(100, "CCI Upper Band", color=#787B86, linestyle=hline.style_dashed)
+hline(0, "CCI Middle Band", color=color.new(#787B86, 50))
+cciBand0 = hline(-100, "CCI Lower Band", color=#787B86, linestyle=hline.style_dashed)
+fill(cciBand1, cciBand0, color=color.rgb(33, 150, 243, 90), title="CCI Background")
+
+// Smoothing MA inputs
+cciGRP = "CCI Smoothing"
+TT_BB = "Only applies when 'SMA + Bollinger Bands' is selected. Determines the distance between the SMA and the bands."
+cciMaTypeInput = input.string("SMA", "Type", options = ["None", "SMA", "SMA + Bollinger Bands", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group = cciGRP, display = display.none)
+var cciIsBB = cciMaTypeInput == "SMA + Bollinger Bands"
+cciMaLengthInput = input.int(14, "Length", group = cciGRP, display = display.none, active = cciMaTypeInput != "None")
+cciBbMultInput = input.float(2.0, "BB StdDev", minval = 0.001, maxval = 50, step = 0.5, tooltip = TT_BB, group = cciGRP, display = display.none, active = cciIsBB)
+var cciEnableMA = cciMaTypeInput != "None"
+
+// Smoothing MA Calculation
+ma(source, length, MAtype) =>
+	switch MAtype
+		"SMA"                   => ta.sma(source, length)
+		"SMA + Bollinger Bands" => ta.sma(source, length)
+		"EMA"                   => ta.ema(source, length)
+		"SMMA (RMA)"            => ta.rma(source, length)
+		"WMA"                   => ta.wma(source, length)
+		"VWMA"                  => ta.vwma(source, length)
+
+// Smoothing MA plots
+cciSmoothingMA = cciEnableMA ? ma(cci, cciMaLengthInput, cciMaTypeInput) : na
+cciSmoothingStDev = cciIsBB ? ta.stdev(cci, cciMaLengthInput) * cciBbMultInput : na
+plot(cciSmoothingMA, "CCI Smoothing MA", color=color.yellow, display = cciEnableMA ? display.all : display.none, editable = cciEnableMA)
+cciBbUpperBand = plot(cciSmoothingMA + cciSmoothingStDev, title = "CCI Smoothing Upper Band", color=color.green, display = cciIsBB ? display.all : display.none, editable = cciIsBB)
+cciBbLowerBand = plot(cciSmoothingMA - cciSmoothingStDev, title = "CCI Smoothing Lower Band", color=color.green, display = cciIsBB ? display.all : display.none, editable = cciIsBB)
+fill(cciBbUpperBand, cciBbLowerBand, color= cciIsBB ? color.new(color.green, 90) : na, title="CCI Smoothing Background", display = cciIsBB ? display.all : display.none, editable = cciIsBB)
+
+// ══ Volume ════════════════════════════════════════════════════════════
+plot(volume, color = close >= open ? color.new(#26A69A, 50) : color.new(#EF5350, 50), style=plot.style_columns, title="Volume")
+
+// הסבר בתחתית חלון ההגדרות
+NOTE = "השדות המסומנים ⚠ קיימים גם ב-Checkup. כשמשנים אחד מהם כאן — לשנות גם שם לאותו ערך."
+sharedNote = input.string(NOTE, "⚠ הסבר", options = [NOTE], group = "⚠ הסבר")
