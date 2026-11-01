@@ -18,3 +18,38 @@ len3 = input.int(150, minval=1, title="Length", group="EMA 3")
 src3 = input(close, title="Source", group="EMA 3")
 off3 = input.int(0, title="Offset", minval=-500, maxval=500, group="EMA 3")
 plot(ta.ema(src3, len3), title="EMA 3", color=color.purple, offset=off3)
+
+// ── Bollinger Bands — העתק של האינדיקטור המובנה ─────────────────────
+ma(source, length, _type) =>
+    switch _type
+        "SMA" => ta.sma(source, length)
+        "EMA" => ta.ema(source, length)
+        "SMMA (RMA)" => ta.rma(source, length)
+        "WMA" => ta.wma(source, length)
+        "VWMA" => ta.vwma(source, length)
+
+// בולינגר קצר
+bbsLength = input.int(20, minval=1, title="Length", group="בולינגר קצר")
+bbsMaType = input.string("SMA", "Basis MA Type", options = ["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group="בולינגר קצר")
+bbsSrc    = input(close, title="Source", group="בולינגר קצר")
+bbsMult   = input.float(2.0, minval=0.001, maxval=50, title="StdDev", group="בולינגר קצר")
+bbsOffset = input.int(0, "Offset", minval = -500, maxval = 500, group="בולינגר קצר")
+bbsBasis  = ma(bbsSrc, bbsLength, bbsMaType)
+bbsDev    = bbsMult * ta.stdev(bbsSrc, bbsLength)
+plot(bbsBasis, "בולינגר קצר Basis", color=#FF6D00, offset = bbsOffset)
+bbsP1 = plot(bbsBasis + bbsDev, "בולינגר קצר Upper", color=#2962FF, offset = bbsOffset)
+bbsP2 = plot(bbsBasis - bbsDev, "בולינגר קצר Lower", color=#2962FF, offset = bbsOffset)
+fill(bbsP1, bbsP2, title = "בולינגר קצר Background", color=color.rgb(33, 150, 243, 95))
+
+// בולינגר ארוך
+bblLength = input.int(20, minval=1, title="Length", group="בולינגר ארוך")
+bblMaType = input.string("SMA", "Basis MA Type", options = ["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group="בולינגר ארוך")
+bblSrc    = input(close, title="Source", group="בולינגר ארוך")
+bblMult   = input.float(2.0, minval=0.001, maxval=50, title="StdDev", group="בולינגר ארוך")
+bblOffset = input.int(0, "Offset", minval = -500, maxval = 500, group="בולינגר ארוך")
+bblBasis  = ma(bblSrc, bblLength, bblMaType)
+bblDev    = bblMult * ta.stdev(bblSrc, bblLength)
+plot(bblBasis, "בולינגר ארוך Basis", color=#FF6D00, offset = bblOffset)
+bblP1 = plot(bblBasis + bblDev, "בולינגר ארוך Upper", color=#2962FF, offset = bblOffset)
+bblP2 = plot(bblBasis - bblDev, "בולינגר ארוך Lower", color=#2962FF, offset = bblOffset)
+fill(bblP1, bblP2, title = "בולינגר ארוך Background", color=color.rgb(33, 150, 243, 95))
