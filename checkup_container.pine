@@ -1,108 +1,137 @@
-//@version=5
+//@version=6
 indicator(title="Checkup", shorttitle="Checkup", overlay=true)
+// מיכל של אינדיקטורים מובנים של TradingView. כל אחד מועתק מקוד המקור (גרסה 6) כמו שהוא.
+// מה ששונה רק כדי שכולם ייכנסו לאינדיקטור אחד: שמות המשתנים (קידומת), קבוצה לכל אינדיקטור,
+// ערך ברירת המחדל של Length, ובבולינגר השבועי — Timeframe כשדה (במקור הוא חלק מהגדרות האינדיקטור).
 
-// ══ Moving Average Exponential (20) — העתק של המובנה ══════════════════
-g1 = "Moving Average Exponential 20"
-e1len = input.int(20, minval=1, title="Length", group=g1)
-e1src = input(close, title="Source", group=g1)
-e1offset = input.int(title="Offset", defval=0, minval=-500, maxval=500, display = display.data_window, group=g1)
+// ══ Moving Average Exponential — EMA 20 ═══════════════════════════════
+e1G = "EMA 20"
+e1len = input.int(20, minval=1, title="Length", group = e1G)
+e1src = input(close, title="Source", group = e1G)
+e1offset = input.int(title="Offset", defval=0, minval=-500, maxval=500, display = display.none, group = e1G)
 e1out = ta.ema(e1src, e1len)
 plot(e1out, title="EMA", color=color.blue, offset=e1offset)
+
 // Smoothing MA inputs
-e1GRP = g1 + " — Smoothing"
+e1GRP = "EMA 20 — Smoothing"
 TT_BB = "Only applies when 'SMA + Bollinger Bands' is selected. Determines the distance between the SMA and the bands."
-e1maTypeInput = input.string("None", "Type", options = ["None", "SMA", "SMA + Bollinger Bands", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group = e1GRP, display = display.data_window)
-e1maLengthInput = input.int(14, "Length", group = e1GRP, display = display.data_window)
-e1bbMultInput = input.float(2.0, "BB StdDev", minval = 0.001, maxval = 50, step = 0.5, tooltip = TT_BB, group = e1GRP, display = display.data_window)
+e1maTypeInput = input.string("None", "Type", options = ["None", "SMA", "SMA + Bollinger Bands", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group = e1GRP, display = display.none)
+var e1isBB = e1maTypeInput == "SMA + Bollinger Bands"
+e1maLengthInput = input.int(14, "Length", group = e1GRP, display = display.none, active = e1maTypeInput != "None")
+e1bbMultInput = input.float(2.0, "BB StdDev", minval = 0.001, maxval = 50, step = 0.5, tooltip = TT_BB, group = e1GRP, display = display.none, active = e1isBB)
+var e1enableMA = e1maTypeInput != "None"
 
 // Smoothing MA Calculation
 ma(source, length, MAtype) =>
-    switch MAtype
-        "SMA"                   => ta.sma(source, length)
-        "SMA + Bollinger Bands" => ta.sma(source, length)
-        "EMA"                   => ta.ema(source, length)
-        "SMMA (RMA)"            => ta.rma(source, length)
-        "WMA"                   => ta.wma(source, length)
-        "VWMA"                  => ta.vwma(source, length)
+	switch MAtype
+		"SMA"                   => ta.sma(source, length)
+		"SMA + Bollinger Bands" => ta.sma(source, length)
+		"EMA"                   => ta.ema(source, length)
+		"SMMA (RMA)"            => ta.rma(source, length)
+		"WMA"                   => ta.wma(source, length)
+		"VWMA"                  => ta.vwma(source, length)
 
-e1isBB = e1maTypeInput == "SMA + Bollinger Bands"
-e1enableMA = e1maTypeInput != "None"
+// Smoothing MA plots
 e1smoothingMA = e1enableMA ? ma(e1out, e1maLengthInput, e1maTypeInput) : na
 e1smoothingStDev = e1isBB ? ta.stdev(e1out, e1maLengthInput) * e1bbMultInput : na
-plot(e1smoothingMA, "EMA-based MA", color=color.yellow, display = e1enableMA ? display.all : display.none)
-e1bbUpperBand = plot(e1smoothingMA + e1smoothingStDev, title = "Upper Bollinger Band", color=color.green, display = e1isBB ? display.all : display.none)
-e1bbLowerBand = plot(e1smoothingMA - e1smoothingStDev, title = "Lower Bollinger Band", color=color.green, display = e1isBB ? display.all : display.none)
-fill(e1bbUpperBand, e1bbLowerBand, color= e1isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill", display = e1isBB ? display.all : display.none)
+plot(e1smoothingMA, "EMA-based MA", color=color.yellow, display = e1enableMA ? display.all : display.none, editable = e1enableMA)
+e1bbUpperBand = plot(e1smoothingMA + e1smoothingStDev, title = "Upper Bollinger Band", color=color.green, display = e1isBB ? display.all : display.none, editable = e1isBB)
+e1bbLowerBand = plot(e1smoothingMA - e1smoothingStDev, title = "Lower Bollinger Band", color=color.green, display = e1isBB ? display.all : display.none, editable = e1isBB)
+fill(e1bbUpperBand, e1bbLowerBand, color= e1isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill", display = e1isBB ? display.all : display.none, editable = e1isBB)
 
-// ══ Moving Average Exponential (50) — העתק של המובנה ══════════════════
-g2 = "Moving Average Exponential 50"
-e2len = input.int(50, minval=1, title="Length", group=g2)
-e2src = input(close, title="Source", group=g2)
-e2offset = input.int(title="Offset", defval=0, minval=-500, maxval=500, display = display.data_window, group=g2)
+// ══ Moving Average Exponential — EMA 50 ═══════════════════════════════
+e2G = "EMA 50"
+e2len = input.int(50, minval=1, title="Length", group = e2G)
+e2src = input(close, title="Source", group = e2G)
+e2offset = input.int(title="Offset", defval=0, minval=-500, maxval=500, display = display.none, group = e2G)
 e2out = ta.ema(e2src, e2len)
 plot(e2out, title="EMA", color=color.blue, offset=e2offset)
+
 // Smoothing MA inputs
-e2GRP = g2 + " — Smoothing"
-e2maTypeInput = input.string("None", "Type", options = ["None", "SMA", "SMA + Bollinger Bands", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group = e2GRP, display = display.data_window)
-e2maLengthInput = input.int(14, "Length", group = e2GRP, display = display.data_window)
-e2bbMultInput = input.float(2.0, "BB StdDev", minval = 0.001, maxval = 50, step = 0.5, tooltip = TT_BB, group = e2GRP, display = display.data_window)
-e2isBB = e2maTypeInput == "SMA + Bollinger Bands"
-e2enableMA = e2maTypeInput != "None"
+e2GRP = "EMA 50 — Smoothing"
+e2maTypeInput = input.string("None", "Type", options = ["None", "SMA", "SMA + Bollinger Bands", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group = e2GRP, display = display.none)
+var e2isBB = e2maTypeInput == "SMA + Bollinger Bands"
+e2maLengthInput = input.int(14, "Length", group = e2GRP, display = display.none, active = e2maTypeInput != "None")
+e2bbMultInput = input.float(2.0, "BB StdDev", minval = 0.001, maxval = 50, step = 0.5, tooltip = TT_BB, group = e2GRP, display = display.none, active = e2isBB)
+var e2enableMA = e2maTypeInput != "None"
+
+// Smoothing MA plots
 e2smoothingMA = e2enableMA ? ma(e2out, e2maLengthInput, e2maTypeInput) : na
 e2smoothingStDev = e2isBB ? ta.stdev(e2out, e2maLengthInput) * e2bbMultInput : na
-plot(e2smoothingMA, "EMA-based MA", color=color.yellow, display = e2enableMA ? display.all : display.none)
-e2bbUpperBand = plot(e2smoothingMA + e2smoothingStDev, title = "Upper Bollinger Band", color=color.green, display = e2isBB ? display.all : display.none)
-e2bbLowerBand = plot(e2smoothingMA - e2smoothingStDev, title = "Lower Bollinger Band", color=color.green, display = e2isBB ? display.all : display.none)
-fill(e2bbUpperBand, e2bbLowerBand, color= e2isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill", display = e2isBB ? display.all : display.none)
+plot(e2smoothingMA, "EMA-based MA", color=color.yellow, display = e2enableMA ? display.all : display.none, editable = e2enableMA)
+e2bbUpperBand = plot(e2smoothingMA + e2smoothingStDev, title = "Upper Bollinger Band", color=color.green, display = e2isBB ? display.all : display.none, editable = e2isBB)
+e2bbLowerBand = plot(e2smoothingMA - e2smoothingStDev, title = "Lower Bollinger Band", color=color.green, display = e2isBB ? display.all : display.none, editable = e2isBB)
+fill(e2bbUpperBand, e2bbLowerBand, color= e2isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill", display = e2isBB ? display.all : display.none, editable = e2isBB)
 
-// ══ Moving Average Simple (150) — העתק של המובנה ══════════════════════
-g3 = "Moving Average Simple 150"
-s3len = input.int(150, minval=1, title="Length", group=g3)
-s3src = input(close, title="Source", group=g3)
-s3offset = input.int(title="Offset", defval=0, minval=-500, maxval=500, display = display.data_window, group=g3)
+// ══ Moving Average Simple — SMA 150 ═══════════════════════════════════
+s3G = "SMA 150"
+s3len = input.int(150, minval=1, title="Length", group = s3G)
+s3src = input(close, title="Source", group = s3G)
+s3offset = input.int(title="Offset", defval=0, minval=-500, maxval=500, display = display.none, group = s3G)
 s3out = ta.sma(s3src, s3len)
 plot(s3out, color=color.blue, title="MA", offset=s3offset)
+
 // Smoothing MA inputs
-s3GRP = g3 + " — Smoothing"
-s3maTypeInput = input.string("None", "Type", options = ["None", "SMA", "SMA + Bollinger Bands", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group = s3GRP, display = display.data_window)
-s3maLengthInput = input.int(14, "Length", group = s3GRP, display = display.data_window)
-s3bbMultInput = input.float(2.0, "BB StdDev", minval = 0.001, maxval = 50, step = 0.5, tooltip = TT_BB, group = s3GRP, display = display.data_window)
-s3isBB = s3maTypeInput == "SMA + Bollinger Bands"
-s3enableMA = s3maTypeInput != "None"
+s3GRP = "SMA 150 — Smoothing"
+s3maTypeInput = input.string("None", "Type", options = ["None", "SMA", "SMA + Bollinger Bands", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group = s3GRP, display = display.none)
+var s3isBB = s3maTypeInput == "SMA + Bollinger Bands"
+s3maLengthInput = input.int(14, "Length", group = s3GRP, display = display.none, active = s3maTypeInput != "None")
+s3bbMultInput = input.float(2.0, "BB StdDev", minval = 0.001, maxval = 50, step = 0.5, tooltip = TT_BB, group = s3GRP, display = display.none, active = s3isBB)
+var s3enableMA = s3maTypeInput != "None"
+
+// Smoothing MA plots
 s3smoothingMA = s3enableMA ? ma(s3out, s3maLengthInput, s3maTypeInput) : na
 s3smoothingStDev = s3isBB ? ta.stdev(s3out, s3maLengthInput) * s3bbMultInput : na
-plot(s3smoothingMA, "SMA-based MA", color=color.yellow, display = s3enableMA ? display.all : display.none)
-s3bbUpperBand = plot(s3smoothingMA + s3smoothingStDev, title = "Upper Bollinger Band", color=color.green, display = s3isBB ? display.all : display.none)
-s3bbLowerBand = plot(s3smoothingMA - s3smoothingStDev, title = "Lower Bollinger Band", color=color.green, display = s3isBB ? display.all : display.none)
-fill(s3bbUpperBand, s3bbLowerBand, color= s3isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill", display = s3isBB ? display.all : display.none)
+plot(s3smoothingMA, "SMA-based MA", color=color.yellow, display = s3enableMA ? display.all : display.none, editable = s3enableMA)
+s3bbUpperBand = plot(s3smoothingMA + s3smoothingStDev, title = "Upper Bollinger Band", color=color.green, display = s3isBB ? display.all : display.none, editable = s3isBB)
+s3bbLowerBand = plot(s3smoothingMA - s3smoothingStDev, title = "Lower Bollinger Band", color=color.green, display = s3isBB ? display.all : display.none, editable = s3isBB)
+fill(s3bbUpperBand, s3bbLowerBand, color= s3isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill", display = s3isBB ? display.all : display.none, editable = s3isBB)
 
-// ══ Bollinger Bands (יומי) — העתק של המובנה ═══════════════════════════
-g4 = "Bollinger Bands"
-b4length = input.int(20, minval=1, title="Length", group=g4)
-b4maType = input.string("SMA", "Basis MA Type", options = ["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group=g4)
-b4src = input(close, title="Source", group=g4)
-b4mult = input.float(2.0, minval=0.001, maxval=50, title="StdDev", group=g4)
-b4basis = ma(b4src, b4length, b4maType)
+// ══ Bollinger Bands — יומי ════════════════════════════════════════════
+TT_LENGTH  = "The time period to be used in calculating the MA which creates the base for the Upper and Lower Bands."
+TT_MA_TYPE = "Determines the type of Moving Average that is applied to the basis plot line."
+TT_SOURCE  = "Determines what data from each bar will be used in calculations."
+TT_MULT    = "The number of Standard Deviations away from the MA that the Upper and Lower Bands should be."
+TT_OFFSET  = "Changing this number will move the Bollinger Bands either Forwards or Backwards relative to the current market."
+
+b4G = "Bollinger Bands"
+b4length = input.int(20,       "Length", minval = 1, tooltip =  TT_LENGTH, group = b4G)
+b4maType = input.string("SMA", "Basis MA Type",      options = ["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], tooltip = TT_MA_TYPE, group = b4G)
+b4src =    input(close,        "Source", tooltip = TT_SOURCE, group = b4G)
+b4mult =   input.float(2.0,    "StdDev", minval = 0.001, maxval = 50,  tooltip = TT_MULT, group = b4G)
+b4offset = input.int(0,        "Offset", minval = -500,  maxval = 500, tooltip =  TT_OFFSET, display = display.none, group = b4G)
+
+bbMa(source, length, _type) =>
+    switch _type
+        "SMA" => ta.sma(source, length)
+        "EMA" => ta.ema(source, length)
+        "SMMA (RMA)" => ta.rma(source, length)
+        "WMA" => ta.wma(source, length)
+        "VWMA" => ta.vwma(source, length)
+
+b4basis = bbMa(b4src, b4length, b4maType)
 b4dev = b4mult * ta.stdev(b4src, b4length)
 b4upper = b4basis + b4dev
 b4lower = b4basis - b4dev
-b4offset = input.int(0, "Offset", minval = -500, maxval = 500, display = display.data_window, group=g4)
+
 plot(b4basis, "Basis", color=#2962FF, offset = b4offset)
 b4p1 = plot(b4upper, "Upper", color=#F23645, offset = b4offset)
 b4p2 = plot(b4lower, "Lower", color=#089981, offset = b4offset)
 fill(b4p1, b4p2, title = "Background", color=color.rgb(33, 150, 243, 95))
 
-// ══ Bollinger Bands (שבועי) — העתק של המובנה, עם Timeframe ════════════
-g5 = "Bollinger Bands (Timeframe)"
-b5tf = input.timeframe("W", "Timeframe", group=g5)
-b5length = input.int(20, minval=1, title="Length", group=g5)
-b5maType = input.string("SMA", "Basis MA Type", options = ["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], group=g5)
-b5src = input(close, title="Source", group=g5)
-b5mult = input.float(2.0, minval=0.001, maxval=50, title="StdDev", group=g5)
-[b5basis, b5dev] = request.security(syminfo.tickerid, b5tf, [ma(b5src, b5length, b5maType), b5mult * ta.stdev(b5src, b5length)])
+// ══ Bollinger Bands — שבועי (Timeframe) ═══════════════════════════════
+b5G = "Bollinger Bands (W)"
+b5tf =     input.timeframe("W", "Timeframe", group = b5G)
+b5length = input.int(20,       "Length", minval = 1, tooltip =  TT_LENGTH, group = b5G)
+b5maType = input.string("SMA", "Basis MA Type",      options = ["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], tooltip = TT_MA_TYPE, group = b5G)
+b5src =    input(close,        "Source", tooltip = TT_SOURCE, group = b5G)
+b5mult =   input.float(2.0,    "StdDev", minval = 0.001, maxval = 50,  tooltip = TT_MULT, group = b5G)
+b5offset = input.int(0,        "Offset", minval = -500,  maxval = 500, tooltip =  TT_OFFSET, display = display.none, group = b5G)
+
+[b5basis, b5dev] = request.security(syminfo.tickerid, b5tf, [bbMa(b5src, b5length, b5maType), b5mult * ta.stdev(b5src, b5length)])
 b5upper = b5basis + b5dev
 b5lower = b5basis - b5dev
-b5offset = input.int(0, "Offset", minval = -500, maxval = 500, display = display.data_window, group=g5)
+
 plot(b5basis, "Basis", color=#2962FF, offset = b5offset)
 b5p1 = plot(b5upper, "Upper", color=#F23645, offset = b5offset)
 b5p2 = plot(b5lower, "Lower", color=#089981, offset = b5offset)
