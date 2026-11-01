@@ -1,0 +1,3 @@
+//@version=6
+indicator(title="Volume", shorttitle="Vol", format=format.volume)
+plot(volume, color = close >= open ? color.new(#26A69A, 50) : color.new(#EF5350, 50), style=plot.style_columns, title="Volume")
