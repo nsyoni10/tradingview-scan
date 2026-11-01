@@ -6,6 +6,7 @@
 indicator("Checkup", overlay = false, max_labels_count = 500)
 
 // ── הגדרות ───────────────────────────────────────────────────────────
+showTable = input.bool(true, "להציג את טבלת הסטטוס", group = "סטטוס")
 minAvgVol = input.int(500000, "ווליום ממוצע מינימלי (10 ימים)", group = "סטטוס")
 bbLen     = input.int(20,     "בולינגר: אורך", group = "בולינגר")
 bbMult    = input.float(2.0,  "בולינגר: סטיות תקן", group = "בולינגר")
@@ -181,7 +182,9 @@ row(i, k, v, ok) =>
     table.cell(t, 1, i, v, text_color = color.black, bgcolor = nBg, text_size = size.small)
     table.cell(t, 2, i, ok ? "✅" : "❌", text_color = color.black, bgcolor = ok ? okBg : badBg, text_size = size.small)
 
-if barstate.islast
+if barstate.islast and not showTable
+    table.clear(t, 0, 0, 2, 12)
+else if barstate.islast
     if timeframe.period != "D"
         table.cell(t, 0, 0, "Checkup", text_color = color.white, bgcolor = color.navy)
         table.cell(t, 1, 0, "להפעיל על גרף יומי (D)", bgcolor = color.yellow)
