@@ -12,6 +12,11 @@ showBands  = input.bool(true,  "להציג רצועות בולינגר יומי�
 showWeekly = input.bool(true,  "להציג רצועה עליונה שבועית", group = "תצוגה")
 showMAs    = input.bool(true,  "להציג EMA20 / EMA50 / SMA150", group = "תצוגה")
 showMaru   = input.bool(true,  "לסמן מרובוזו", group = "תצוגה")
+cEma20     = input.color(color.orange, "צבע EMA20",  group = "צבעים")
+cEma50     = input.color(color.purple, "צבע EMA50",  group = "צבעים")
+cSma150    = input.color(color.black,  "צבע SMA150", group = "צבעים")
+cBand      = input.color(color.teal,   "צבע בולינגר יומי", group = "צבעים")
+cWeekly    = input.color(color.red,    "צבע רצועה עליונה שבועית", group = "צבעים")
 
 // ── אינדיקטורים ──────────────────────────────────────────────────────
 ema20  = ta.ema(close, 20)
@@ -136,14 +141,14 @@ else
     stColor := color.blue
 
 // ── ציור על הגרף ─────────────────────────────────────────────────────
-plot(showMAs ? ema20 : na,  "EMA20",  color.new(color.orange, 0), 1)
-plot(showMAs ? ema50 : na,  "EMA50",  color.new(color.purple, 0), 1)
-plot(showMAs ? sma150 : na, "SMA150", color.new(color.black, 0), 2)
-pU = plot(showBands ? bbUp : na,  "BB עליון יומי",  color.new(color.teal, 30))
-plot(showBands ? bbMid : na,      "BB אמצע יומי",   color.new(color.teal, 60))
-pL = plot(showBands ? bbLow : na, "BB תחתון יומי",  color.new(color.teal, 30))
-fill(pU, pL, color.new(color.teal, 93))
-plot(showWeekly ? wUp : na, "BB עליון שבועי", color.new(color.red, 20), 2, plot.style_stepline)
+plot(showMAs ? ema20 : na,  "EMA20",  cEma20, 1)
+plot(showMAs ? ema50 : na,  "EMA50",  cEma50, 1)
+plot(showMAs ? sma150 : na, "SMA150", cSma150, 2)
+pU = plot(showBands ? bbUp : na,  "BB עליון יומי",  color.new(cBand, 30))
+plot(showBands ? bbMid : na,      "BB אמצע יומי",   color.new(cBand, 60))
+pL = plot(showBands ? bbLow : na, "BB תחתון יומי",  color.new(cBand, 30))
+fill(pU, pL, color.new(cBand, 93))
+plot(showWeekly ? wUp : na, "BB עליון שבועי", color.new(cWeekly, 20), 2, plot.style_stepline)
 plotshape(showMaru and isMaru(0), "מרובוזו", shape.triangleup, location.belowbar, color.green, size = size.tiny)
 
 // ── טבלה ─────────────────────────────────────────────────────────────
