@@ -8,15 +8,19 @@ minAvgVol  = input.int(500000, "ווליום ממוצע מינימלי (10 ימ�
 bbLen      = input.int(20,     "בולינגר: אורך", group = "סטטוס")
 bbMult     = input.float(2.0,  "בולינגר: סטיות תקן", group = "סטטוס")
 weeklyTf   = input.timeframe("W", "טווח זמן גבוה", group = "סטטוס")
-showBands  = input.bool(true,  "להציג רצועות בולינגר יומיות", group = "תצוגה")
-showWeekly = input.bool(true,  "להציג רצועה עליונה שבועית", group = "תצוגה")
-showMAs    = input.bool(true,  "להציג EMA20 / EMA50 / SMA150", group = "תצוגה")
-showMaru   = input.bool(true,  "לסמן מרובוזו", group = "תצוגה")
-cEma20     = input.color(color.orange, "צבע EMA20",  group = "צבעים")
-cEma50     = input.color(color.purple, "צבע EMA50",  group = "צבעים")
-cSma150    = input.color(color.black,  "צבע SMA150", group = "צבעים")
-cBand      = input.color(color.teal,   "צבע בולינגר יומי", group = "צבעים")
-cWeekly    = input.color(color.red,    "צבע רצועה עליונה שבועית", group = "צבעים")
+// כל קו בשורה אחת: להציג או לא + הצבע שלו
+showEma20  = input.bool(true, "EMA20",  inline = "e20",  group = "קווים")
+cEma20     = input.color(color.orange, "", inline = "e20",  group = "קווים")
+showEma50  = input.bool(true, "EMA50",  inline = "e50",  group = "קווים")
+cEma50     = input.color(color.purple, "", inline = "e50",  group = "קווים")
+showSma150 = input.bool(true, "SMA150", inline = "s150", group = "קווים")
+cSma150    = input.color(color.black,  "", inline = "s150", group = "קווים")
+showBands  = input.bool(true, "בולינגר יומי", inline = "bbd", group = "קווים")
+cBand      = input.color(color.teal,   "", inline = "bbd", group = "קווים")
+showWeekly = input.bool(true, "רצועה עליונה שבועית", inline = "bbw", group = "קווים")
+cWeekly    = input.color(color.red,    "", inline = "bbw", group = "קווים")
+showMaru   = input.bool(true, "מרובוזו", inline = "maru", group = "קווים")
+cMaru      = input.color(color.green,  "", inline = "maru", group = "קווים")
 
 // ── אינדיקטורים ──────────────────────────────────────────────────────
 ema20  = ta.ema(close, 20)
@@ -141,15 +145,15 @@ else
     stColor := color.blue
 
 // ── ציור על הגרף ─────────────────────────────────────────────────────
-plot(showMAs ? ema20 : na,  "EMA20",  cEma20, 1)
-plot(showMAs ? ema50 : na,  "EMA50",  cEma50, 1)
-plot(showMAs ? sma150 : na, "SMA150", cSma150, 2)
+plot(showEma20 ? ema20 : na,   "EMA20",  cEma20, 1)
+plot(showEma50 ? ema50 : na,   "EMA50",  cEma50, 1)
+plot(showSma150 ? sma150 : na, "SMA150", cSma150, 2)
 pU = plot(showBands ? bbUp : na,  "BB עליון יומי",  color.new(cBand, 30))
 plot(showBands ? bbMid : na,      "BB אמצע יומי",   color.new(cBand, 60))
 pL = plot(showBands ? bbLow : na, "BB תחתון יומי",  color.new(cBand, 30))
 fill(pU, pL, color.new(cBand, 93))
 plot(showWeekly ? wUp : na, "BB עליון שבועי", color.new(cWeekly, 20), 2, plot.style_stepline)
-plotshape(showMaru and isMaru(0), "מרובוזו", shape.triangleup, location.belowbar, color.green, size = size.tiny)
+plotshape(showMaru and isMaru(0), "מרובוזו", shape.triangleup, location.belowbar, cMaru, size = size.tiny)
 
 // ── טבלה ─────────────────────────────────────────────────────────────
 var table t = table.new(position.top_right, 2, 15, border_width = 1)
