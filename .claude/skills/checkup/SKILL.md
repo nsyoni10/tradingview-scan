@@ -24,6 +24,7 @@ description: "Checkup — קורא את רשימת המעקב 'Red list' בטר�
 
 ```
 close ATR ADX ADX[1] ADX+DI ADX-DI CCI20 CCI20[1] EMA20 EMA50 SMA150
+SMA20 BB.upper SMA20|1W BB.upper|1W
 relative_volume_10d_calc average_volume_10d_calc
 Pivot.M.Classic.Middle Pivot.M.Classic.R1 Pivot.M.Classic.R2
 Pivot.M.Classic.S1 Pivot.M.Classic.S2 High.1M Low.1M High.3M Low.3M
@@ -45,12 +46,12 @@ Pivot.M.Classic.S1 Pivot.M.Classic.S2 High.1M Low.1M High.3M Low.3M
 {"date": "YYYY-MM-DD", "bar_date": "YYYY-MM-DD", "watchlist": "Red list", "tickers": {"NASDAQ:XXX": {
   "bars": [[o,h,l,c,v], ...12],
   "ATR": 0, "ADX": 0, "ADX1": 0, "DIp": 0, "DIm": 0, "CCI": 0, "CCI1": 0, "EMA20": 0, "EMA50": 0,
-  "SMA150": 0, "RVOL": 0,
+  "SMA150": 0, "RVOL": 0, "SMA20": 0, "BBU": 0, "SMA20W": 0, "BBUW": 0,
   "PP": 0, "R1": 0, "R2": 0, "S1": 0, "S2": 0,
   "H1M": 0, "L1M": 0, "H3M": 0, "L3M": 0, "vol10": 0}}}
 ```
 
-מיפוי: `ADX1` ← `ADX[1]`, `CCI/CCI1` ← `CCI20/CCI20[1]`, `RVOL` ← `relative_volume_10d_calc` (גיבוי בלבד), `vol10` ← `average_volume_10d_calc`, `DIp/DIm` ← `ADX+DI/ADX-DI`, `PP` ← `Pivot.M.Classic.Middle`.
+מיפוי: `BBU` ← `BB.upper`, `SMA20W` ← `SMA20|1W`, `BBUW` ← `BB.upper|1W`, `ADX1` ← `ADX[1]`, `CCI/CCI1` ← `CCI20/CCI20[1]`, `RVOL` ← `relative_volume_10d_calc` (גיבוי בלבד), `vol10` ← `average_volume_10d_calc`, `DIp/DIm` ← `ADX+DI/ADX-DI`, `PP` ← `Pivot.M.Classic.Middle`.
 דוגמה מלאה: `checkup_data/data_2026-10-26.json`
 
 ## שלב 5 — חישוב
@@ -72,7 +73,7 @@ python3 checkup.py checkup_data/data_YYYY-MM-DD.json "checkup_data/Summary of YY
 ## שלב 7 — מסירה
 - commit + push של ה-JSON, ה-CSV וה-xlsx
 - למשתמש: לינק ל-Google Sheet + סיכום קצר:
-  - כמה מניות בכל סטטוס, ומי ב-✅ יש מקום וב-🔵 כמעט שם
+  - כמה מניות בכל סטטוס, ומי ב-✅ יש מקום, 🔵 כמעט שם ו-👁 מעקב
   - TOP לפי ציון כניסה
   - מרובוזו ב-3 הימים האחרונים, ווליום חריג על נר ירוק, CCI שיוצא מתיקון
 
@@ -86,12 +87,12 @@ python3 checkup.py checkup_data/data_YYYY-MM-DD.json "checkup_data/Summary of YY
 - **ווליום (15):** ווליום היום האחרון חלקי ממוצע 10 הימים שלפניו (בלי היום עצמו), מחושב מהנרות. רק על נר ירוק: ≥1.5 = 15, ≥1.2 = 10, ≥1.0 = 4
 - **CCI(20) (15):** חוצה למעלה את -100 או את 0 = 15, עולה מתחת ל-100 = 10, עולה מתחת ל-200 = 4
 - **מעל SMA150 (10)**
-- **לא מתוח (5):** סגירה עד 1.5 ATR מעל EMA20
-- **סטטוס (עמודה 2, הגיליון ממוין לפיו ואז לפי הציון).** מרחק = (סגירה − EMA20) / ATR:
-  - ✅ **יש מקום:** +DI > -DI, ADX ≥ 20, מרחק עד 1.5
-  - 🔵 **כמעט שם:** +DI > -DI, ADX מתחת ל-20 ועולה מאתמול, מרחק עד 1.5
-  - 🟡 **קצת מאוחר:** מרחק 1.5–2
-  - 🔴 **מתוח:** מרחק מעל 2
-  - ⛔ **לא לסחור:** ווליום ממוצע 10 ימים מתחת ל-500,000 מניות ביום (הסיבה והמספר נכתבים בעמודת ההערות), מחיר קפוא (ATR < 0.5% מהמחיר), מגמת ירידה (-DI > +DI עם ADX ≥ 20), או אין כיוון ללונג
-  - ב-xlsx כל סטטוס צבוע בצבע משלו; ב-Google Sheet (CSV) רואים את האימוג'י והמיון
+- **סטטוס (עמודה 2, הגיליון ממוין לפיו ואז לפי הציון).** בולינגר = מיקום הסגירה ברצועה (SMA20 ±2σ) ביחידות σ, יומי ושבועי (עמודות 3–4):
+  - ✅ **יש מקום:** טובה בשבועי וביומי (שתיהן עד +2σ), +DI > -DI, ADX ≥ 20
+  - 🔵 **כמעט שם:** כמו ✅ אבל ADX מתחת ל-20 ועולה מאתמול
+  - 👁 **מעקב:** טובה בשבועי, **מתוחה ביומי** (מעל +2σ). המשתמש משאיר אותה ב-Red list ובודקים שוב בכל הרצה עד שתבשיל
+  - 🔴 **מתוחה בשבועי:** מעל +2σ בשבועי
+  - ⛔ **לא לסחור:** ווליום ממוצע 10 ימים מתחת ל-500,000 מניות ביום (הסיבה והמספר בהערות), מחיר קפוא (ATR < 0.5% מהמחיר), מגמת ירידה (-DI > +DI עם ADX ≥ 20), או אין כיוון ללונג
+  - **לא מתוח (5 נק' בציון):** בתוך רצועת בולינגר היומית
+  - ב-xlsx כל סטטוס צבוע; ב-Google Sheet (CSV) רואים את האימוג'י והמיון
 - **רמות:** Pivot חודשי, שיא/שפל חודש ו-3 חודשים, EMA20/50, גבוה/נמוך 2 נרות אחרונים; רמות במרחק < 0.25 ATR מאוחדות
