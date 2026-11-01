@@ -1,0 +1,20 @@
+//@version=5
+indicator(title="Checkup", shorttitle="Checkup", overlay=true)
+
+// EMA 1 — כמו Moving Average Exponential המובנה
+len1 = input.int(20, minval=1, title="Length", group="EMA 1")
+src1 = input(close, title="Source", group="EMA 1")
+off1 = input.int(0, title="Offset", minval=-500, maxval=500, group="EMA 1")
+plot(ta.ema(src1, len1), title="EMA 1", color=color.blue, offset=off1)
+
+// EMA 2
+len2 = input.int(50, minval=1, title="Length", group="EMA 2")
+src2 = input(close, title="Source", group="EMA 2")
+off2 = input.int(0, title="Offset", minval=-500, maxval=500, group="EMA 2")
+plot(ta.ema(src2, len2), title="EMA 2", color=color.orange, offset=off2)
+
+// EMA 3
+len3 = input.int(150, minval=1, title="Length", group="EMA 3")
+src3 = input(close, title="Source", group="EMA 3")
+off3 = input.int(0, title="Offset", minval=-500, maxval=500, group="EMA 3")
+plot(ta.ema(src3, len3), title="EMA 3", color=color.purple, offset=off3)
