@@ -152,7 +152,7 @@ plot(showWeekly ? wUp : na, "BB עליון שבועי", color.new(cWeekly, 20), 
 plotshape(showMaru and isMaru(0), "מרובוזו", shape.triangleup, location.belowbar, color.green, size = size.tiny)
 
 // ── טבלה ─────────────────────────────────────────────────────────────
-var table t = table.new(position.top_right, 2, 16, border_width = 1)
+var table t = table.new(position.top_right, 2, 15, border_width = 1)
 f(v, d) => na(v) ? "—" : str.tostring(v, d)
 row(i, k, v, bg) =>
     table.cell(t, 0, i, k, text_color = color.white, bgcolor = color.new(color.navy, 0), text_size = size.small)
@@ -181,5 +181,3 @@ if barstate.islast
         row(12, "מרובוזו (3 ימים)", maruAgo == 0 ? "היום" : maruAgo == 1 ? "אתמול" : maruAgo == 2 ? "לפני 2 ימים" : "—", maruAgo >= 0 ? okBg : nBg)
         row(13, "נר אחרון",        tags == "" ? "—" : tags,                 nBg)
         row(14, "EMA20 / EMA50",   str.tostring(ema20, "0.00") + " / " + str.tostring(ema50, "0.00"), nBg)
-        table.cell(t, 0, 15, "מקרא קווים", text_color = color.white, bgcolor = color.navy, text_size = size.small)
-        table.cell(t, 1, 15, "EMA20 ● EMA50 ● SMA150 ● בולינגר ● שבועי", text_color = color.black, bgcolor = nBg, text_size = size.small)
