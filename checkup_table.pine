@@ -128,34 +128,66 @@ else
     why := "טובה בשבועי וביומי, ADX נמוך ועולה"
     stColor := color.blue
 
-// ══ הטבלה ═════════════════════════════════════════════════════════════
-var table t = table.new(position.top_right, 3, 11, border_width = 1)
+// ══ הטבלה — באותה צורה כמו הדוגמה "Price vs MA" במדריך הרשמי של Pine (Tables) ══
+// var table + table.cell ישירות בתוך if barstate.islast, בלי פונקציית עזר ובלי table.clear
 okBg  = color.new(color.green, 75)
 badBg = color.new(color.red, 75)
 nBg   = color.new(color.gray, 85)
-row(i, k, v, ok) =>
-    table.cell(t, 0, i, k, text_color = color.white, bgcolor = color.navy, text_size = size.small)
-    table.cell(t, 1, i, v, text_color = color.black, bgcolor = nBg, text_size = size.small)
-    table.cell(t, 2, i, ok ? "✅" : "❌", text_color = color.black, bgcolor = ok ? okBg : badBg, text_size = size.small)
+hBg   = color.navy
 
-if barstate.islast
-    table.clear(t, 0, 0, 2, 10)
-    if showTable and timeframe.period != "D"
-        table.cell(t, 0, 0, "Checkup Table", text_color = color.white, bgcolor = color.navy)
-        table.cell(t, 1, 0, "הטבלה עובדת על גרף יומי (D)", text_color = color.black, bgcolor = color.yellow)
-    else if showTable
-        table.cell(t, 0, 0, "סטטוס", text_color = color.white, bgcolor = color.navy, text_size = size.small)
-        table.cell(t, 1, 0, status, text_color = color.black, bgcolor = color.new(stColor, 60), text_size = size.small)
-        table.cell(t, 2, 0, "", bgcolor = nBg)
-        table.cell(t, 0, 1, "סיבה", text_color = color.white, bgcolor = color.navy, text_size = size.small)
-        table.cell(t, 1, 1, why, text_color = color.black, bgcolor = nBg, text_size = size.small)
-        table.cell(t, 2, 1, "", bgcolor = nBg)
-        row(2,  "ווליום ממוצע " + str.tostring(volMaLen) + " ימים ≥ " + str.tostring(minAvgVol, "#,###"), str.tostring(volMa, "#,###"), volMa >= minAvgVol)
-        row(3,  "DMI: +DI מעל -DI", str.tostring(plus, "0.0") + " / " + str.tostring(minus, "0.0"), dirUp)
-        row(4,  "DMI: ADX ≥ " + str.tostring(adxMin), str.tostring(adx, "0.0") + (adxUp ? " ↑" : " ↓"), adx >= adxMin)
-        row(5,  "בולינגר ארוך ≤ +" + str.tostring(blMult) + "σ", (na(bw) ? "—" : str.tostring(bw, "+0.00;-0.00")) + "σ", na(bw) or bw <= blMult)
-        row(6,  "בולינגר קצר ≤ +" + str.tostring(bsMult) + "σ", (na(bd) ? "—" : str.tostring(bd, "+0.00;-0.00")) + "σ", na(bd) or bd <= bsMult)
-        row(7,  "מעל SMA " + str.tostring(sLen), str.tostring(sOut, "0.00"), close > sOut)
-        row(8,  "RVOL ≥ " + str.tostring(rvolMin), str.tostring(rvol, "0.00"), rvol >= rvolMin)
-        row(9,  "CCI עולה", str.tostring(cci, "0") + " (אתמול " + str.tostring(cciPrev, "0") + ")", cciUp)
-        row(10, "ATR", str.tostring(atr, "0.00") + " (" + str.tostring(atr / close * 100, "0.0") + "%)", atr / close >= 0.005)
+var table panel = table.new(position.top_right, 3, 11, border_width = 1)
+if barstate.islast and showTable and timeframe.period != "D"
+    table.cell(panel, 0, 0, "Checkup Table", text_color = color.white, bgcolor = hBg)
+    table.cell(panel, 1, 0, "הטבלה עובדת על גרף יומי (D)", text_color = color.black, bgcolor = color.yellow)
+if barstate.islast and showTable and timeframe.period == "D"
+    // שורה 0 — סטטוס
+    table.cell(panel, 0, 0, "סטטוס", text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 0, status, text_color = color.black, bgcolor = color.new(stColor, 60), text_size = size.small)
+    table.cell(panel, 2, 0, "", bgcolor = nBg)
+    // שורה 1 — סיבה
+    table.cell(panel, 0, 1, "סיבה", text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 1, why, text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 1, "", bgcolor = nBg)
+    // שורה 2 — ווליום ממוצע
+    okVol = volMa >= minAvgVol
+    table.cell(panel, 0, 2, "ווליום ממוצע " + str.tostring(volMaLen) + " ימים ≥ " + str.tostring(minAvgVol, "#,###"), text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 2, str.tostring(volMa, "#,###"), text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 2, okVol ? "✅" : "❌", text_color = color.black, bgcolor = okVol ? okBg : badBg, text_size = size.small)
+    // שורה 3 — +DI מול -DI
+    table.cell(panel, 0, 3, "DMI: +DI מעל -DI", text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 3, str.tostring(plus, "0.0") + " / " + str.tostring(minus, "0.0"), text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 3, dirUp ? "✅" : "❌", text_color = color.black, bgcolor = dirUp ? okBg : badBg, text_size = size.small)
+    // שורה 4 — ADX
+    okAdx = adx >= adxMin
+    table.cell(panel, 0, 4, "DMI: ADX ≥ " + str.tostring(adxMin), text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 4, str.tostring(adx, "0.0") + (adxUp ? " ↑" : " ↓"), text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 4, okAdx ? "✅" : "❌", text_color = color.black, bgcolor = okAdx ? okBg : badBg, text_size = size.small)
+    // שורה 5 — בולינגר ארוך
+    okBw = na(bw) or bw <= blMult
+    table.cell(panel, 0, 5, "בולינגר ארוך ≤ +" + str.tostring(blMult) + "σ", text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 5, (na(bw) ? "—" : str.tostring(bw, "+0.00;-0.00")) + "σ", text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 5, okBw ? "✅" : "❌", text_color = color.black, bgcolor = okBw ? okBg : badBg, text_size = size.small)
+    // שורה 6 — בולינגר קצר
+    okBd = na(bd) or bd <= bsMult
+    table.cell(panel, 0, 6, "בולינגר קצר ≤ +" + str.tostring(bsMult) + "σ", text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 6, (na(bd) ? "—" : str.tostring(bd, "+0.00;-0.00")) + "σ", text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 6, okBd ? "✅" : "❌", text_color = color.black, bgcolor = okBd ? okBg : badBg, text_size = size.small)
+    // שורה 7 — מעל SMA
+    okSma = close > sOut
+    table.cell(panel, 0, 7, "מעל SMA " + str.tostring(sLen), text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 7, str.tostring(sOut, "0.00"), text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 7, okSma ? "✅" : "❌", text_color = color.black, bgcolor = okSma ? okBg : badBg, text_size = size.small)
+    // שורה 8 — RVOL
+    okRvol = rvol >= rvolMin
+    table.cell(panel, 0, 8, "RVOL ≥ " + str.tostring(rvolMin), text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 8, str.tostring(rvol, "0.00"), text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 8, okRvol ? "✅" : "❌", text_color = color.black, bgcolor = okRvol ? okBg : badBg, text_size = size.small)
+    // שורה 9 — CCI
+    table.cell(panel, 0, 9, "CCI עולה", text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 9, str.tostring(cci, "0") + " (אתמול " + str.tostring(cciPrev, "0") + ")", text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 9, cciUp ? "✅" : "❌", text_color = color.black, bgcolor = cciUp ? okBg : badBg, text_size = size.small)
+    // שורה 10 — ATR
+    okAtr = atr / close >= 0.005
+    table.cell(panel, 0, 10, "ATR", text_color = color.white, bgcolor = hBg, text_size = size.small)
+    table.cell(panel, 1, 10, str.tostring(atr, "0.00") + " (" + str.tostring(atr / close * 100, "0.0") + "%)", text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(panel, 2, 10, okAtr ? "✅" : "❌", text_color = color.black, bgcolor = okAtr ? okBg : badBg, text_size = size.small)
