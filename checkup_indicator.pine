@@ -1,35 +1,46 @@
 //@version=5
-// Checkup — אותן בדיקות כמו הסקיל checkup (checkup.py), על הגרף היומי.
-// בולינגר יומי ושבועי, ADX/DI, ATR, CCI, SMA150, EMA20/50, RVOL, מרובוזו, ווליום מינימלי, סטטוס וציון כניסה.
-indicator("Checkup", overlay = true, max_labels_count = 500)
+// Checkup — כמה אינדיקטורים מובנים של טריידינגוויו באינדיקטור אחד, ועליהם הסטטוס של הסקיל checkup.
+// חלון תחתון: DMI (ADX, +DI, -DI) כמו האינדיקטור המובנה Directional Movement Index.
+// גרף המחיר (force_overlay): EMA20, EMA50, SMA150, בולינגר יומי, בולינגר שבועי, מרובוזו וטבלת הסטטוס.
+// צבע, עובי והסתרה של כל קו — בלשונית Style.
+indicator("Checkup", overlay = false, max_labels_count = 500)
 
 // ── הגדרות ───────────────────────────────────────────────────────────
-minAvgVol  = input.int(500000, "ווליום ממוצע מינימלי (10 ימים)", group = "סטטוס")
-bbLen      = input.int(20,     "בולינגר: אורך", group = "סטטוס")
-bbMult     = input.float(2.0,  "בולינגר: סטיות תקן", group = "סטטוס")
-weeklyTf   = input.timeframe("W", "טווח זמן גבוה", group = "סטטוס")
-showBands  = input.bool(true,  "להציג רצועות בולינגר יומיות", group = "תצוגה")
-showWeekly = input.bool(true,  "להציג רצועה עליונה שבועית", group = "תצוגה")
-showMAs    = input.bool(true,  "להציג EMA20 / EMA50 / SMA150", group = "תצוגה")
-showMaru   = input.bool(true,  "לסמן מרובוזו", group = "תצוגה")
-cEma20     = input.color(color.orange, "צבע EMA20",  group = "צבעים")
-cEma50     = input.color(color.purple, "צבע EMA50",  group = "צבעים")
-cSma150    = input.color(color.black,  "צבע SMA150", group = "צבעים")
-cBand      = input.color(color.teal,   "צבע בולינגר יומי", group = "צבעים")
-cWeekly    = input.color(color.red,    "צבע רצועה עליונה שבועית", group = "צבעים")
+minAvgVol = input.int(500000, "ווליום ממוצע מינימלי (10 ימים)", group = "סטטוס")
+bbLen     = input.int(20,     "בולינגר: אורך", group = "בולינגר")
+bbMult    = input.float(2.0,  "בולינגר: סטיות תקן", group = "בולינגר")
+weeklyTf  = input.timeframe("W", "בולינגר: טווח זמן גבוה", group = "בולינגר")
+diLen     = input.int(14,     "DI Length", group = "DMI")
+adxLen    = input.int(14,     "ADX Smoothing", group = "DMI")
 
-// ── אינדיקטורים ──────────────────────────────────────────────────────
+// ── Moving Average Exponential / Simple (כמו המובנים) ────────────────
 ema20  = ta.ema(close, 20)
 ema50  = ta.ema(close, 50)
 sma150 = ta.sma(close, 150)
-atr    = ta.atr(14)
-[diPlus, diMinus, adx] = ta.dmi(14, 14)
-cci    = ta.cci(hlc3, 20)
-vol10  = ta.sma(volume, 10)
-rvol   = volume / ta.sma(volume, 10)[1]       // היום מול 10 הימים שלפניו
 
-[bbMid, bbUp, bbLow] = ta.bb(close, bbLen, bbMult)
-[wMid, wUp] = request.security(syminfo.tickerid, weeklyTf, [ta.sma(close, bbLen), ta.sma(close, bbLen) + bbMult * ta.stdev(close, bbLen)])
+// ── Bollinger Bands (כמו המובנה: SMA ± mult × stdev) ─────────────────
+bbMid = ta.sma(close, bbLen)
+bbDev = bbMult * ta.stdev(close, bbLen)
+bbUp  = bbMid + bbDev
+bbLow = bbMid - bbDev
+[wMid, wUp, wLow] = request.security(syminfo.tickerid, weeklyTf, [ta.sma(close, bbLen), ta.sma(close, bbLen) + bbMult * ta.stdev(close, bbLen), ta.sma(close, bbLen) - bbMult * ta.stdev(close, bbLen)])
+
+// ── Directional Movement Index (הקוד של האינדיקטור המובנה) ────────────
+upMove   = ta.change(high)
+downMove = -ta.change(low)
+plusDM   = na(upMove) ? na : (upMove > downMove and upMove > 0 ? upMove : 0)
+minusDM  = na(downMove) ? na : (downMove > upMove and downMove > 0 ? downMove : 0)
+trur     = ta.rma(ta.tr, diLen)
+diPlus   = fixnan(100 * ta.rma(plusDM, diLen) / trur)
+diMinus  = fixnan(100 * ta.rma(minusDM, diLen) / trur)
+diSum    = diPlus + diMinus
+adx      = 100 * ta.rma(math.abs(diPlus - diMinus) / (diSum == 0 ? 1 : diSum), adxLen)
+
+// ── ATR, CCI, ווליום ─────────────────────────────────────────────────
+atr   = ta.atr(14)
+cci   = ta.cci(hlc3, 20)
+vol10 = ta.sma(volume, 10)
+rvol  = volume / ta.sma(volume, 10)[1]       // היום מול 10 הימים שלפניו
 
 // מיקום ברצועה ביחידות σ: 0 = על הממוצע, +2 = על הרצועה העליונה
 bbPos(c, mid, up) => up > mid ? (c - mid) / ((up - mid) / bbMult) : na
@@ -140,44 +151,55 @@ else
     why := "טובה בשבועי וביומי, ADX < 20 ועולה"
     stColor := color.blue
 
-// ── ציור על הגרף ─────────────────────────────────────────────────────
-plot(showMAs ? ema20 : na,  "EMA20",  cEma20, 1)
-plot(showMAs ? ema50 : na,  "EMA50",  cEma50, 1)
-plot(showMAs ? sma150 : na, "SMA150", cSma150, 2)
-pU = plot(showBands ? bbUp : na,  "BB עליון יומי",  color.new(cBand, 30))
-plot(showBands ? bbMid : na,      "BB אמצע יומי",   color.new(cBand, 60))
-pL = plot(showBands ? bbLow : na, "BB תחתון יומי",  color.new(cBand, 30))
-fill(pU, pL, color.new(cBand, 93))
-plot(showWeekly ? wUp : na, "BB עליון שבועי", color.new(cWeekly, 20), 2, plot.style_stepline)
-plotshape(showMaru and isMaru(0), "מרובוזו", shape.triangleup, location.belowbar, color.green, size = size.tiny)
+// ── חלון תחתון: DMI ──────────────────────────────────────────────────
+plot(adx,     title = "ADX", color = #F50057, linewidth = 2)
+plot(diPlus,  title = "+DI", color = #00C853, linewidth = 1)
+plot(diMinus, title = "-DI", color = #FF1744, linewidth = 1)
+hline(20, title = "סף ADX 20", color = #787B86, linestyle = hline.style_dashed)
+plot(atr, title = "ATR", color = #787B86, display = display.status_line + display.data_window)
+plot(cci, title = "CCI(20)", color = #787B86, display = display.status_line + display.data_window)
 
-// ── טבלה ─────────────────────────────────────────────────────────────
-var table t = table.new(position.top_right, 2, 15, border_width = 1)
-f(v, d) => na(v) ? "—" : str.tostring(v, d)
-row(i, k, v, bg) =>
-    table.cell(t, 0, i, k, text_color = color.white, bgcolor = color.new(color.navy, 0), text_size = size.small)
-    table.cell(t, 1, i, v, text_color = color.black, bgcolor = bg, text_size = size.small)
+// ── גרף המחיר ────────────────────────────────────────────────────────
+plot(ema20,  title = "EMA20",  color = #FF9800, linewidth = 1, force_overlay = true)
+plot(ema50,  title = "EMA50",  color = #9C27B0, linewidth = 1, force_overlay = true)
+plot(sma150, title = "SMA150", color = #000000, linewidth = 2, force_overlay = true)
+plot(bbUp,   title = "בולינגר יומי עליון", color = #2962FF, linewidth = 1, force_overlay = true)
+plot(bbMid,  title = "בולינגר יומי אמצע",  color = #2962FF, linewidth = 1, style = plot.style_circles, force_overlay = true)
+plot(bbLow,  title = "בולינגר יומי תחתון", color = #2962FF, linewidth = 1, force_overlay = true)
+plot(wUp,    title = "בולינגר שבועי עליון", color = #F44336, linewidth = 2, style = plot.style_stepline, force_overlay = true)
+plot(wMid,   title = "בולינגר שבועי אמצע",  color = #F44336, linewidth = 1, style = plot.style_stepline, force_overlay = true)
+plot(wLow,   title = "בולינגר שבועי תחתון", color = #F44336, linewidth = 2, style = plot.style_stepline, force_overlay = true)
+plotshape(isMaru(0), title = "מרובוזו", style = shape.triangleup, location = location.belowbar, color = #4CAF50, size = size.tiny, force_overlay = true)
+
+// ── טבלה על גרף המחיר: כל תנאי, הערך שלו ואם הוא מתקיים ───────────────
+var table t = table.new(position.top_right, 3, 13, border_width = 1, force_overlay = true)
+okBg  = color.new(color.green, 75)
+badBg = color.new(color.red, 75)
+nBg   = color.new(color.gray, 85)
+row(i, k, v, ok) =>
+    table.cell(t, 0, i, k, text_color = color.white, bgcolor = color.navy, text_size = size.small)
+    table.cell(t, 1, i, v, text_color = color.black, bgcolor = nBg, text_size = size.small)
+    table.cell(t, 2, i, ok ? "✅" : "❌", text_color = color.black, bgcolor = ok ? okBg : badBg, text_size = size.small)
 
 if barstate.islast
     if timeframe.period != "D"
         table.cell(t, 0, 0, "Checkup", text_color = color.white, bgcolor = color.navy)
         table.cell(t, 1, 0, "להפעיל על גרף יומי (D)", bgcolor = color.yellow)
     else
-        okBg = color.new(color.green, 75)
-        badBg = color.new(color.red, 75)
-        nBg = color.new(color.gray, 85)
-        row(0,  "סטטוס",           status,                                  color.new(stColor, 60))
-        row(1,  "סיבה",            why,                                     nBg)
-        row(2,  "ציון כניסה",      str.tostring(score),                     nBg)
-        row(3,  "בולינגר יומי",    f(bd, "+0.00;-0.00") + "σ",              not na(bd) and bd > bbMult ? badBg : okBg)
-        row(4,  "בולינגר שבועי",   f(bw, "+0.00;-0.00") + "σ",              not na(bw) and bw > bbMult ? badBg : okBg)
-        row(5,  "כיוון",           (up ? "▲ +DI" : "▼ -DI") + " | ADX " + str.tostring(adx, "0") + (adx > adx[1] ? " עולה" : " יורד"), up ? okBg : badBg)
-        row(6,  "+DI / -DI",       str.tostring(diPlus, "0.0") + " / " + str.tostring(diMinus, "0.0"), nBg)
-        row(7,  "ATR",             str.tostring(atr, "0.00") + " (" + str.tostring(atr / close * 100, "0.0") + "%)", nBg)
-        row(8,  "CCI(20)",         str.tostring(cci, "0") + (cciUp ? " ↑" : " ↓"), nBg)
-        row(9,  "מעל SMA150",      close > sma150 ? "✅" : "❌",              close > sma150 ? okBg : badBg)
-        row(10, "RVOL",            str.tostring(rvol, "0.00"),              rvol >= 1.2 ? okBg : nBg)
-        row(11, "ווליום ממוצע 10י", str.tostring(vol10, "#,###"),            vol10 >= minAvgVol ? okBg : badBg)
-        row(12, "מרובוזו (3 ימים)", maruAgo == 0 ? "היום" : maruAgo == 1 ? "אתמול" : maruAgo == 2 ? "לפני 2 ימים" : "—", maruAgo >= 0 ? okBg : nBg)
-        row(13, "נר אחרון",        tags == "" ? "—" : tags,                 nBg)
-        row(14, "EMA20 / EMA50",   str.tostring(ema20, "0.00") + " / " + str.tostring(ema50, "0.00"), nBg)
+        table.cell(t, 0, 0, "סטטוס", text_color = color.white, bgcolor = color.navy, text_size = size.small)
+        table.cell(t, 1, 0, status, text_color = color.black, bgcolor = color.new(stColor, 60), text_size = size.small)
+        table.cell(t, 2, 0, "ציון " + str.tostring(score), text_color = color.black, bgcolor = nBg, text_size = size.small)
+        table.cell(t, 0, 1, "סיבה", text_color = color.white, bgcolor = color.navy, text_size = size.small)
+        table.cell(t, 1, 1, why, text_color = color.black, bgcolor = nBg, text_size = size.small)
+        table.cell(t, 2, 1, "", bgcolor = nBg)
+        row(2,  "ווליום ממוצע ≥ " + str.tostring(minAvgVol, "#,###"), str.tostring(vol10, "#,###"), vol10 >= minAvgVol)
+        row(3,  "+DI מעל -DI",          str.tostring(diPlus, "0.0") + " / " + str.tostring(diMinus, "0.0"), up)
+        row(4,  "ADX ≥ 20",             str.tostring(adx, "0.0") + (adx > adx[1] ? " ↑" : " ↓"), adx >= 20)
+        row(5,  "בולינגר שבועי ≤ +2σ",  (na(bw) ? "—" : str.tostring(bw, "+0.00;-0.00")) + "σ", na(bw) or bw <= bbMult)
+        row(6,  "בולינגר יומי ≤ +2σ",   (na(bd) ? "—" : str.tostring(bd, "+0.00;-0.00")) + "σ", na(bd) or bd <= bbMult)
+        row(7,  "מעל SMA150",           str.tostring(sma150, "0.00"), close > sma150)
+        row(8,  "RVOL ≥ 1.2",           str.tostring(rvol, "0.00"), rvol >= 1.2)
+        row(9,  "CCI עולה",             str.tostring(cci, "0") + " (אתמול " + str.tostring(cci[1], "0") + ")", cciUp)
+        row(10, "מרובוזו ב-3 ימים",     maruAgo == 0 ? "היום" : maruAgo == 1 ? "אתמול" : maruAgo == 2 ? "לפני 2 ימים" : "—", maruAgo >= 0)
+        row(11, "ATR",                  str.tostring(atr, "0.00") + " (" + str.tostring(atr / close * 100, "0.0") + "%)", atr / close >= 0.005)
+        row(12, "נר אחרון",             tags == "" ? "—" : tags, cpts >= 10)
