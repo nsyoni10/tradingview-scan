@@ -155,12 +155,10 @@ row(i, k, v, ok) =>
 
 if barstate.islast
     table.clear(t, 0, 0, 2, 10)
-    if not showTable
-        na
-    else if timeframe.period != "D"
+    if showTable and timeframe.period != "D"
         table.cell(t, 0, 0, "Checkup", text_color = color.white, bgcolor = color.navy)
         table.cell(t, 1, 0, "הטבלה עובדת על גרף יומי (D)", text_color = color.black, bgcolor = color.yellow)
-    else
+    else if showTable
         table.cell(t, 0, 0, "סטטוס", text_color = color.white, bgcolor = color.navy, text_size = size.small)
         table.cell(t, 1, 0, status, text_color = color.black, bgcolor = color.new(stColor, 60), text_size = size.small)
         table.cell(t, 2, 0, "", bgcolor = nBg)
