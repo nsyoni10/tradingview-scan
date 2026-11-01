@@ -12,6 +12,12 @@ TT_CCI     = "צריך להיות זהה להגדרה ב-Commodity Channel Index
 // ══ טבלה ══════════════════════════════════════════════════════════════
 tG = "טבלה"
 showTable = input.bool(true, "להציג את הטבלה", group = tG)
+posInput  = input.string("למעלה מימין", "מיקום הטבלה", options = ["למעלה מימין", "למעלה משמאל", "למטה מימין", "למטה משמאל"], group = tG)
+tPos = switch posInput
+    "למעלה מימין" => position.top_right
+    "למעלה משמאל" => position.top_left
+    "למטה מימין"  => position.bottom_right
+    => position.bottom_left
 sizeInput = input.string("normal", "גודל הטקסט", options = ["tiny", "small", "normal", "large", "huge"], group = tG)
 tSize = switch sizeInput
     "tiny"   => size.tiny
@@ -142,7 +148,7 @@ badBg = color.new(color.red, 20)
 nBg   = #2A2E39
 hBg   = color.navy
 
-var table panel = table.new(position.top_right, 3, 11, border_width = 1)
+var table panel = table.new(tPos, 3, 11, border_width = 1)
 if barstate.islast and showTable and not timeframe.isdaily
     table.cell(panel, 0, 0, "Checkup Table", text_color = color.white, bgcolor = hBg, text_size = tSize)
     table.cell(panel, 1, 0, "הטבלה עובדת על גרף יומי (D)", text_color = #000000, bgcolor = color.yellow, text_size = tSize)
