@@ -55,6 +55,7 @@ bblP2 = plot(bblBasis - bblDev, "בולינגר ארוך Lower", color=#2962FF, 
 fill(bblP1, bblP2, title = "בולינגר ארוך Background", color=color.rgb(33, 150, 243, 95))
 
 // ── סטטוס: ספים (רק באינדיקטור הזה) ─────────────────────────────────
+showTable = input.bool(true, "להציג את הטבלה", group="סטטוס")
 minAvgVol = input.int(500000, "ווליום ממוצע מינימלי", minval=0, group="סטטוס")
 rvolMin   = input.float(1.2, "RVOL מינימלי", minval=0, step=0.1, group="סטטוס")
 adxMin    = input.float(20, "ADX מינימלי", minval=0, group="סטטוס")
@@ -154,7 +155,9 @@ row(i, k, v, ok) =>
 
 if barstate.islast
     table.clear(t, 0, 0, 2, 10)
-    if timeframe.period != "D"
+    if not showTable
+        na
+    else if timeframe.period != "D"
         table.cell(t, 0, 0, "Checkup", text_color = color.white, bgcolor = color.navy)
         table.cell(t, 1, 0, "הטבלה עובדת על גרף יומי (D)", text_color = color.black, bgcolor = color.yellow)
     else
