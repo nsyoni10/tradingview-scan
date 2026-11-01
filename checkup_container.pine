@@ -13,11 +13,11 @@ src2 = input(close, title="Source", group="EMA 2")
 off2 = input.int(0, title="Offset", minval=-500, maxval=500, group="EMA 2")
 plot(ta.ema(src2, len2), title="EMA 2", color=color.orange, offset=off2)
 
-// EMA 3
-len3 = input.int(150, minval=1, title="Length", group="EMA 3")
-src3 = input(close, title="Source", group="EMA 3")
-off3 = input.int(0, title="Offset", minval=-500, maxval=500, group="EMA 3")
-plot(ta.ema(src3, len3), title="EMA 3", color=color.purple, offset=off3)
+// SMA 150 — כמו Moving Average Simple המובנה
+len3 = input.int(150, minval=1, title="Length", group="SMA 150")
+src3 = input(close, title="Source", group="SMA 150")
+off3 = input.int(0, title="Offset", minval=-500, maxval=500, group="SMA 150")
+plot(ta.sma(src3, len3), title="SMA 150", color=color.purple, offset=off3)
 
 // ── Bollinger Bands — העתק של האינדיקטור המובנה ─────────────────────
 ma(source, length, _type) =>
@@ -47,8 +47,8 @@ bblMaType = input.string("SMA", "Basis MA Type", options = ["SMA", "EMA", "SMMA 
 bblSrc    = input(close, title="Source", group="בולינגר ארוך")
 bblMult   = input.float(2.0, minval=0.001, maxval=50, title="StdDev", group="בולינגר ארוך")
 bblOffset = input.int(0, "Offset", minval = -500, maxval = 500, group="בולינגר ארוך")
-bblBasis  = ma(bblSrc, bblLength, bblMaType)
-bblDev    = bblMult * ta.stdev(bblSrc, bblLength)
+bblTf     = input.timeframe("W", "Timeframe", group="בולינגר ארוך")
+[bblBasis, bblDev] = request.security(syminfo.tickerid, bblTf, [ma(bblSrc, bblLength, bblMaType), bblMult * ta.stdev(bblSrc, bblLength)])
 plot(bblBasis, "בולינגר ארוך Basis", color=#FF6D00, offset = bblOffset)
 bblP1 = plot(bblBasis + bblDev, "בולינגר ארוך Upper", color=#2962FF, offset = bblOffset)
 bblP2 = plot(bblBasis - bblDev, "בולינגר ארוך Lower", color=#2962FF, offset = bblOffset)
