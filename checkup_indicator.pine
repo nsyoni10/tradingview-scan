@@ -1,0 +1,178 @@
+//@version=5
+// Checkup — אותן בדיקות כמו הסקיל checkup (checkup.py), על הגרף היומי.
+// בולינגר יומי ושבועי, ADX/DI, ATR, CCI, SMA150, EMA20/50, RVOL, מרובוזו, ווליום מינימלי, סטטוס וציון כניסה.
+indicator("Checkup", overlay = true, max_labels_count = 500)
+
+// ── הגדרות ───────────────────────────────────────────────────────────
+minAvgVol  = input.int(500000, "ווליום ממוצע מינימלי (10 ימים)", group = "סטטוס")
+bbLen      = input.int(20,     "בולינגר: אורך", group = "סטטוס")
+bbMult     = input.float(2.0,  "בולינגר: סטיות תקן", group = "סטטוס")
+weeklyTf   = input.timeframe("W", "טווח זמן גבוה", group = "סטטוס")
+showBands  = input.bool(true,  "להציג רצועות בולינגר יומיות", group = "תצוגה")
+showWeekly = input.bool(true,  "להציג רצועה עליונה שבועית", group = "תצוגה")
+showMAs    = input.bool(true,  "להציג EMA20 / EMA50 / SMA150", group = "תצוגה")
+showMaru   = input.bool(true,  "לסמן מרובוזו", group = "תצוגה")
+
+// ── אינדיקטורים ──────────────────────────────────────────────────────
+ema20  = ta.ema(close, 20)
+ema50  = ta.ema(close, 50)
+sma150 = ta.sma(close, 150)
+atr    = ta.atr(14)
+[diPlus, diMinus, adx] = ta.dmi(14, 14)
+cci    = ta.cci(hlc3, 20)
+vol10  = ta.sma(volume, 10)
+rvol   = volume / ta.sma(volume, 10)[1]       // היום מול 10 הימים שלפניו
+
+[bbMid, bbUp, bbLow] = ta.bb(close, bbLen, bbMult)
+[wMid, wUp] = request.security(syminfo.tickerid, weeklyTf, [ta.sma(close, bbLen), ta.sma(close, bbLen) + bbMult * ta.stdev(close, bbLen)])
+
+// מיקום ברצועה ביחידות σ: 0 = על הממוצע, +2 = על הרצועה העליונה
+bbPos(c, mid, up) => up > mid ? (c - mid) / ((up - mid) / bbMult) : na
+bd = bbPos(close, bbMid, bbUp)
+bw = bbPos(close, wMid, wUp)
+
+// ── מרובוזו ירוק ב-3 הימים האחרונים ──────────────────────────────────
+isMaru(i) =>
+    rng = high[i] - low[i]
+    body = close[i] - open[i]
+    rng > 0 and body > 0 and body / rng >= 0.85 and body >= 0.5 * atr
+maruAgo = isMaru(0) ? 0 : isMaru(1) ? 1 : isMaru(2) ? 2 : -1
+
+// ── נר אחרון (כמו ticker_report.candle) ───────────────────────────────
+up    = diPlus > diMinus
+trendUp = close > ema20 and ema20 > ema50 and up
+rng   = math.max(high - low, 1e-9)
+body  = math.abs(close - open)
+upperW = high - math.max(open, close)
+lowerW = math.min(open, close) - low
+green = close > open
+red   = close < open
+prevGreen = close[1] > open[1]
+prevRed   = close[1] < open[1]
+
+var string tags = ""
+tags := ""
+cpts = 10.0
+hammerTag = false
+if lowerW >= 2 * body and upperW <= 0.3 * rng and body > 0
+    if trendUp
+        tags := "איש תלוי"
+        cpts -= 8
+    else
+        tags := "פטיש"
+        hammerTag := true
+        cpts += 10
+else if upperW >= 2 * body and lowerW <= 0.3 * rng and body > 0
+    if trendUp
+        tags := "כוכב נופל"
+        cpts -= 8
+    else
+        tags := "פטיש הפוך"
+        hammerTag := true
+        cpts += 4
+strong = body / rng >= 2.0 / 3.0
+if strong and green and prevRed
+    tags := tags + (tags == "" ? "" : ", ") + "נר 2/3 ירוק אחרי אדום"
+    cpts += trendUp ? 15 : 8
+else if strong
+    tags := tags + (tags == "" ? "" : ", ") + (green ? "גוף מלא ירוק" : "גוף מלא אדום")
+    cpts += green ? 3 : -5
+if green and prevRed and open <= close[1] and close >= open[1]
+    tags := tags + (tags == "" ? "" : ", ") + "בולעני עולה"
+    cpts += 10
+if red and prevGreen and open >= close[1] and close <= open[1]
+    tags := tags + (tags == "" ? "" : ", ") + "בולעני יורד"
+    cpts -= 10
+if body / rng < 0.1
+    tags := tags + (tags == "" ? "" : ", ") + "דוג'י"
+else if red and not hammerTag
+    tags := tags == "" ? "נר אדום" : tags
+    cpts -= 5
+else if green
+    cpts += 3
+cpts := math.max(math.min(cpts, 25), 0)
+
+// ── ציון כניסה 0-100 (כמו checkup.score) ─────────────────────────────
+sDir  = up ? 15 + (adx >= 20 ? 10 : adx >= 18 ? 5 : 0) + (adx > adx[1] ? 5 : 0) : 0
+sCnd  = (maruAgo == 0 ? 15 : maruAgo > 0 ? 10 : 0) + cpts * 0.4
+sVol  = green ? (rvol >= 1.5 ? 15 : rvol >= 1.2 ? 10 : rvol >= 1.0 ? 4 : 0) : 0
+cciUp = cci > cci[1]
+sCci  = cciUp and ((cci[1] < -100 and cci >= -100) or (cci[1] < 0 and cci >= 0)) ? 15 : cciUp and cci < 100 ? 10 : cciUp and cci < 200 ? 4 : 0
+sSma  = close > sma150 ? 10 : 0
+sStr  = not na(bd) and bd <= bbMult ? 5 : 0
+score = math.round(sDir + sCnd + sVol + sCci + sSma + sStr)
+
+// ── סטטוס (כמו checkup.status) ───────────────────────────────────────
+string status = ""
+string why = ""
+color stColor = color.gray
+if vol10 < minAvgVol
+    status := "⛔ לא לסחור"
+    why := "ווליום נמוך: " + str.tostring(vol10, "#,###") + " ביום"
+else if atr / close < 0.005
+    status := "⛔ לא לסחור"
+    why := "מחיר קפוא"
+else if not up and adx >= 20
+    status := "⛔ לא לסחור"
+    why := "מגמת ירידה (-DI מעל +DI, ADX ≥ 20)"
+else if not up or (adx < 20 and adx <= adx[1])
+    status := "⛔ לא לסחור"
+    why := "אין עדיין כיוון ללונג"
+else if not na(bw) and bw > bbMult
+    status := "🔴 מתוחה בשבועי"
+    why := "מעל הרצועה העליונה השבועית"
+    stColor := color.red
+else if not na(bd) and bd > bbMult
+    status := "👁 מעקב"
+    why := "מתוחה ביומי, טובה בשבועי"
+    stColor := color.orange
+else if adx >= 20
+    status := "✅ יש מקום"
+    why := "טובה בשבועי וביומי, ADX ≥ 20"
+    stColor := color.green
+else
+    status := "🔵 כמעט שם"
+    why := "טובה בשבועי וביומי, ADX < 20 ועולה"
+    stColor := color.blue
+
+// ── ציור על הגרף ─────────────────────────────────────────────────────
+plot(showMAs ? ema20 : na,  "EMA20",  color.new(color.orange, 0), 1)
+plot(showMAs ? ema50 : na,  "EMA50",  color.new(color.purple, 0), 1)
+plot(showMAs ? sma150 : na, "SMA150", color.new(color.black, 0), 2)
+pU = plot(showBands ? bbUp : na,  "BB עליון יומי",  color.new(color.teal, 30))
+plot(showBands ? bbMid : na,      "BB אמצע יומי",   color.new(color.teal, 60))
+pL = plot(showBands ? bbLow : na, "BB תחתון יומי",  color.new(color.teal, 30))
+fill(pU, pL, color.new(color.teal, 93))
+plot(showWeekly ? wUp : na, "BB עליון שבועי", color.new(color.red, 20), 2, plot.style_stepline)
+plotshape(showMaru and isMaru(0), "מרובוזו", shape.triangleup, location.belowbar, color.green, size = size.tiny)
+
+// ── טבלה ─────────────────────────────────────────────────────────────
+var table t = table.new(position.top_right, 2, 15, border_width = 1)
+f(v, d) => na(v) ? "—" : str.tostring(v, d)
+row(i, k, v, bg) =>
+    table.cell(t, 0, i, k, text_color = color.white, bgcolor = color.new(color.navy, 0), text_size = size.small)
+    table.cell(t, 1, i, v, text_color = color.black, bgcolor = bg, text_size = size.small)
+
+if barstate.islast
+    if timeframe.period != "D"
+        table.cell(t, 0, 0, "Checkup", text_color = color.white, bgcolor = color.navy)
+        table.cell(t, 1, 0, "להפעיל על גרף יומי (D)", bgcolor = color.yellow)
+    else
+        okBg = color.new(color.green, 75)
+        badBg = color.new(color.red, 75)
+        nBg = color.new(color.gray, 85)
+        row(0,  "סטטוס",           status,                                  color.new(stColor, 60))
+        row(1,  "סיבה",            why,                                     nBg)
+        row(2,  "ציון כניסה",      str.tostring(score),                     nBg)
+        row(3,  "בולינגר יומי",    f(bd, "+0.00;-0.00") + "σ",              not na(bd) and bd > bbMult ? badBg : okBg)
+        row(4,  "בולינגר שבועי",   f(bw, "+0.00;-0.00") + "σ",              not na(bw) and bw > bbMult ? badBg : okBg)
+        row(5,  "כיוון",           (up ? "▲ +DI" : "▼ -DI") + " | ADX " + str.tostring(adx, "0") + (adx > adx[1] ? " עולה" : " יורד"), up ? okBg : badBg)
+        row(6,  "+DI / -DI",       str.tostring(diPlus, "0.0") + " / " + str.tostring(diMinus, "0.0"), nBg)
+        row(7,  "ATR",             str.tostring(atr, "0.00") + " (" + str.tostring(atr / close * 100, "0.0") + "%)", nBg)
+        row(8,  "CCI(20)",         str.tostring(cci, "0") + (cciUp ? " ↑" : " ↓"), nBg)
+        row(9,  "מעל SMA150",      close > sma150 ? "✅" : "❌",              close > sma150 ? okBg : badBg)
+        row(10, "RVOL",            str.tostring(rvol, "0.00"),              rvol >= 1.2 ? okBg : nBg)
+        row(11, "ווליום ממוצע 10י", str.tostring(vol10, "#,###"),            vol10 >= minAvgVol ? okBg : badBg)
+        row(12, "מרובוזו (3 ימים)", maruAgo == 0 ? "היום" : maruAgo == 1 ? "אתמול" : maruAgo == 2 ? "לפני 2 ימים" : "—", maruAgo >= 0 ? okBg : nBg)
+        row(13, "נר אחרון",        tags == "" ? "—" : tags,                 nBg)
+        row(14, "EMA20 / EMA50",   str.tostring(ema20, "0.00") + " / " + str.tostring(ema50, "0.00"), nBg)
