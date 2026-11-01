@@ -152,8 +152,6 @@ def build(data, out):
             notes.append("-DI מעל +DI — הכיוון עדיין לא ללונג")
         if d["RVOL"] >= RVOL_MIN and d["last"][3] < d["last"][0]:
             notes.append("ווליום גבוה על נר אדום — מכירה")
-        if (d["last"][3] - d["EMA20"]) / d["ATR"] > 1.5:
-            notes.append("מתוח מעל EMA20 — ייתכן שהמהלך כבר קרה")
 
         def lvl(lst, i):
             return (lst[i][0], lst[i][1]) if len(lst) > i else (None, "")
