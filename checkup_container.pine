@@ -87,14 +87,14 @@ s3bbUpperBand = plot(s3smoothingMA + s3smoothingStDev, title = "Upper Bollinger 
 s3bbLowerBand = plot(s3smoothingMA - s3smoothingStDev, title = "Lower Bollinger Band", color=color.green, display = s3isBB ? display.all : display.none, editable = s3isBB)
 fill(s3bbUpperBand, s3bbLowerBand, color= s3isBB ? color.new(color.green, 90) : na, title="Bollinger Bands Background Fill", display = s3isBB ? display.all : display.none, editable = s3isBB)
 
-// ══ Bollinger Bands — יומי ════════════════════════════════════════════
+// ══ Bollinger Bands — בולינגר קצר (יומי) ════════════════════════════════════════════
 TT_LENGTH  = "The time period to be used in calculating the MA which creates the base for the Upper and Lower Bands."
 TT_MA_TYPE = "Determines the type of Moving Average that is applied to the basis plot line."
 TT_SOURCE  = "Determines what data from each bar will be used in calculations."
 TT_MULT    = "The number of Standard Deviations away from the MA that the Upper and Lower Bands should be."
 TT_OFFSET  = "Changing this number will move the Bollinger Bands either Forwards or Backwards relative to the current market."
 
-b4G = "Bollinger Bands"
+b4G = "בולינגר קצר"
 b4length = input.int(20,       "Length", minval = 1, tooltip =  TT_LENGTH, group = b4G)
 b4maType = input.string("SMA", "Basis MA Type",      options = ["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], tooltip = TT_MA_TYPE, group = b4G)
 b4src =    input(close,        "Source", tooltip = TT_SOURCE, group = b4G)
@@ -114,13 +114,13 @@ b4dev = b4mult * ta.stdev(b4src, b4length)
 b4upper = b4basis + b4dev
 b4lower = b4basis - b4dev
 
-plot(b4basis, "Basis", color=#2962FF, offset = b4offset)
-b4p1 = plot(b4upper, "Upper", color=#F23645, offset = b4offset)
-b4p2 = plot(b4lower, "Lower", color=#089981, offset = b4offset)
-fill(b4p1, b4p2, title = "Background", color=color.rgb(33, 150, 243, 95))
+plot(b4basis, "בולינגר קצר Basis", color=#2962FF, offset = b4offset)
+b4p1 = plot(b4upper, "בולינגר קצר Upper", color=#F23645, offset = b4offset)
+b4p2 = plot(b4lower, "בולינגר קצר Lower", color=#089981, offset = b4offset)
+fill(b4p1, b4p2, title = "בולינגר קצר Background", color=color.rgb(33, 150, 243, 95))
 
-// ══ Bollinger Bands — שבועי (Timeframe) ═══════════════════════════════
-b5G = "Bollinger Bands (W)"
+// ══ Bollinger Bands — בולינגר ארוך (שבועי) ═══════════════════════════════
+b5G = "בולינגר ארוך"
 b5tf =     input.timeframe("W", "Timeframe", group = b5G)
 b5length = input.int(20,       "Length", minval = 1, tooltip =  TT_LENGTH, group = b5G)
 b5maType = input.string("SMA", "Basis MA Type",      options = ["SMA", "EMA", "SMMA (RMA)", "WMA", "VWMA"], tooltip = TT_MA_TYPE, group = b5G)
@@ -132,7 +132,54 @@ b5offset = input.int(0,        "Offset", minval = -500,  maxval = 500, tooltip =
 b5upper = b5basis + b5dev
 b5lower = b5basis - b5dev
 
-plot(b5basis, "Basis", color=#2962FF, offset = b5offset)
-b5p1 = plot(b5upper, "Upper", color=#F23645, offset = b5offset)
-b5p2 = plot(b5lower, "Lower", color=#089981, offset = b5offset)
-fill(b5p1, b5p2, title = "Background", color=color.rgb(33, 150, 243, 95))
+plot(b5basis, "בולינגר ארוך Basis", color=#2962FF, offset = b5offset)
+b5p1 = plot(b5upper, "בולינגר ארוך Upper", color=#F23645, offset = b5offset)
+b5p2 = plot(b5lower, "בולינגר ארוך Lower", color=#089981, offset = b5offset)
+fill(b5p1, b5p2, title = "בולינגר ארוך Background", color=color.rgb(33, 150, 243, 95))
+
+// ══ ⚠ שדות משותפים עם Checkup תחתון (לטבלה — מחושבים כאן, לא מצוירים) ══
+// הקוד מועתק מהמובנים: Directional Movement Index, Average True Range, Commodity Channel Index
+SHARED = "קיים גם ב-Checkup תחתון. אם משנים כאן — לשנות גם שם לאותו ערך."
+
+// Directional Movement Index
+dmiG = "DMI ⚠"
+lensig = input.int(14, title="ADX Smoothing ⚠", minval=1, group = dmiG, tooltip = SHARED)
+dmiLen = input.int(14, minval=1, title="DI Length ⚠", group = dmiG, tooltip = SHARED)
+dmiUp = ta.change(high)
+dmiDown = -ta.change(low)
+plusDM = na(dmiUp) ? na : (dmiUp > dmiDown and dmiUp > 0 ? dmiUp : 0)
+minusDM = na(dmiDown) ? na : (dmiDown > dmiUp and dmiDown > 0 ? dmiDown : 0)
+trur = ta.rma(ta.tr, dmiLen)
+plus = fixnan(100 * ta.rma(plusDM, dmiLen) / trur)
+minus = fixnan(100 * ta.rma(minusDM, dmiLen) / trur)
+dmiSum = plus + minus
+adx = 100 * ta.rma(math.abs(plus - minus) / (dmiSum == 0 ? 1 : dmiSum), lensig)
+
+// Average True Range
+atrG = "ATR ⚠"
+atrLength = input.int(title="Length ⚠", defval=14, minval=1, group = atrG, tooltip = SHARED)
+atrSmoothing = input.string(title="Smoothing ⚠", defval="RMA", options=["RMA", "SMA", "EMA", "WMA"], group = atrG, tooltip = SHARED)
+ma_function(source, length) =>
+	switch atrSmoothing
+		"RMA" => ta.rma(source, length)
+		"SMA" => ta.sma(source, length)
+		"EMA" => ta.ema(source, length)
+		=> ta.wma(source, length)
+atr = ma_function(ta.tr(true), atrLength)
+
+// Commodity Channel Index
+cciG = "CCI ⚠"
+cciLength = input.int(20, minval=1, title="Length ⚠", group = cciG, tooltip = SHARED)
+cciSrc = input(hlc3, title="Source ⚠", group = cciG, tooltip = SHARED)
+cciMa = ta.sma(cciSrc, cciLength)
+cci = (cciSrc - cciMa) / (0.015 * ta.dev(cciSrc, cciLength))
+
+// Volume — ממוצע ווליום ו-RVOL (לא חלק מהאינדיקטור המובנה Volume; נדרש לסקיל)
+volG = "Volume ⚠"
+volMaLen = input.int(10, minval=1, title="MA Length ⚠", group = volG, tooltip = SHARED)
+volMa = ta.sma(volume, volMaLen)
+rvol = volume / ta.sma(volume, volMaLen)[1]
+
+// הסבר בתחתית חלון ההגדרות
+NOTE = "השדות המסומנים ⚠ קיימים גם ב-Checkup תחתון. כשמשנים אחד מהם כאן — לשנות גם שם לאותו ערך."
+sharedNote = input.string(NOTE, "⚠ הסבר", options = [NOTE], group = "⚠ הסבר")
