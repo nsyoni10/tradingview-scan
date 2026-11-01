@@ -176,23 +176,26 @@ plotshape(isMaru(0), title = "מרובוזו", style = shape.triangleup, locatio
 // ── שם בקצה כל קו, באותו צבע, כדי לדעת איזה קו הוא מה ──────────────────
 // (אם משנים צבע בלשונית Style, השם נשאר בצבע ברירת המחדל)
 var array<label> names = array.new<label>()
-nameAt(y, txt, col, ovl) =>
-    label.new(bar_index + 2, y, txt, style = label.style_label_left, color = color.new(col, 100), textcolor = col, size = size.small, force_overlay = ovl)
+// force_overlay חייב להיות קבוע, לכן שתי פונקציות: אחת לגרף המחיר ואחת לחלון התחתון
+nameMain(y, txt, col) =>
+    label.new(bar_index + 2, y, txt, style = label.style_label_left, color = color.new(col, 100), textcolor = col, size = size.small, force_overlay = true)
+namePane(y, txt, col) =>
+    label.new(bar_index + 2, y, txt, style = label.style_label_left, color = color.new(col, 100), textcolor = col, size = size.small)
 if barstate.islast
     for l in names
         label.delete(l)
     array.clear(names)
     if showNames
-        array.push(names, nameAt(ema20,  "EMA20",  #FF9800, true))
-        array.push(names, nameAt(ema50,  "EMA50",  #9C27B0, true))
-        array.push(names, nameAt(sma150, "SMA150", #000000, true))
-        array.push(names, nameAt(bbUp,   "BB יומי",  #2962FF, true))
-        array.push(names, nameAt(bbLow,  "BB יומי",  #2962FF, true))
-        array.push(names, nameAt(wUp,    "BB שבועי", #F44336, true))
-        array.push(names, nameAt(wLow,   "BB שבועי", #F44336, true))
-        array.push(names, nameAt(adx,     "ADX", #F50057, false))
-        array.push(names, nameAt(diPlus,  "+DI", #00C853, false))
-        array.push(names, nameAt(diMinus, "-DI", #FF1744, false))
+        array.push(names, nameMain(ema20,  "EMA20",  #FF9800))
+        array.push(names, nameMain(ema50,  "EMA50",  #9C27B0))
+        array.push(names, nameMain(sma150, "SMA150", #000000))
+        array.push(names, nameMain(bbUp,   "BB יומי",  #2962FF))
+        array.push(names, nameMain(bbLow,  "BB יומי",  #2962FF))
+        array.push(names, nameMain(wUp,    "BB שבועי", #F44336))
+        array.push(names, nameMain(wLow,   "BB שבועי", #F44336))
+        array.push(names, namePane(adx,     "ADX", #F50057))
+        array.push(names, namePane(diPlus,  "+DI", #00C853))
+        array.push(names, namePane(diMinus, "-DI", #FF1744))
 
 // ── טבלה על גרף המחיר: כל תנאי, הערך שלו ואם הוא מתקיים ───────────────
 var table t = table.new(position.top_right, 3, 13, border_width = 1, force_overlay = true)
