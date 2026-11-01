@@ -137,9 +137,9 @@ b5p1 = plot(b5upper, "בולינגר ארוך Upper", color=#F23645, offset = b5
 b5p2 = plot(b5lower, "בולינגר ארוך Lower", color=#089981, offset = b5offset)
 fill(b5p1, b5p2, title = "בולינגר ארוך Background", color=color.rgb(33, 150, 243, 95))
 
-// ══ ⚠ שדות משותפים עם Checkup תחתון (לטבלה — מחושבים כאן, לא מצוירים) ══
+// ══ ⚠ שדות לטבלה — חייבים להיות זהים להגדרות של האינדיקטורים המובנים על הגרף (מחושבים כאן, לא מצוירים) ══
 // הקוד מועתק מהמובנים: Directional Movement Index, Average True Range, Commodity Channel Index
-SHARED = "קיים גם ב-Checkup תחתון. אם משנים כאן — לשנות גם שם לאותו ערך."
+SHARED = "חייב להיות זהה להגדרה של האינדיקטור המובנה על הגרף. אם משנים שם — לשנות גם כאן לאותו ערך."
 
 // Directional Movement Index
 dmiG = "DMI ⚠"
@@ -174,12 +174,12 @@ cciSrc = input(hlc3, title="Source ⚠", group = cciG, tooltip = SHARED)
 cciMa = ta.sma(cciSrc, cciLength)
 cci = (cciSrc - cciMa) / (0.015 * ta.dev(cciSrc, cciLength))
 
-// Volume — ממוצע ווליום ו-RVOL (לא חלק מהאינדיקטור המובנה Volume; נדרש לסקיל). רק כאן — לא ב-Checkup תחתון
+// Volume — ממוצע ווליום ו-RVOL (לא חלק מהאינדיקטור המובנה Volume; נדרש לסקיל)
 volG = "Volume"
 volMaLen = input.int(10, minval=1, title="MA Length", group = volG)
 volMa = ta.sma(volume, volMaLen)
 rvol = volume / ta.sma(volume, volMaLen)[1]
 
 // הסבר בתחתית חלון ההגדרות
-NOTE = "השדות המסומנים ⚠ קיימים גם ב-Checkup תחתון. כשמשנים אחד מהם כאן — לשנות גם שם לאותו ערך."
+NOTE = "השדות המסומנים ⚠ צריכים להיות זהים להגדרות של האינדיקטורים המובנים DMI, ATR ו-CCI על הגרף."
 sharedNote = input.string(NOTE, "⚠ הסבר", options = [NOTE], group = "⚠ הסבר")
