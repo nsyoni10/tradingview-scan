@@ -8,6 +8,15 @@ minAvgVol  = input.int(500000, "ווליום ממוצע מינימלי (10 ימ�
 bbLen      = input.int(20,     "בולינגר: אורך", group = "סטטוס")
 bbMult     = input.float(2.0,  "בולינגר: סטיות תקן", group = "סטטוס")
 weeklyTf   = input.timeframe("W", "טווח זמן גבוה", group = "סטטוס")
+showBands  = input.bool(true,  "להציג רצועות בולינגר יומיות", group = "תצוגה")
+showWeekly = input.bool(true,  "להציג רצועה עליונה שבועית", group = "תצוגה")
+showMAs    = input.bool(true,  "להציג EMA20 / EMA50 / SMA150", group = "תצוגה")
+showMaru   = input.bool(true,  "לסמן מרובוזו", group = "תצוגה")
+cEma20     = input.color(color.orange, "צבע EMA20",  group = "צבעים")
+cEma50     = input.color(color.purple, "צבע EMA50",  group = "צבעים")
+cSma150    = input.color(color.black,  "צבע SMA150", group = "צבעים")
+cBand      = input.color(color.teal,   "צבע בולינגר יומי", group = "צבעים")
+cWeekly    = input.color(color.red,    "צבע רצועה עליונה שבועית", group = "צבעים")
 
 // ── אינדיקטורים ──────────────────────────────────────────────────────
 ema20  = ta.ema(close, 20)
@@ -132,16 +141,15 @@ else
     stColor := color.blue
 
 // ── ציור על הגרף ─────────────────────────────────────────────────────
-// צבעים קבועים (hex) כדי שטריידינגוויו יציג לכל קו בלשונית Style: הצגה, צבע, עובי וסוג קו
-plot(ema20,  title = "EMA20",  color = #FF9800, linewidth = 1)
-plot(ema50,  title = "EMA50",  color = #9C27B0, linewidth = 1)
-plot(sma150, title = "SMA150", color = #000000, linewidth = 2)
-pU = plot(bbUp,  title = "בולינגר עליון יומי", color = #00897B, linewidth = 1)
-plot(bbMid,      title = "בולינגר אמצע יומי",  color = #80CBC4, linewidth = 1)
-pL = plot(bbLow, title = "בולינגר תחתון יומי", color = #00897B, linewidth = 1)
-fill(pU, pL, title = "רקע בולינגר יומי", color = #00897B12)
-plot(wUp, title = "בולינגר עליון שבועי", color = #F44336, linewidth = 2, style = plot.style_stepline)
-plotshape(isMaru(0), title = "מרובוזו", style = shape.triangleup, location = location.belowbar, color = #4CAF50, size = size.tiny)
+plot(showMAs ? ema20 : na,  "EMA20",  cEma20, 1)
+plot(showMAs ? ema50 : na,  "EMA50",  cEma50, 1)
+plot(showMAs ? sma150 : na, "SMA150", cSma150, 2)
+pU = plot(showBands ? bbUp : na,  "BB עליון יומי",  color.new(cBand, 30))
+plot(showBands ? bbMid : na,      "BB אמצע יומי",   color.new(cBand, 60))
+pL = plot(showBands ? bbLow : na, "BB תחתון יומי",  color.new(cBand, 30))
+fill(pU, pL, color.new(cBand, 93))
+plot(showWeekly ? wUp : na, "BB עליון שבועי", color.new(cWeekly, 20), 2, plot.style_stepline)
+plotshape(showMaru and isMaru(0), "מרובוזו", shape.triangleup, location.belowbar, color.green, size = size.tiny)
 
 // ── טבלה ─────────────────────────────────────────────────────────────
 var table t = table.new(position.top_right, 2, 15, border_width = 1)
