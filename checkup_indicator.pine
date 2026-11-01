@@ -7,6 +7,7 @@ indicator("Checkup", overlay = false, max_labels_count = 500)
 
 // ── הגדרות ───────────────────────────────────────────────────────────
 showTable = input.bool(true, "להציג את טבלת הסטטוס", group = "סטטוס")
+showNames = input.bool(true, "להציג שם בקצה כל קו", group = "סטטוס")
 minAvgVol = input.int(500000, "ווליום ממוצע מינימלי (10 ימים)", group = "סטטוס")
 bbLen     = input.int(20,     "בולינגר: אורך", group = "בולינגר")
 bbMult    = input.float(2.0,  "בולינגר: סטיות תקן", group = "בולינגר")
@@ -171,6 +172,27 @@ plot(wUp,    title = "בולינגר שבועי עליון", color = #F44336, li
 plot(wMid,   title = "בולינגר שבועי אמצע",  color = #F44336, linewidth = 1, style = plot.style_stepline, force_overlay = true)
 plot(wLow,   title = "בולינגר שבועי תחתון", color = #F44336, linewidth = 2, style = plot.style_stepline, force_overlay = true)
 plotshape(isMaru(0), title = "מרובוזו", style = shape.triangleup, location = location.belowbar, color = #4CAF50, size = size.tiny, force_overlay = true)
+
+// ── שם בקצה כל קו, באותו צבע, כדי לדעת איזה קו הוא מה ──────────────────
+// (אם משנים צבע בלשונית Style, השם נשאר בצבע ברירת המחדל)
+var array<label> names = array.new<label>()
+nameAt(y, txt, col, ovl) =>
+    label.new(bar_index + 2, y, txt, style = label.style_label_left, color = color.new(col, 100), textcolor = col, size = size.small, force_overlay = ovl)
+if barstate.islast
+    for l in names
+        label.delete(l)
+    array.clear(names)
+    if showNames
+        array.push(names, nameAt(ema20,  "EMA20",  #FF9800, true))
+        array.push(names, nameAt(ema50,  "EMA50",  #9C27B0, true))
+        array.push(names, nameAt(sma150, "SMA150", #000000, true))
+        array.push(names, nameAt(bbUp,   "BB יומי",  #2962FF, true))
+        array.push(names, nameAt(bbLow,  "BB יומי",  #2962FF, true))
+        array.push(names, nameAt(wUp,    "BB שבועי", #F44336, true))
+        array.push(names, nameAt(wLow,   "BB שבועי", #F44336, true))
+        array.push(names, nameAt(adx,     "ADX", #F50057, false))
+        array.push(names, nameAt(diPlus,  "+DI", #00C853, false))
+        array.push(names, nameAt(diMinus, "-DI", #FF1744, false))
 
 // ── טבלה על גרף המחיר: כל תנאי, הערך שלו ואם הוא מתקיים ───────────────
 var table t = table.new(position.top_right, 3, 13, border_width = 1, force_overlay = true)
