@@ -174,9 +174,9 @@ cciSrc = input(hlc3, title="Source ⚠", group = cciG, tooltip = SHARED)
 cciMa = ta.sma(cciSrc, cciLength)
 cci = (cciSrc - cciMa) / (0.015 * ta.dev(cciSrc, cciLength))
 
-// Volume — ממוצע ווליום ו-RVOL (לא חלק מהאינדיקטור המובנה Volume; נדרש לסקיל)
-volG = "Volume ⚠"
-volMaLen = input.int(10, minval=1, title="MA Length ⚠", group = volG, tooltip = SHARED)
+// Volume — ממוצע ווליום ו-RVOL (לא חלק מהאינדיקטור המובנה Volume; נדרש לסקיל). רק כאן — לא ב-Checkup תחתון
+volG = "Volume"
+volMaLen = input.int(10, minval=1, title="MA Length", group = volG)
 volMa = ta.sma(volume, volMaLen)
 rvol = volume / ta.sma(volume, volMaLen)[1]
 

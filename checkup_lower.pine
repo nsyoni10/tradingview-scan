@@ -2,11 +2,8 @@
 indicator(title="Checkup תחתון", shorttitle="Checkup תחתון", overlay=false, format=format.price, precision=2)
 // חלון אחד מתחת למחיר. כל אינדיקטור מועתק מקוד המקור של TradingView (גרסה 6) כמו שהוא.
 // מה ששונה רק כדי שכולם ייכנסו לחלון אחד: שמות המשתנים (קידומת), קבוצה לכל אינדיקטור, שמות הקווים מתחילים בשם הקבוצה.
-// DMI מצויר כקווים. ATR, CCI ו-Volume בסולם אחר לגמרי — לכן הם מוצגים כמספרים בשורת הערכים
-// (כקו באותו חלון הם היו מוחצים את ה-DMI). אפשר להדליק כל אחד מהם בלשונית Style.
 
 SHARED = "קיים גם ב-Checkup. אם משנים כאן — לשנות גם שם לאותו ערך."
-VALUES = display.status_line + display.data_window
 
 // ══ DMI — Directional Movement Index ══════════════════════════════════
 dmiG = "DMI ⚠"
@@ -35,7 +32,7 @@ ma_function(source, length) =>
 		"SMA" => ta.sma(source, length)
 		"EMA" => ta.ema(source, length)
 		=> ta.wma(source, length)
-plot(ma_function(ta.tr(true), atrLength), title = "ATR", color=color.new(#B71C1C, 0), display = VALUES)
+plot(ma_function(ta.tr(true), atrLength), title = "ATR", color=color.new(#B71C1C, 0))
 
 // ══ CCI — Commodity Channel Index ═════════════════════════════════════
 cciG = "CCI ⚠"
@@ -43,11 +40,11 @@ cciLength = input.int(20, minval=1, title="Length ⚠", group = cciG, tooltip = 
 cciSrc = input(hlc3, title="Source ⚠", group = cciG, tooltip = SHARED)
 cciMa = ta.sma(cciSrc, cciLength)
 cci = (cciSrc - cciMa) / (0.015 * ta.dev(cciSrc, cciLength))
-plot(cci, "CCI", color=#2962FF, display = VALUES)
-cciBand1 = hline(100, "CCI Upper Band", color=#787B86, linestyle=hline.style_dashed, display = display.none)
-hline(0, "CCI Middle Band", color=color.new(#787B86, 50), display = display.none)
-cciBand0 = hline(-100, "CCI Lower Band", color=#787B86, linestyle=hline.style_dashed, display = display.none)
-fill(cciBand1, cciBand0, color=color.rgb(33, 150, 243, 90), title="CCI Background", display = display.none)
+plot(cci, "CCI", color=#2962FF)
+cciBand1 = hline(100, "CCI Upper Band", color=#787B86, linestyle=hline.style_dashed)
+hline(0, "CCI Middle Band", color=color.new(#787B86, 50))
+cciBand0 = hline(-100, "CCI Lower Band", color=#787B86, linestyle=hline.style_dashed)
+fill(cciBand1, cciBand0, color=color.rgb(33, 150, 243, 90), title="CCI Background")
 
 // Smoothing MA inputs
 cciGRP = "CCI Smoothing"
@@ -71,18 +68,13 @@ ma(source, length, MAtype) =>
 // Smoothing MA plots
 cciSmoothingMA = cciEnableMA ? ma(cci, cciMaLengthInput, cciMaTypeInput) : na
 cciSmoothingStDev = cciIsBB ? ta.stdev(cci, cciMaLengthInput) * cciBbMultInput : na
-plot(cciSmoothingMA, "CCI Smoothing MA", color=color.yellow, display = display.none, editable = cciEnableMA)
-cciBbUpperBand = plot(cciSmoothingMA + cciSmoothingStDev, title = "CCI Smoothing Upper Band", color=color.green, display = display.none, editable = cciIsBB)
-cciBbLowerBand = plot(cciSmoothingMA - cciSmoothingStDev, title = "CCI Smoothing Lower Band", color=color.green, display = display.none, editable = cciIsBB)
-fill(cciBbUpperBand, cciBbLowerBand, color= cciIsBB ? color.new(color.green, 90) : na, title="CCI Smoothing Background", display = display.none, editable = cciIsBB)
+plot(cciSmoothingMA, "CCI Smoothing MA", color=color.yellow, display = cciEnableMA ? display.all : display.none, editable = cciEnableMA)
+cciBbUpperBand = plot(cciSmoothingMA + cciSmoothingStDev, title = "CCI Smoothing Upper Band", color=color.green, display = cciIsBB ? display.all : display.none, editable = cciIsBB)
+cciBbLowerBand = plot(cciSmoothingMA - cciSmoothingStDev, title = "CCI Smoothing Lower Band", color=color.green, display = cciIsBB ? display.all : display.none, editable = cciIsBB)
+fill(cciBbUpperBand, cciBbLowerBand, color= cciIsBB ? color.new(color.green, 90) : na, title="CCI Smoothing Background", display = cciIsBB ? display.all : display.none, editable = cciIsBB)
 
 // ══ Volume ════════════════════════════════════════════════════════════
-plot(volume, color = close >= open ? color.new(#26A69A, 50) : color.new(#EF5350, 50), style=plot.style_columns, title="Volume", display = VALUES)
-// ממוצע ווליום ו-RVOL — לא חלק מהאינדיקטור המובנה Volume; נדרשים לסקיל
-volG = "Volume ⚠"
-volMaLen = input.int(10, minval=1, title="MA Length ⚠", group = volG, tooltip = SHARED)
-plot(ta.sma(volume, volMaLen), title="Volume MA", color=#787B86, display = VALUES)
-plot(volume / ta.sma(volume, volMaLen)[1], title="Volume RVOL", color=#787B86, display = VALUES)
+plot(volume, color = close >= open ? color.new(#26A69A, 50) : color.new(#EF5350, 50), style=plot.style_columns, title="Volume")
 
 // הסבר בתחתית חלון ההגדרות
 NOTE = "השדות המסומנים ⚠ קיימים גם ב-Checkup. כשמשנים אחד מהם כאן — לשנות גם שם לאותו ערך."
