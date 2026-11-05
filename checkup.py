@@ -130,6 +130,22 @@ def status(d):
     return 1, bd, bw, "טובה בשבועי וביומי, +DI מעל -DI, ADX מתחת ל-20 ועולה"
 
 
+NEWS_RED, NEWS_YELLOW = "⚠", "ℹ"
+
+
+def news_cell(d):
+    """עמודת החדשות: news_level = red / yellow / none, news = טקסט קצר. בלי news_level = לא נבדק."""
+    lvl = d.get("news_level")
+    if lvl is None:
+        return ""
+    txt = d.get("news", "").strip()
+    if lvl == "red":
+        return f"{NEWS_RED} {txt}"
+    if lvl == "yellow":
+        return f"{NEWS_YELLOW} {txt}"
+    return "—"
+
+
 def build(data, out):
     wb = Workbook()
     ws = wb.active
@@ -137,7 +153,7 @@ def build(data, out):
     ws.sheet_view.rightToLeft = True
 
     headers = [
-        "טיקר", "סטטוס", "בולינגר יומי (σ)", "בולינגר שבועי (σ)", "ציון כניסה", "מעל SMA150", "RVOL ≥ 1.2", "כיוון", "סגירה", "שינוי %",
+        "טיקר", "סטטוס", "בולינגר יומי (σ)", "בולינגר שבועי (σ)", "ציון כניסה", "חדשות", "מעל SMA150", "RVOL ≥ 1.2", "כיוון", "סגירה", "שינוי %",
         "SMA150", "RVOL", "ATR", "ATR %", "ADX", "+DI", "-DI", "CCI", "EMA20", "EMA50",
         "צבע נר", "מרובוזו (3 ימים)", "דפוס נר",
         "התנגדות 1", "מקור R1", "מרחק R1 (ATR)", "התנגדות 2",
@@ -178,7 +194,7 @@ def build(data, out):
         s1, s1n = lvl(sup, 0)
         s2, _ = lvl(sup, 1)
         rows.append([
-            sym.split(":")[1], STATUS[st], bd, bw, sc, OK if above else BAD, OK if rvol_ok else BAD,
+            sym.split(":")[1], STATUS[st], bd, bw, sc, news_cell(d), OK if above else BAD, OK if rvol_ok else BAD,
             ("▲ +DI" if d["DIp"] > d["DIm"] else "▼ -DI") + f" | ADX {d['ADX']:.0f}" + (" עולה" if d["ADX"] > d.get("ADX1", d["ADX"]) else " יורד"),
             c, (c / pc - 1) * 100, d["SMA150"], d["RVOL"],
             d["ATR"], d["ATR"] / c * 100, d["ADX"], d["DIp"], d["DIm"], d["CCI"],
@@ -228,7 +244,12 @@ def build(data, out):
         row[H["מרובוזו (3 ימים)"]].fill = green if row[H["מרובוזו (3 ימים)"]].value != "—" else PatternFill()
         v = row[H["צבע נר"]].value
         row[H["צבע נר"]].fill = green if v == "ירוק" else red if v == "אדום" else PatternFill()
-        for h in ("דפוס נר", "הערות"):
+        nv = row[H["חדשות"]].value or ""
+        if nv.startswith(NEWS_RED):
+            row[H["חדשות"]].fill = red
+        elif nv.startswith(NEWS_YELLOW):
+            row[H["חדשות"]].fill = PatternFill("solid", fgColor="FFEB9C")
+        for h in ("דפוס נר", "חדשות", "הערות"):
             row[H[h]].alignment = Alignment(horizontal="right", vertical="center", wrap_text=True)
 
     last = ws.max_row
@@ -239,7 +260,7 @@ def build(data, out):
                        end_type="num", end_value=100, end_color="63BE7B"))
 
     widths = {"טיקר": 8, "סטטוס": 16, "בולינגר יומי (σ)": 11, "בולינגר שבועי (σ)": 11, "ציון כניסה": 9,
-              "כיוון": 16, "מרובוזו (3 ימים)": 12, "דפוס נר": 30, "מקור R1": 18, "מקור S1": 18, "הערות": 50}
+              "חדשות": 45, "כיוון": 16, "מרובוזו (3 ימים)": 12, "דפוס נר": 30, "מקור R1": 18, "מקור S1": 18, "הערות": 50}
     widths = {H[h] + 1: w for h, w in widths.items()}
     for i in range(1, len(headers) + 1):
         ws.column_dimensions[get_column_letter(i)].width = widths.get(i, 10)
@@ -269,6 +290,10 @@ def build(data, out):
         ("ציון כניסה 0-100", "כיוון 30 (+DI>-DI 15, ADX≥20 10 / 18-20 5, ADX עולה 5 — רק כש-+DI>-DI) | "
                              "נר עם עוצמה 25 (מרובוזו היום 15 / ב-3 ימים 10 + דפוס נר אחרון עד 10) | "
                              "ווליום על נר ירוק 15 | CCI יוצא מתיקון 15 | מעל SMA150 10 | לא מתוח מעל EMA20 5"),
+        ("חדשות", "כותרות מאז סגירת הנר האחרון על המניה ועל המתחרות הישירות שלה (נבדק ל-✅ 🔵 👁 בלבד). "
+                   "⚠ = חדשות מהותיות שעלולות להפיל את המניה (מתחרה, רגולציה, הורדת תחזית) | "
+                   "ℹ = חדשות שכדאי לדעת | — = נבדק, אין חדשות מהותיות | ריק = לא נבדק. "
+                   "הציון והסטטוס לא משתנים לפי החדשות — לבדוק את העמודה לפני כניסה"),
         ("שים לב", "הציון הוא כלי מיון, לא המלצת השקעה"),
     ]
     for k, v in lines:
