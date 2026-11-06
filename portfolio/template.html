@@ -104,6 +104,19 @@ tbody tr.sel { background: var(--accent-soft); }
 .news .d { color: var(--muted); font-size: .78rem; }
 .mkt { background: var(--surface-2); }
 .src { color: var(--muted); font-size: .78rem; }
+.stamp { display: grid; gap: 6px; justify-items: end; text-align: left; }
+.live { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .85rem; }
+.live .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.live.on .dot { background: var(--up); box-shadow: 0 0 0 3px var(--up-soft); }
+.live.warn .dot { background: var(--warn); }
+.live.err .dot { background: var(--down); }
+.refresh { font: inherit; font-size: .82rem; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.refresh:hover { border-color: var(--accent); } .refresh:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.refresh:disabled { opacity: .6; cursor: default; }
+.pstat { font-size: .82rem; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.pstat.busy::before { content: ""; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--accent); border-top-color: transparent; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .pstat.busy::before { animation: none; } }
 .note { color: var(--muted); font-size: .82rem; max-width: 75ch; }
 .note p { margin: 4px 0 }
 @media (max-width: 600px) { h1 { font-size: 1.6rem } .tools input { width: 100% } .tools .count { margin-inline-start: 0 } }
@@ -116,7 +129,7 @@ tbody tr.sel { background: var(--accent-soft); }
       <h1>תיק PROTFOLIO</h1>
       <p class="sub">כל הטיקרים מרשימת המעקב PROTFOLIO בטריידינגוויו, לפי הקבוצות שלך</p>
     </div>
-    <div class="stamp">נתונים נכונים ל־<span class="num">__DATE__</span><br>מקור: TradingView</div>
+    <div class="stamp"><div id="live" class="live" role="status" aria-live="polite"><span class="dot"></span><span id="livetxt">נתונים שמורים מ־<span class="num">__DATE__</span>. מתחבר ל־TradingView…</span></div><button type="button" id="refresh" class="refresh" hidden>רענן עכשיו</button></div>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="תצוגות">
@@ -150,24 +163,29 @@ tbody tr.sel { background: var(--accent-soft); }
     <p><b>ADX:</b> המספר הראשי הוא עוצמת המגמה (25 ומעלה נחשב מגמה חזקה). <bdi dir="ltr">+DI</bdi> הוא כוח הקונים (עולה) ו־<bdi dir="ltr">−DI</bdi> כוח המוכרים (יורד). התגית מראה מי מוביל.</p>
     <p><b>מעל SMA150:</b> כן או לא, המרחק מהממוצע באחוזים, ובסוגריים ערך הממוצע.</p>
     <p><b>דירוג TV:</b> הדירוג הטכני המסכם של TradingView (Recommend.All). <b>טווח 52ש:</b> הסימן מראה איפה המחיר נמצא בין השפל לשיא.</p>
-    <p>לחיצה על כרטיס קבוצה מסננת את הטבלה. לחיצה על כותרת עמודה ממיינת. הנתונים הם צילום רגעי ואינם מתעדכנים לבד.</p>
+    <p>לחיצה על כרטיס קבוצה מסננת את הטבלה. לחיצה על כותרת עמודה ממיינת.</p>
+    <p><b>עדכון חי:</b> בכל פתיחה העמוד מושך מחדש את רשימת PROTFOLIO והנתונים דרך חיבור TradingView שלך ב־claude.ai, ומתרענן כל 5 דקות כשהלשונית פתוחה. סיכומי החברות נכתבים בעברית על ידי Claude מתוך הכותרות העדכניות, ונשמרים לכמה שעות. כשאין חיבור מוצגים הנתונים השמורים מ־<span class="num">__DATE__</span>.</p>
   </div>
 </div>
 
 <script>
-const ORDER = __ORDER__;
-const RAW = __DATA__;
+const SNAP_ORDER = __ORDER__;
+const SNAP_RAW = __DATA__;
 const INDEX_GROUP = "מדדים";
 
-const rows = []; let group = INDEX_GROUP;
-for (const s of ORDER) {
-  if (s.startsWith("###")) { group = s.slice(3); continue; }
-  const [ex, tk] = s.split(":");
-  const x = RAW[s] || null;
-  rows.push({ sym: s, ex, tk, group, x });
+let rows = [], groupNames = [], emptyGroups = [], stocks = [];
+function build(order, raw) {
+  rows = []; let group = INDEX_GROUP;
+  for (const s of order) {
+    if (s.startsWith("###")) { group = s.slice(3); continue; }
+    const i = s.indexOf(":"); const ex = i > 0 ? s.slice(0, i) : ""; const tk = i > 0 ? s.slice(i + 1) : s;
+    rows.push({ sym: s, ex, tk, group, x: raw[s] || null });
+  }
+  groupNames = [...new Set(rows.filter(r => r.group !== INDEX_GROUP).map(r => r.group))];
+  emptyGroups = order.filter(s => s.startsWith("###")).map(s => s.slice(3)).filter(g => !groupNames.includes(g));
+  stocks = rows.filter(r => r.group !== INDEX_GROUP && r.x);
 }
-const groupNames = [...new Set(rows.filter(r => r.group !== INDEX_GROUP).map(r => r.group))];
-const emptyGroups = ORDER.filter(s => s.startsWith("###")).map(s => s.slice(3)).filter(g => !groupNames.includes(g));
+build(SNAP_ORDER, SNAP_RAW);
 
 const f = (v, d = 2) => v == null ? "—" : Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 const sign = v => v == null ? "mut" : v > 0 ? "up" : v < 0 ? "down" : "mut";
@@ -188,14 +206,15 @@ function rating(v) {
 const dateOf = t => t ? new Date(t * 1000).toISOString().slice(0, 10) : null;
 
 /* market strip */
-document.getElementById("market").innerHTML = rows.filter(r => r.group === INDEX_GROUP).map(r => {
+function renderMarket() { document.getElementById("market").innerHTML = rows.filter(r => r.group === INDEX_GROUP).map(r => {
   const x = r.x;
   if (!x) return `<div class="mk na"><div class="row"><span class="tk">${r.tk}</span><span class="label">${r.ex}</span></div><div class="px">אין נתונים מ־TradingView</div></div>`;
   const [t, tc] = trend(x);
   return `<div class="mk"><div class="row"><span class="tk">${r.tk}</span><span class="pill ${tc}">${t}</span></div>
     <div class="row"><span class="px num">${f(x.close)}</span><span class="num ${sign(x.change)}">${pct(x.change)}</span></div>
     <div class="row label"><span>RSI <span class="num">${f(x.RSI, 1)}</span></span><span>ADX <span class="num">${f(x.ADX, 1)}</span></span></div></div>`;
-}).join("");
+}).join(""); }
+renderMarket();
 
 /* group cards */
 let active = null;
@@ -281,7 +300,6 @@ function renderTable() {
 }
 const PROFILES = __PROFILES__;
 const SNAP = Date.parse("__DATE__");
-const stocks = rows.filter(r => r.group !== INDEX_GROUP && r.x);
 let selSym = stocks[0]?.sym;
 const hdate = t => new Date(t * 1000).toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" });
 
@@ -305,7 +323,8 @@ function standing(x) {
 function renderProfile() {
   const v = document.getElementById("view-prof");
   const r = stocks.find(s => s.sym === selSym) || stocks[0]; if (!r) { v.innerHTML = ""; return; }
-  const x = r.x, P = PROFILES[r.sym] || {}, M = PROFILES._market;
+  const x = r.x, L = LIVE.prof[r.sym], P = L || PROFILES[r.sym] || {}, M = LIVE.market || PROFILES._market;
+  const ln = LIVE.news[r.sym];
   const idx = stocks.indexOf(r);
   const er = x.earnings_release_next_date, days = er ? Math.round((er * 1000 - SNAP) / 864e5) : null;
   v.innerHTML = `
@@ -313,6 +332,7 @@ function renderProfile() {
       <button type="button" id="pprev" aria-label="הטיקר הקודם">→ הקודם</button>
       <select id="psel" aria-label="בחירת טיקר">${groupNames.map(g => `<optgroup label="${g}">${stocks.filter(s => s.group === g).map(s => `<option value="${s.sym}" ${s.sym === r.sym ? "selected" : ""}>${s.tk}: ${s.x.description}</option>`).join("")}</optgroup>`).join("")}</select>
       <button type="button" id="pnext" aria-label="הטיקר הבא">הבא ←</button>
+      <span id="pstat" class="pstat ${LIVE.busy[r.sym] ? "busy" : ""}">${profStatus(r.sym)}</span>
     </div>
     <div class="phead">
       <div><h2>${r.tk}</h2><div class="nm2">${x.description}</div></div>
@@ -323,18 +343,19 @@ function renderProfile() {
       <div><span class="pill ${trend(x)[1]}">${trend(x)[0]}</span> <span class="pill ${rating(x["Recommend.All"])[1]}">${rating(x["Recommend.All"])[0]}</span></div>
     </div>
     <div class="pgrid">
-      <div class="card"><h3>מה החברה עושה</h3><p>${P.about || "אין תיאור זמין."}</p></div>
+      <div class="card"><h3>מה החברה עושה</h3><p>${esc(P.about) || "אין תיאור זמין."}</p></div>
       <div class="card"><h3>איפה היא עומדת בשוק</h3><ul>${standing(x).map(s => `<li>${s}</li>`).join("")}</ul></div>
       <div class="card"><h3>אירועים קרובים</h3><ul>
         ${er ? `<li><b>דוח רבעוני:</b> <span class="num">${dateOf(er)}</span>${days >= 0 ? `, בעוד <span class="num">${days}</span> ימים` : ""}${days >= 0 && days <= 14 ? ` <span class="pill p-mid">קרוב</span>` : ""}</li>` : ""}
-        ${(P.events || []).filter(e => !/^דוח רבעוני צפוי/.test(e)).map(e => `<li>${e}</li>`).join("")}
+        ${(P.events || []).filter(e => !/^דוח רבעוני צפוי/.test(e)).map(e => `<li>${esc(e)}</li>`).join("")}
       </ul></div>
-      <div class="card"><h3>חדשות אחרונות על החברה</h3><ul class="news">${(P.news || []).slice().sort((a, b) => b.t - a.t).map(n => `<li><a href="${n.u}" target="_blank" rel="noopener">${n.h}</a><span class="d">${hdate(n.t)} · TradingView News</span></li>`).join("") || "<li>אין חדשות זמינות.</li>"}</ul></div>
-      <div class="card"><h3>הסקטור</h3><p>${P.sector || "—"}</p></div>
-      <div class="card mkt"><h3>${M.title}</h3><ul>${M.points.map(p => `<li>${p}</li>`).join("")}</ul></div>
+      <div class="card"><h3>חדשות אחרונות על החברה</h3><ul class="news">${newsItems(P, ln).map(n => `<li><a href="${esc(n.u)}" target="_blank" rel="noopener">${esc(n.h)}</a><span class="d">${hdate(n.t)} · ${esc(n.p || "TradingView News")}</span></li>`).join("") || "<li>אין חדשות זמינות.</li>"}</ul></div>
+      <div class="card"><h3>הסקטור</h3><p>${esc(P.sector) || "—"}</p></div>
+      <div class="card mkt"><h3>${esc(M.title)}</h3><ul>${(M.points || []).map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>
     </div>
     <p class="src">התיאורים והסיכומים נכתבו בעברית על סמך כותרות החדשות ב־TradingView ונתוני ה־snapshot. הם אינם המלצת השקעה. לחיצה על כותרת פותחת את הכתבה המקורית באנגלית.</p>`;
   document.getElementById("psel").onchange = e => { selSym = e.target.value; renderProfile(); };
+  ensureProfile(r);
   document.getElementById("pprev").onclick = () => { selSym = stocks[(idx - 1 + stocks.length) % stocks.length].sym; renderProfile(); };
   document.getElementById("pnext").onclick = () => { selSym = stocks[(idx + 1) % stocks.length].sym; renderProfile(); };
 }
@@ -350,6 +371,156 @@ function showTab(t) {
 }
 document.getElementById("tab-table").onclick = () => showTab("table");
 document.getElementById("tab-prof").onclick = () => showTab("prof");
+
+
+/* ===== live layer: TradingView connector + Hebrew summaries by Claude ===== */
+const TV = "TradingView MCP";
+const WL_ID = "333478269", WL_NAME = "PROTFOLIO";
+const COLS_TV = ["description","close","change","volume","relative_volume_10d_calc","market_cap_basic","price_earnings_ttm","sector","RSI","ADX","ADX+DI","ADX-DI","ATR","EMA20","EMA50","SMA150","SMA200","Recommend.All","price_52_week_high","price_52_week_low","earnings_release_next_date"];
+const LIVE = { on: false, prof: {}, news: {}, busy: {}, err: {}, market: null, at: null };
+let mcp = null, sample = null, timer = null, loading = false;
+
+function esc(v) { return v == null ? "" : String(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function setLive(cls, html) { const el = document.getElementById("live"); el.className = "live " + cls; document.getElementById("livetxt").innerHTML = html; }
+const hm = t => new Date(t).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+
+function mcpMsg(e) {
+  switch (e && e.code) {
+    case "server_not_connected": return "חיבור TradingView לא נמצא. הוסף אותו ב־claude.ai: הגדרות ← מחברים (Connectors).";
+    case "needs_reauth": return "צריך לחבר מחדש את TradingView ב־claude.ai: הגדרות ← מחברים.";
+    case "selection_required": return "יש יותר מחיבור TradingView אחד. בחר אחד בחלון שמופיע ב־claude.ai.";
+    case "not_in_manifest": case "consent_required": case "approval_required": return "לא ניתן אישור לעמוד להשתמש ב־TradingView. אפשר לאשר מתפריט ההרשאות של העמוד.";
+    case "blocked_by_policy": return "הארגון חוסם את הכלי הזה של TradingView.";
+    case "server_unavailable": case "rate_limited": return "TradingView לא ענה כרגע. נסה לרענן בעוד דקה.";
+    case "tool_error": return "TradingView החזיר שגיאה: " + esc(e.message || "");
+    default: return "עדכון חי לא זמין כרגע (" + esc(e && e.code || "שגיאה") + ").";
+  }
+}
+async function tv(tool, input) {
+  try { return (await mcp.callTool(TV, tool, input, { cache: { staleTime: 60000, gcTime: 600000 } })).payload; }
+  catch (e) {
+    if (e && e.retryable && !e._retried) { await new Promise(r => setTimeout(r, (e.retryAfterMs || 1500) + Math.random() * 800)); try { return (await mcp.callTool(TV, tool, input, { cache: { staleTime: 60000, gcTime: 600000 } })).payload; } catch (e2) { e2._retried = true; throw e2; } }
+    throw e;
+  }
+}
+
+async function loadLive(force) {
+  if (!mcp || loading) return;
+  loading = true; const btn = document.getElementById("refresh"); btn.disabled = true;
+  setLive(LIVE.on ? "on" : "warn", `${LIVE.on ? "מרענן…" : "מושך נתונים חיים מ־TradingView…"}`);
+  try {
+    if (force) await mcp.invalidate(TV).catch(() => {});
+    let wl;
+    try { wl = await tv("mcp-watchlist-get-watchlist", { watchlist_id: WL_ID }); }
+    catch (e) {
+      if (e && e.code !== "tool_error") throw e;
+      const all = await tv("mcp-watchlist-list-watchlists", {});
+      const hit = (all?.watchlists || []).find(w => (w.name || "").toUpperCase() === WL_NAME);
+      if (!hit) throw { code: "tool_error", message: "הרשימה PROTFOLIO לא נמצאה" };
+      wl = { watchlist: hit };
+    }
+    const order = (wl?.watchlist?.symbols || []).filter(s => typeof s === "string");
+    if (!order.length) throw { code: "tool_error", message: "הרשימה ריקה" };
+    const syms = order.filter(s => !s.startsWith("###") && s.includes(":"));
+    const raw = {}, missing = [];
+    for (let i = 0; i < syms.length; i += 50) {
+      const res = await tv("mcp-tv-get-symbol-data-batch", { symbols: syms.slice(i, i + 50), columns: COLS_TV });
+      Object.assign(raw, res?.data || {}); (res?.missing || []).forEach(m => missing.push(m.symbol));
+    }
+    if (!Object.keys(raw).length) throw { code: "tool_error", message: "לא התקבלו נתונים" };
+    const keep = selSym;
+    build(order, raw);
+    if (!stocks.some(s => s.sym === keep)) selSym = stocks[0]?.sym; else selSym = keep;
+    LIVE.on = true; LIVE.at = Date.now();
+    renderMarket(); renderGroups();
+    if (document.getElementById("view-prof").hidden) renderTable(); else renderProfile();
+    setLive("on", `נתונים חיים · עודכן ב־<span class="num">${hm(LIVE.at)}</span>${missing.length ? ` · חסרים: ${esc(missing.map(m => m.split(":")[1]).join(", "))}` : ""}`);
+    loadMarket();
+  } catch (e) {
+    setLive("err", `${mcpMsg(e)} ${LIVE.on ? "מוצגים הנתונים מהעדכון הקודם." : `מוצגים נתונים שמורים מ־<span class="num">__DATE__</span>.`}`);
+  } finally { loading = false; btn.disabled = false; }
+}
+
+/* news + Hebrew summary for one ticker, on demand */
+function newsItems(P, ln) {
+  if (P && P._live) return P.news || [];
+  if (ln && ln.length && !sample) return ln.slice(0, 5).map(h => ({ t: h.published, h: h.title, u: h.link, p: h.provider?.name }));
+  return (P.news || []).slice().sort((a, b) => b.t - a.t);
+}
+function profStatus(sym) {
+  if (LIVE.busy[sym]) return LIVE.busy[sym];
+  if (LIVE.err[sym]) return LIVE.err[sym];
+  if (LIVE.prof[sym]) return `סיכום חי בעברית · נכתב ב־${hm(LIVE.prof[sym]._at)}`;
+  if (LIVE.news[sym]) return "כותרות חיות באנגלית (סיכום בעברית לא זמין)";
+  return PROFILES[sym] ? `סיכום שמור מ־__DATE__` : "";
+}
+function sampleMsg(e) {
+  switch (e && e.code) {
+    case "not_granted": case "sampling_disabled": case "not_declared": case "capability_disabled": case "capability_removed": return "סיכום בעברית לא אושר בעמוד הזה, מוצגות כותרות באנגלית";
+    case "rate_limited": return "יותר מדי בקשות לסיכום. נסה שוב בעוד כמה דקות";
+    case "session_expired": return "צריך להתחבר מחדש ל־claude.ai";
+    default: return "הסיכום בעברית נכשל, מוצגות כותרות באנגלית";
+  }
+}
+async function ensureProfile(r) {
+  const sym = r.sym;
+  if (!LIVE.on || LIVE.prof[sym] || LIVE.busy[sym] || LIVE.err[sym]) return;
+  const upd = () => { if (selSym === sym && !document.getElementById("view-prof").hidden) renderProfile(); };
+  LIVE.busy[sym] = "מושך חדשות עדכניות…"; upd();
+  try {
+    const res = await tv("mcp-tv-get-news", { symbol: sym, limit: 8 });
+    LIVE.news[sym] = (res?.data?.headlines || []).filter(h => h && h.title);
+  } catch (e) { LIVE.busy[sym] = null; LIVE.err[sym] = mcpMsg(e); upd(); return; }
+  if (!sample) { LIVE.busy[sym] = null; upd(); return; }
+  LIVE.busy[sym] = "Claude כותב סיכום בעברית…"; upd();
+  const x = r.x, heads = LIVE.news[sym].slice(0, 8);
+  const facts = { ticker: r.tk, exchange: r.ex, name: x.description, sector: x.sector, price: x.close, changePct: +(x.change ?? 0).toFixed(2),
+    nextEarnings: dateOf(x.earnings_release_next_date), vsSMA150Pct: x.SMA150 ? +((x.close / x.SMA150 - 1) * 100).toFixed(1) : null,
+    vsSMA200Pct: x.SMA200 ? +((x.close / x.SMA200 - 1) * 100).toFixed(1) : null, fromHigh52Pct: +((x.close / x.price_52_week_high - 1) * 100).toFixed(1) };
+  const prompt = `You write short stock briefs in Hebrew for an Israeli retail trader.
+Company facts (JSON): ${JSON.stringify(facts)}
+Latest headlines from TradingView News, numbered, newest first:
+${heads.map((h, i) => `${i}. [${new Date(h.published * 1000).toISOString().slice(0, 10)}] ${h.title}`).join("\n") || "(none)"}
+
+Reply with ONLY one JSON object, no other text:
+{"about": "2 sentences in Hebrew: what the company does (general knowledge is fine)",
+ "news": [{"i": <headline number>, "h": "the headline translated to clear Hebrew, at most 20 words"}],
+ "events": ["upcoming events in Hebrew that the headlines or facts support: earnings date, conferences, splits, deals. Do not invent dates"],
+ "sector": "1-2 Hebrew sentences on what the headlines say about the company's sector or theme"}
+Pick the 3-5 most important headlines for news. Use only information in the facts and headlines for news, events and sector; if something is unknown, leave it out. Keep tickers and technical terms (ATR, EPS, ETF) in English.`;
+  try {
+    const j = await sample.json(prompt, { modelTier: "quick", cache: { gcTime: 6 * 3600000 } });
+    const news = (Array.isArray(j?.news) ? j.news : []).map(n => { const h = heads[Number(n?.i)]; return h ? { t: h.published, h: String(n.h || h.title), u: h.link, p: h.provider?.name } : null; }).filter(Boolean);
+    LIVE.prof[sym] = { _live: true, _at: Date.now(), about: String(j?.about || PROFILES[sym]?.about || ""), news,
+      events: (Array.isArray(j?.events) ? j.events : []).map(String).slice(0, 5), sector: String(j?.sector || "") };
+  } catch (e) { LIVE.err[sym] = sampleMsg(e); }
+  LIVE.busy[sym] = null; upd();
+}
+
+/* market background: once per load, from index headlines */
+async function loadMarket() {
+  if (!sample || LIVE.market) return;
+  try {
+    const res = await tv("mcp-tv-get-news", { symbol: "AMEX:SPY", limit: 12 });
+    const heads = (res?.data?.headlines || []).map(h => `- [${new Date(h.published * 1000).toISOString().slice(0, 10)}] ${h.title}`).join("\n");
+    const idx = rows.filter(r => r.group === INDEX_GROUP && r.x).map(r => `${r.tk}: ${f(r.x.close)} (${pct(r.x.change)})`).join(", ");
+    const day = new Date().toISOString().slice(0, 10);
+    const j = await sample.json(`Write a short US-market background in Hebrew for an Israeli trader. Today: ${day}. Index quotes: ${idx}.
+Recent market headlines:
+${heads}
+Reply with ONLY JSON: {"title": "רקע שוק — <short Hebrew date range>", "points": ["3-4 Hebrew sentences, each one key market theme supported by the headlines or quotes"]}. Do not invent facts.`, { modelTier: "quick", cache: { gcTime: 3 * 3600000 } });
+    if (j && Array.isArray(j.points) && j.points.length) { LIVE.market = { title: String(j.title || "רקע שוק"), points: j.points.map(String).slice(0, 5) }; if (!document.getElementById("view-prof").hidden) renderProfile(); }
+  } catch (e) { /* keep the saved market background */ }
+}
+
+(async () => {
+  try { [mcp, sample] = await Promise.all([window.claude?.use?.("mcp") ?? null, window.claude?.use?.("sample") ?? null]); } catch { mcp = mcp || null; }
+  if (!mcp) { setLive("warn", `עדכון חי לא זמין בתצוגה הזו. פתח את העמוד ב־claude.ai כשאתה מחובר. מוצגים נתונים שמורים מ־<span class="num">__DATE__</span>.`); return; }
+  const btn = document.getElementById("refresh"); btn.hidden = false;
+  btn.onclick = () => { LIVE.prof = {}; LIVE.err = {}; LIVE.news = {}; LIVE.market = null; loadLive(true); };
+  await loadLive(false);
+  timer = setInterval(() => { if (!document.hidden) loadLive(false); }, 5 * 60000);
+})();
 
 renderGroups(); renderTable();
 </script>
