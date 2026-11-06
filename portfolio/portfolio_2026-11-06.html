@@ -5,28 +5,21 @@
 <style>
 /* Layout: ledger board — market strip on top, group summary row, then one sortable table with RTL reading order */
 :root {
-  --bg: #f3f5f7; --surface: #ffffff; --ink: #18232e; --muted: #5d6b78; --line: #dde3e9;
-  --accent: #1f5f8b; --accent-soft: #e2edf5;
-  --up: #157a4a; --up-soft: #e1f2e9; --down: #b8322b; --down-soft: #f8e4e2; --warn: #9a6a00; --warn-soft: #f6eed6;
+  /* deliberate single dark look: same on every host theme */
+  --bg: #0e151c; --surface: #16202a; --surface-2: #1c2834; --ink: #e4eaf0; --muted: #93a2b0; --line: #26343f;
+  --accent: #6fb0dc; --accent-soft: #1b3346;
+  --up: #4cc58a; --up-soft: #163527; --down: #f07a70; --down-soft: #3d1f1d; --warn: #e2b649; --warn-soft: #3a3016;
   --f-display: "Secular One", "Rubik", system-ui, sans-serif;
   --f-body: "Rubik", "Segoe UI", system-ui, sans-serif;
   --f-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #10171e; --surface: #17212a; --ink: #e4eaf0; --muted: #93a2b0; --line: #273541;
-  --accent: #6fb0dc; --accent-soft: #1c3346;
-  --up: #4cc58a; --up-soft: #163527; --down: #f07a70; --down-soft: #3d1f1d; --warn: #e2b649; --warn-soft: #3a3016;
-  color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #10171e; --surface: #17212a; --ink: #e4eaf0; --muted: #93a2b0; --line: #273541;
-  --accent: #6fb0dc; --accent-soft: #1c3346;
-  --up: #4cc58a; --up-soft: #163527; --down: #f07a70; --down-soft: #3d1f1d; --warn: #e2b649; --warn-soft: #3a3016;
-  color-scheme: dark }
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5; }
 .wrap { max-width: 1400px; margin: 0 auto; padding-block: 28px 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 22px; }
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
+.wrap > *, .view > *, .prof > * { min-width: 0; }
 .num { font-family: var(--f-num); font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
 header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
 h1 { font-family: var(--f-display); font-weight: 400; font-size: 2rem; margin: 0; line-height: 1.1; text-wrap: balance; }
@@ -79,6 +72,38 @@ tr.sep td { background: var(--bg); font-family: var(--f-display); font-size: 1re
 .adx .di { display: inline-grid; gap: 0; font-size: .78rem; line-height: 1.25; }
 .rng { width: 90px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--down-soft), var(--up-soft)); position: relative; direction: ltr; display: inline-block; vertical-align: middle; }
 .rng i { position: absolute; top: -3px; width: 4px; height: 12px; border-radius: 2px; background: var(--accent); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+.tab { all: unset; cursor: pointer; padding: 10px 16px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.tkbtn { all: unset; cursor: pointer; font-weight: 700; font-family: var(--f-num); direction: ltr; }
+.tkbtn:hover, .tkbtn:focus-visible { color: var(--accent); text-decoration: underline; }
+.chart { color: var(--muted); text-decoration: none; font-size: .8rem; margin-inline-start: 6px; }
+.chart:hover { color: var(--accent); }
+tbody tr.sel { background: var(--accent-soft); }
+.view { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
+.prof { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.pbar select { flex: 1 1 220px; min-width: 0; max-width: 100%; }
+[hidden] { display: none !important; }
+.pbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pbar select, .pbar button { font: inherit; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.pbar select:focus-visible, .pbar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.phead { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; justify-content: space-between; }
+.phead h2 { margin: 0; font-family: var(--f-num); font-size: 1.7rem; direction: ltr; }
+.phead .nm2 { color: var(--muted); direction: ltr; text-align: right; }
+.phead .px { font-size: 1.5rem; }
+.pgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; min-width: 0; }
+.card h3 { margin: 0 0 10px; font-family: var(--f-display); font-weight: 400; font-size: 1.15rem; color: var(--accent); }
+.card p { margin: 0; line-height: 1.7; max-width: 70ch; }
+.card ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 8px; line-height: 1.6; }
+.news { list-style: none; padding: 0 !important; }
+.news li { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.news li:last-child { border-bottom: 0; padding-bottom: 0; }
+.news a { color: var(--ink); text-decoration: none; } .news a:hover { color: var(--accent); text-decoration: underline; }
+.news .d { color: var(--muted); font-size: .78rem; }
+.mkt { background: var(--surface-2); }
+.src { color: var(--muted); font-size: .78rem; }
 .note { color: var(--muted); font-size: .82rem; max-width: 75ch; }
 .note p { margin: 4px 0 }
 @media (max-width: 600px) { h1 { font-size: 1.6rem } .tools input { width: 100% } .tools .count { margin-inline-start: 0 } }
@@ -94,6 +119,12 @@ tr.sep td { background: var(--bg); font-family: var(--f-display); font-size: 1re
     <div class="stamp">נתונים נכונים ל־<span class="num">2026-11-06</span><br>מקור: TradingView</div>
   </header>
 
+  <nav class="tabs" role="tablist" aria-label="תצוגות">
+    <button class="tab" role="tab" id="tab-table" aria-selected="true" aria-controls="view-table">טבלה</button>
+    <button class="tab" role="tab" id="tab-prof" aria-selected="false" aria-controls="view-prof">סיכום חברה</button>
+  </nav>
+
+  <div id="view-table" class="view" role="tabpanel" aria-labelledby="tab-table">
   <section class="market" id="market" aria-label="מדדי שוק"></section>
   <section class="groups" id="groups" aria-label="סיכום לפי קבוצה"></section>
 
@@ -109,7 +140,12 @@ tr.sep td { background: var(--bg); font-family: var(--f-display); font-size: 1re
     </table>
   </div>
 
+  </div>
+
+  <div id="view-prof" class="prof" role="tabpanel" aria-labelledby="tab-prof" hidden></div>
+
   <div class="note">
+    <p><b>סיכום חברה:</b> לחיצה על טיקר בטבלה בוחרת אותו, ואז הלשונית "סיכום חברה" מציגה תיאור, מצב טכני, אירועים קרובים וחדשות. החדשות מבוססות על כותרות מ־TradingView, תורגמו וסוכמו לעברית.</p>
     <p><b>מגמה:</b> "עולה" כשהמחיר מעל EMA20, EMA20 מעל EMA50 והמחיר מעל SMA200. "יורדת" כשהכול הפוך. כל מצב אחר הוא "מעורבת".</p>
     <p><b>ADX:</b> המספר הראשי הוא עוצמת המגמה (25 ומעלה נחשב מגמה חזקה). <bdi dir="ltr">+DI</bdi> הוא כוח הקונים (עולה) ו־<bdi dir="ltr">−DI</bdi> כוח המוכרים (יורד). התגית מראה מי מוביל.</p>
     <p><b>מעל SMA150:</b> כן או לא, המרחק מהממוצע באחוזים, ובסוגריים ערך הממוצע.</p>
@@ -182,7 +218,7 @@ function renderGroups() {
 
 /* table */
 const COLS = [
-  { k: "tk", h: "טיקר", v: r => r.tk, c: r => `<span class="tk"><a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(r.sym)}" target="_blank" rel="noopener">${r.tk}</a></span><span class="nm">${r.x ? r.x.description : ""}</span>` },
+  { k: "tk", h: "טיקר", v: r => r.tk, c: r => `<span class="tk"><button type="button" class="tkbtn" data-sym="${r.sym}" title="פתח סיכום חברה">${r.tk}</button><a class="chart" href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(r.sym)}" target="_blank" rel="noopener" title="גרף ב־TradingView">גרף ↗</a></span><span class="nm">${r.x ? r.x.description : ""}</span>` },
   { k: "close", h: "מחיר", v: r => r.x?.close, c: r => `<span class="num">${f(r.x.close)}</span>` },
   { k: "change", h: "שינוי %", v: r => r.x?.change, c: r => `<span class="num ${sign(r.x.change)}">${pct(r.x.change)}</span>` },
   { k: "trend", h: "מגמה", v: r => r.x ? trend(r.x)[2] : null, c: r => { const [t, tc] = trend(r.x); return `<span class="pill ${tc}">${t}</span>`; } },
@@ -227,7 +263,7 @@ function renderTable() {
     .filter(r => !term || [r.tk, r.x?.description, r.x?.sector, r.group].some(s => (s || "").toLowerCase().includes(term)));
   head.querySelectorAll("th").forEach(th => th.setAttribute("aria-sort", th.dataset.k === sortK ? (sortDir === 1 ? "ascending" : "descending") : "none"));
   const line = r => r.x
-    ? `<tr>${COLS.map(c => `<td>${c.c(r)}</td>`).join("")}</tr>`
+    ? `<tr class="${r.sym === selSym ? "sel" : ""}">${COLS.map(c => `<td>${c.c(r)}</td>`).join("")}</tr>`
     : `<tr><td><span class="tk">${r.tk}</span></td><td colspan="${COLS.length - 1}" class="mut">אין נתונים מ־TradingView</td></tr>`;
   let html = "";
   if (sortK) {
@@ -241,6 +277,742 @@ function renderTable() {
   }
   document.getElementById("body").innerHTML = html || `<tr><td colspan="${COLS.length}" class="mut">אין תוצאות לחיפוש הזה</td></tr>`;
   document.getElementById("count").textContent = `${list.length} מניות מוצגות`;
+  document.querySelectorAll(".tkbtn").forEach(b => b.onclick = () => { selSym = b.dataset.sym; showTab("prof"); });
 }
+const PROFILES = {
+ "_market": {
+  "title": "רקע שוק לשבוע 2–6 בנובמבר 2026",
+  "points": [
+   "בחירות אמצע הקדנציה בארה\"ב: הדמוקרטים זכו ברוב בקונגרס. ענפי הקמעונאות והבנייה למגורים עלו אחרי התוצאות, וענף הביטחון נמצא בכותרות סביב שאלת עתידו של שר ההגנה.",
+   "ב־5 בנובמבר נרשמה מכירה חדה במניות השבבים וה־AI, שגררה את המדדים למטה. QQQ נמצא מתחת ל־EMA20, EMA50 ו־SMA200, ו־SPY מתחת ל־SMA150.",
+   "ה־VIX עומד סביב 24.7, רמה גבוהה מהממוצע שלו, כלומר תנודתיות מוגברת בשוק.",
+   "מרווחי ה־CDS של חברות הטכנולוגיה הגדולות הגיעו לשיא של חמש שנים (WSJ), ויש חיכוך פוליטי סביב בניית מרכזי נתונים."
+  ]
+ },
+ "NYSE:VOYA": {
+  "about": "Voya Financial היא חברת שירותים פיננסיים אמריקאית שמתמקדת בחיסכון לפנסיה (תוכניות 401k), ניהול השקעות והטבות לעובדים דרך מעסיקים.",
+  "news": [
+   {
+    "t": 1793827260,
+    "h": "דוח רבעון 3: הכנסות של 2.03 מיליארד דולר ורווח למניה 2.09 דולר",
+    "u": "https://www.tradingview.com/news/tradingview:d99f4656f97ed:0-voya-financial-3q-2026-revenue-2-03b-eps-2-09-10-q-summary/"
+   },
+   {
+    "t": 1793800690,
+    "h": "Evercore ISI ממשיכה ב־Outperform ומעלה יעד ל־112 דולר (מ־110)",
+    "u": "https://www.tradingview.com/news/tradingview:d0d9af6446645:0-evercore-isi-group-maintains-voya-financial-at-outperform-raises-price-target-to-112-from-110/"
+   },
+   {
+    "t": 1793799900,
+    "h": "הנכסים בפתרונות Multiple Employer כמעט הוכפלו ל־200 מיליארד דולר",
+    "u": "https://www.tradingview.com/news/business_wire:e59dfa3fef28a:0-voya-financial-expands-its-multiple-employer-solutions-as-business-nearly-doubles/"
+   }
+  ],
+  "events": [
+   "אין אירוע מיוחד ידוע מעבר לדוח הבא."
+  ],
+  "sector": "ענף הפנסיה וניהול הנכסים נהנה מכניסת כספים לתוכניות חיסכון של מעסיקים. רגיש לשוק המניות ולריבית."
+ },
+ "NASDAQ:WMG": {
+  "about": "Warner Music Group היא אחת משלוש חברות התקליטים הגדולות בעולם. יש לה שתי פעילויות: הקלטות מוזיקה וזכויות יוצרים (Publishing). רוב ההכנסות מגיעות מסטרימינג.",
+  "news": [
+   {
+    "t": 1793722034,
+    "h": "רכשה את חברת ההפצה הדיגיטלית Zebralution",
+    "u": "https://www.tradingview.com/news/reuters.com,2026:newsml_FWN46K1B4:0-warner-music-group-acquires-zebralution-music/"
+   },
+   {
+    "t": 1792593312,
+    "h": "איחדה את פעילות ה־Sync (שימוש במוזיקה בסרטים ופרסומות) בין ההקלטות לזכויות היוצרים",
+    "u": "https://www.tradingview.com/news/reuters.com,2026:newsml_FWN467187:0-warner-music-group-unifies-global-sync-operations-across-recorded-music-and-publishing/"
+   },
+   {
+    "t": 1792419648,
+    "h": "בית המשפט העליון בארה\"ב דחה את ערעור חברות התקליטים בנושא ביטול זכויות יוצרים, החלטה לא נוחה לענף",
+    "u": "https://www.tradingview.com/news/reuters.com,2026:newsml_L6N461146:0-us-supreme-court-rejects-music-labels-challenge-to-copyright-termination-ruling/"
+   }
+  ],
+  "events": [
+   "שיחת דוח רבעוני ביום חמישי, 19 בנובמבר 2026."
+  ],
+  "sector": "תעשיית המוזיקה תלויה בצמיחת מנויי הסטרימינג ובהעלאות מחירים. החלטת בית המשפט העליון יכולה להחזיר זכויות לאמנים לאורך זמן."
+ },
+ "NYSE:GME": {
+  "about": "GameStop היא רשת קמעונאית למשחקי וידאו, קונסולות ומוצרי אספנות, שנמצאת בתהליך שינוי עסקי ומחזיקה קופת מזומנים גדולה.",
+  "news": [
+   {
+    "t": 1793617429,
+    "h": "StoneX פותחת סיקור בהמלצת Buy ויעד של 33 דולר",
+    "u": "https://www.tradingview.com/news/tradingview:6c974d1595262:0-stonex-initiates-coverage-of-gamestop-at-buy-sets-price-target-at-33/"
+   },
+   {
+    "t": 1793623586,
+    "h": "Seeking Alpha: אנליסט חיובי חדש בזכות התהליך שהחברה עוברת",
+    "u": "https://www.tradingview.com/news/seekingalpha:a71624dae094b:0-gamestop-attracts-a-new-wall-street-bull-amid-its-transformation/"
+   },
+   {
+    "t": 1793012400,
+    "h": "כתבי האופציה (Warrants) של GME פקעו ב־30 באוקטובר, ו־NYSE מוחקת אותם מהמסחר",
+    "u": "https://www.tradingview.com/news/tradingview:cc2a78e58c91c:0-weekly-recap-gme-warrants-expire-oct-30-2026-and-nyse-to-delist-warrants/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־9 בדצמבר 2026."
+  ],
+  "sector": "קמעונאות משחקים פיזית בירידה מבנית. המניה מושפעת מאוד מסנטימנט ומפעילות סוחרים פרטיים."
+ },
+ "NYSE:BNY": {
+  "about": "BNY (Bank of New York Mellon) הוא הבנק הגדול בעולם למשמורת ניירות ערך ולשירותי תפעול לגופים מוסדיים, עם פעילות ניהול נכסים ועושר.",
+  "news": [
+   {
+    "t": 1793832180,
+    "h": "מתכנן איחוד של חברות ניהול הקרנות ושינוי שמות לקרנות",
+    "u": "https://www.tradingview.com/news/tradingview:4f23de2a830fb:0-the-bank-of-new-york-mellon-corporation-plans-adviser-merger-fund-rename/"
+   },
+   {
+    "t": 1793399060,
+    "h": "JP Morgan ממשיכה ב־Overweight ומעלה יעד ל־166.50 דולר (מ־161)",
+    "u": "https://www.tradingview.com/news/tradingview:a247aba027543:0-jp-morgan-maintains-bank-of-new-york-mellon-at-overweight-raises-price-target-to-166-50-from-161/"
+   },
+   {
+    "t": 1793625600,
+    "h": "משרד האוצר האמריקאי בדק מול הדילרים גודל הנפקות ורכישות חוזרות לפני ה־Refunding",
+    "u": "https://www.tradingview.com/news/prnewswire:3e8ea16e28a28:0-treasury-polled-its-dealers-on-auction-sizes-and-bigger-long-end-buybacks-ahead-of-wednesday-s-refunding/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־15 בינואר 2027."
+  ],
+  "sector": "בנקי המשמורת נהנים מנפחי מסחר גבוהים ומריבית. הם פחות רגישים לאשראי צרכני מבנקים רגילים."
+ },
+ "NYSE:DIS": {
+  "about": "Disney היא קונצרן בידור ומדיה: פארקים ושייט, אולפני סרטים (Marvel, Pixar, Star Wars), ESPN ושירותי הסטרימינג Disney+ ו־Hulu.",
+  "news": [
+   {
+    "t": 1793987783,
+    "h": "דן אייבס: קיצוצי כוח אדם ישחררו את פוטנציאל הרווח, \"פרק הצמיחה הבא\"",
+    "u": "https://www.tradingview.com/news/benzinga:c2a5d9ee7094b:0-disney-set-for-next-chapter-of-growth-dan-ives-says-job-cuts-to-unlock-earnings-power/"
+   },
+   {
+    "t": 1793722468,
+    "h": "שוקלת אלפי פיטורים תחת המנכ\"ל החדש ד'אמרו",
+    "u": "https://www.tradingview.com/news/gurufocus:0d6b58935094b:0-disney-weighs-thousands-of-job-cuts-under-new-ceo-d-amaro/"
+   },
+   {
+    "t": 1793779200,
+    "h": "מכוונת לצמיחה ברווח למניה ובוחנת רכישת זכויות שידור לליגה הצרפתית (Ligue 1)",
+    "u": "https://www.tradingview.com/news/tradingview:8d1d95da9c722:0-key-facts-disney-targets-eps-growth-weighs-job-cuts-ligue-1-rights/"
+   },
+   {
+    "t": 1793906040,
+    "h": "העלאת מחיר של 3 דולר ל־Disney+ מעוררת ביקורת מצד מנויים",
+    "u": "https://www.tradingview.com/news/zacks:c9de91bf1094b:0-a-3-disney-price-hike-was-the-last-straw-for-my-household-budget/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־17 בנובמבר 2026, בעוד 11 ימים.",
+   "עונת החגים בקולנוע: Barron's מכנה אותה \"מבחן קשה\" לאולפנים."
+  ],
+  "sector": "מדיה ובידור: המעבר לסטרימינג רווחי ממשיך, ובתי הקולנוע מלאים שוב לקראת עונת החגים."
+ },
+ "NASDAQ:DASH": {
+  "about": "DoorDash היא פלטפורמת המשלוחים הגדולה בארה\"ב, למסעדות, מכולת וקמעונאות. היא פועלת גם באירופה דרך Wolt.",
+  "news": [
+   {
+    "t": 1793910280,
+    "h": "עסקה בין Amazon ל־Uber Eats גרמה למניה לירידה היומית החדה ביותר בשנה",
+    "u": "https://www.tradingview.com/news/stocktwits:067d36bb3094b:0-amazon-uber-eats-deal-sends-dash-stock-to-biggest-drop-in-a-year/"
+   },
+   {
+    "t": 1793968407,
+    "h": "Rosenblatt ממשיכה ב־Buy אבל מורידה יעד ל־225 דולר (מ־270)",
+    "u": "https://www.tradingview.com/news/tradingview:1be6337c4e30d:0-rosenblatt-maintains-doordash-at-buy-lowers-price-target-to-225-from-270/"
+   },
+   {
+    "t": 1793883600,
+    "h": "Lyft השיקה מנוי משותף לנסיעות ומשלוחים בשיתוף DoorDash",
+    "u": "https://www.tradingview.com/news/business_wire:2cf720e3acfa2:0-lyft-launches-lyft-go-a-best-in-class-rideshare-and-delivery-membership-program-in-partnership-with-doordash/"
+   },
+   {
+    "t": 1793800800,
+    "h": "שיחת הדוח התמקדה בעסקת Instacart ובהתרחבות בתחום המכולת",
+    "u": "https://www.tradingview.com/news/zacks:3933e6268094b:0-dash-q3-earnings-call-focuses-on-instacart-deal-and-grocery-expansion/"
+   }
+  ],
+  "events": [
+   "המנכ\"ל ישתתף בשיחה פומבית בכנס TomorrowX.",
+   "דוח רבעוני צפוי ב־18 בפברואר 2027."
+  ],
+  "sector": "שוק המשלוחים מתחמם תחרותית: Amazon ו־Uber מתחברות, ו־DoorDash עונה בשותפויות ובהתרחבות למכולת."
+ },
+ "NASDAQ:NBIX": {
+  "about": "Neurocrine Biosciences היא חברת ביוטק שמפתחת תרופות למחלות נוירולוגיות ואנדוקריניות. המוצר המרכזי שלה הוא Ingrezza.",
+  "news": [
+   {
+    "t": 1793734575,
+    "h": "המניה עלתה אחרי דוח רבעון 3 שעקף את הציפיות והעלאת התחזית",
+    "u": "https://www.tradingview.com/news/seekingalpha:f628d8fef094b:0-neurocrine-climbs-after-q3-beat-guidance-hike/"
+   },
+   {
+    "t": 1793728980,
+    "h": "Barron's: המניה בשיא של 6 שנים ויכולה להמשיך לעלות",
+    "u": "https://www.tradingview.com/news/DJN_DN20261103009212:0-this-biopharma-stock-hit-a-6-year-high-and-it-can-keep-climbing-barrons-com/"
+   },
+   {
+    "t": 1793805558,
+    "h": "Guggenheim ממשיכה ב־Buy ומעלה יעד ל־224 דולר (מ־207)",
+    "u": "https://www.tradingview.com/news/tradingview:6aa840580d100:0-guggenheim-maintains-neurocrine-biosciences-at-buy-raises-price-target-to-224-from-207/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־11 בפברואר 2027."
+  ],
+  "sector": "ביוטק עם מוצרים מסחריים רווחיים. רגיש לחדשות רגולציה ולשינויים במדיניות תמחור התרופות בארה\"ב."
+ },
+ "NYSE:LEN": {
+  "about": "Lennar היא אחת מחברות הבנייה למגורים הגדולות בארה\"ב. היא בונה ומוכרת בתים פרטיים ומציעה גם משכנתאות וביטוח.",
+  "news": [
+   {
+    "t": 1793812860,
+    "h": "WSJ: תוצאות הבחירות הציתו ראלי במניות הבנייה",
+    "u": "https://www.tradingview.com/news/DJN_DN20261104011127:0-the-election-sparks-a-rally-in-homebuilders-wsj/"
+   },
+   {
+    "t": 1793727489,
+    "h": "Morgan Stanley ממשיכה ב־Underweight ומורידה יעד ל־58 דולר (מ־65)",
+    "u": "https://www.tradingview.com/news/tradingview:7fa94c7de7c3a:0-morgan-stanley-maintains-lennar-at-underweight-lowers-price-target-to-58-from-65/"
+   },
+   {
+    "t": 1793918700,
+    "h": "WSJ: משקיעים מחפשים תקווה במניות הבנייה",
+    "u": "https://www.tradingview.com/news/DJN_DN20261105025501:0-why-investors-are-searching-for-hope-in-home-builders-wsj/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־16 בדצמבר 2026."
+  ],
+  "sector": "ענף הבנייה תלוי בריבית על המשכנתאות. הבחירות נתנו דחיפה, אבל חלק מהאנליסטים עדיין זהירים."
+ },
+ "NYSE:TGT": {
+  "about": "Target היא רשת קמעונאות כללית גדולה בארה\"ב: מזון, בית, הלבשה ואלקטרוניקה. החנויות שלה משמשות גם כמרכזי משלוח להזמנות אונליין.",
+  "news": [
+   {
+    "t": 1793799348,
+    "h": "Walmart, Target ו־Dollar Tree הובילו ראלי בקמעונאות אחרי שהדמוקרטים זכו בקונגרס",
+    "u": "https://www.tradingview.com/news/seekingalpha:d0c7ea7bd094b:0-walmart-target-and-dollar-tree-lead-retail-rally-after-the-democrats-sweep-congress/"
+   },
+   {
+    "t": 1793631420,
+    "h": "Zacks: החנויות הופכות למנוע צמיחה גדול יותר של המסחר המקוון",
+    "u": "https://www.tradingview.com/news/zacks:92f4d10a7094b:0-are-target-s-stores-becoming-a-bigger-e-commerce-growth-engine/"
+   },
+   {
+    "t": 1793616861,
+    "h": "מפעלי הטקסטיל בבנגלדש חוזרים לפעול אחרי מחאות שכר, נושא שקשור לשרשרת האספקה",
+    "u": "https://www.tradingview.com/news/seekingalpha:3a0fafca7094b:0-bangladesh-garment-factories-said-to-reopen-amid-wage-protests/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־18 בנובמבר 2026, בעוד 12 ימים.",
+   "עונת הקניות של סוף השנה (Black Friday) מתחילה בסוף נובמבר."
+  ],
+  "sector": "קמעונאות צרכנית: הבחירות נתפסו כחיוביות לצרכן, והתמחור ומדיניות המכסים נשארים במוקד."
+ },
+ "NYSE:IR": {
+  "about": "Ingersoll Rand מייצרת ציוד תעשייתי: מדחסים, משאבות, מערכות ואקום וציוד לתעשיית מדעי החיים.",
+  "news": [
+   {
+    "t": 1793630768,
+    "h": "רוכשת את IVEK Corporation ומרחיבה את פעילות מדעי החיים",
+    "u": "https://www.tradingview.com/news/reuters.com,2026:newsml_TUABZB64G:0-ingersoll-rand-expands-life-sciences-solutions-with-acquisition-of-ivek-corporation/"
+   },
+   {
+    "t": 1793631139,
+    "h": "Stifel ממשיכה ב־Buy ומעלה יעד ל־95 דולר (מ־93)",
+    "u": "https://www.tradingview.com/news/tradingview:b91fe05619ee7:0-stifel-maintains-ingersoll-rand-at-buy-raises-price-target-to-95-from-93/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־18 בפברואר 2027."
+  ],
+  "sector": "תעשייה כבדה: צומחת דרך רכישות, ותלויה בהשקעות הון של לקוחות תעשייתיים."
+ },
+ "NYSE:GD": {
+  "about": "General Dynamics היא קבלנית ביטחון גדולה: צוללות, טנקים, מערכות IT ביטחוניות, וגם מטוסי מנהלים מסדרת Gulfstream.",
+  "news": [
+   {
+    "t": 1793914210,
+    "h": "סמנכ\"ל בכיר והיועץ המשפטי מכר מניות בשווי של יותר מ־4.8 מיליון דולר",
+    "u": "https://www.tradingview.com/news/tradingview:06b15654057c8:0-general-dynamics-senior-vp-gen-counsel-sec-sold-shares-worth-over-4-8m/"
+   },
+   {
+    "t": 1793820670,
+    "h": "טראמפ: לא אחליף את שר ההגנה הגסת'",
+    "u": "https://www.tradingview.com/news/seekingalpha:2f326dd4e094b:0-trump-says-he-won-t-replace-hegseth-floats-possible-senate-run/"
+   },
+   {
+    "t": 1793844017,
+    "h": "CNBC TV18: מה המשמעות של ניצחון הדמוקרטים בבחירות לתיקי ההשקעות",
+    "u": "https://www.tradingview.com/news/cnbctv:f95982821094b:0/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־27 בינואר 2027.",
+   "דיוני תקציב הביטחון בקונגרס החדש."
+  ],
+  "sector": "ענף הביטחון: קונגרס בשליטה דמוקרטית עשוי להפעיל לחץ על תקציבי הביטחון, ושם יהיה המוקד בחודשים הקרובים."
+ },
+ "NYSE:BR": {
+  "about": "Broadridge מספקת תשתיות טכנולוגיות לשוק ההון: הפצת חומרים לבעלי מניות, הצבעות באסיפות (Proxy) ומערכות מסחר וסליקה.",
+  "news": [
+   {
+    "t": 1793883600,
+    "h": "מביאה הצבעות Proxy למניות אמריקאיות מטוקנות (Tokenized) של Dinari",
+    "u": "https://www.tradingview.com/news/prnewswire:225ea74a35896:0-broadridge-brings-proxy-voting-to-dinari-s-dshares-tokenized-u-s-equities/"
+   },
+   {
+    "t": 1793820835,
+    "h": "JP Morgan ממשיכה ב־Neutral ומעלה יעד ל־201 דולר (מ־191)",
+    "u": "https://www.tradingview.com/news/tradingview:e2f682e6fca7d:0-jp-morgan-maintains-broadridge-financial-at-neutral-raises-price-target-to-201-from-191/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־4 בפברואר 2027."
+  ],
+  "sector": "פינטק לשוק ההון: הכנסות יציבות שחוזרות על עצמן, עם חשיפה למגמת הטוקניזציה של ניירות ערך."
+ },
+ "NASDAQ:CTSH": {
+  "about": "Cognizant היא חברת שירותי IT ומיקור חוץ טכנולוגי לתאגידים, עם בסיס עובדים גדול בהודו.",
+  "news": [
+   {
+    "t": 1793617200,
+    "h": "דוח רבעון 3 עקף את הציפיות, אבל התחזית קוצצה והמניה ירדה",
+    "u": "https://www.tradingview.com/news/tradingview:80b3e493da970:0-weekly-recap-q3-beats-estimates-outlook-cut-and-shares-fall/"
+   },
+   {
+    "t": 1793383740,
+    "h": "Morgan Stanley ממשיכה ב־Equal-Weight",
+    "u": "https://www.tradingview.com/news/DJN_DN20261030009709:0-cognizant-tech-solutions-is-maintained-at-equal-weight-by-morgan-stanley/"
+   },
+   {
+    "t": 1793469839,
+    "h": "הבחירות בארה\"ב ושאלת אשרות ה־H-1B, שחשובות לחברות IT הודיות",
+    "u": "https://www.tradingview.com/news/moodys:7f9f749636956:0-us-midterms-2026-will-trump-s-immigration-policies-face-a-check-what-it-means-for-h-1b-visas-green-cards-for-indians/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־10 בפברואר 2027."
+  ],
+  "sector": "שירותי IT: לחץ מצד כלי AI שמחליפים עבודה ידנית, ורגישות למדיניות ההגירה ולאשרות העבודה בארה\"ב."
+ },
+ "NYSE:NET": {
+  "about": "Cloudflare מפעילה רשת ענן גלובלית לאבטחה, האצת אתרים והגנה מפני מתקפות, ומציעה פלטפורמה להרצת קוד ו־AI בקצה הרשת (Edge).",
+  "news": [
+   {
+    "t": 1793989513,
+    "h": "Scotiabank ממשיכה ב־Outperform אבל מורידה יעד ל־360 דולר (מ־390)",
+    "u": "https://www.tradingview.com/news/tradingview:9b02e35e36ff5:0-scotiabank-maintains-cloudflare-at-sector-outperform-lowers-price-target-to-360-from-390/"
+   },
+   {
+    "t": 1793988673,
+    "h": "RBC ממשיכה ב־Outperform ומורידה יעד ל־350 דולר (מ־405)",
+    "u": "https://www.tradingview.com/news/tradingview:2f133ec2af431:0-rbc-capital-maintains-cloudflare-at-outperform-lowers-price-target-to-350-from-405/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־11 בפברואר 2027.",
+   "היום (6.11) המניה עלתה ב־12% בנפח של פי 1.77 מהממוצע. סביר שזו תגובה לדוח האחרון, אבל זו הסקה מהעיתוי של עדכוני האנליסטים ולא עובדה שבדקתי."
+  ],
+  "sector": "תוכנה ואבטחת סייבר: נפגעו במכירת מניות ה־AI ב־5 בנובמבר. האנליסטים מורידים יעדים אבל נשארים חיוביים."
+ },
+ "NASDAQ:BBIO": {
+  "about": "BridgeBio Pharma היא חברת ביוטק שמפתחת תרופות למחלות גנטיות. התרופה המרכזית שלה היא Acoramidis (Attruby) למחלת לב מסוג ATTR-CM.",
+  "news": [
+   {
+    "t": 1793709000,
+    "h": "תציג נתונים חדשים על Acoramidis בכנס איגוד הלב האמריקאי (AHA) 2026",
+    "u": "https://www.tradingview.com/news/globenewswire:90f549c92094b:0-bridgebio-to-present-new-acoramidis-data-on-heart-failure-events-in-attr-cm-at-the-american-heart-association-scientific-sessions-2026/"
+   },
+   {
+    "t": 1793617200,
+    "h": "עלייה בהכנסות ברבעון 3 וגיוס של 933.9 מיליון דולר במניות בכורה",
+    "u": "https://www.tradingview.com/news/tradingview:2e5667130e202:0-weekly-recap-q3-revenue-rises-and-933-9-million-preferred-financing/"
+   },
+   {
+    "t": 1793623333,
+    "h": "Canaccord ממשיכה ב־Buy ומעלה יעד ל־108 דולר (מ־106)",
+    "u": "https://www.tradingview.com/news/tradingview:3020d2052e4bd:0-canaccord-genuity-maintains-bridgebio-pharma-at-buy-raises-price-target-to-108-from-106/"
+   }
+  ],
+  "events": [
+   "הצגת נתונים בכנס AHA 2026 בנובמבר. התאריך המדויק לא נבדק.",
+   "דוח רבעוני צפוי ב־25 בפברואר 2027."
+  ],
+  "sector": "ביוטק בשלב מסחרי מוקדם: נתונים קליניים בכנסים יכולים להזיז את המניה בחדות."
+ },
+ "NASDAQ:AVT": {
+  "about": "Avnet היא מפיצה גלובלית של רכיבים אלקטרוניים ושבבים ליצרנים, ומתווכת בין יצרני השבבים לבין יצרני המכשירים.",
+  "news": [
+   {
+    "t": 1793962860,
+    "h": "דוח רבעון: הכנסות של 10.72 מיליארד דולר ורווח למניה 3.28 דולר",
+    "u": "https://www.tradingview.com/news/tradingview:929997f669bd4:0-avnet-3q-2026-revenue-10-72b-eps-3-28-10-q-summary/"
+   },
+   {
+    "t": 1793893440,
+    "h": "Truist מעלה יעד ל־125 דולר (מ־110)",
+    "u": "https://www.tradingview.com/news/DJN_DN20261105015278:0-avnet-price-target-raised-to-125-00-share-from-110-00-by-truist-securities/"
+   },
+   {
+    "t": 1793898493,
+    "h": "Wells Fargo ממשיכה ב־Underweight ומעלה יעד ל־85 דולר (מ־80)",
+    "u": "https://www.tradingview.com/news/tradingview:3961e958f17d6:0-wells-fargo-maintains-avnet-at-underweight-raises-price-target-to-85-from-80/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־3 בפברואר 2027."
+  ],
+  "sector": "הפצת שבבים: נפגעה מהמכירה בענף השבבים ב־5 בנובמבר. הדעות של האנליסטים חלוקות מאוד."
+ },
+ "NYSE:BEN": {
+  "about": "Franklin Templeton היא מנהלת השקעות גלובלית גדולה: קרנות נאמנות, תעודות סל (ETF), השקעות פרטיות (Private Markets) ופלטפורמת Canvas להשקעות מותאמות.",
+  "news": [
+   {
+    "t": 1793982900,
+    "h": "דוח רבעון 4 עקף את הציפיות, עם עלייה בהכנסות ובנכסים המנוהלים",
+    "u": "https://www.tradingview.com/news/zacks:73b47b0ae094b:0-franklin-q4-earnings-beat-estimates-on-higher-revenues-aum-rises-y-y/"
+   },
+   {
+    "t": 1793990875,
+    "h": "הצמיחה בשנת 2026 הובילה להעלאת יעדי 2029 בהשקעות פרטיות, ETF ו־Canvas",
+    "u": "https://www.tradingview.com/news/urn:summary_document_transcript:quartr.com:4496451:0-ben-fy26-growth-lifts-fy29-targets-for-private-markets-etfs-canvas-and-adjusted-margin/"
+   },
+   {
+    "t": 1793975102,
+    "h": "הרווח הנקי זינק והמניה עלתה ב־4%",
+    "u": "https://www.tradingview.com/news/dpa_afx:964b3df4f4b68:0-franklin-templeton-q4-preliminary-net-income-surges-as-revenue-climbs-expenses-drop-stock-up-4/"
+   }
+  ],
+  "events": [
+   "הדוח פורסם היום (6.11). הדוח הבא צפוי ב־1 בפברואר 2027."
+  ],
+  "sector": "ניהול נכסים: מעבר של כספים לתעודות סל ולהשקעות פרטיות. המנהלים המסורתיים מנסים להתאים את עצמם."
+ },
+ "NYSE:EMBJ": {
+  "about": "Embraer היא יצרנית מטוסים ברזילאית: מטוסי נוסעים אזוריים, מטוסי מנהלים (Phenom, Praetor) ומטוסים צבאיים.",
+  "news": [
+   {
+    "t": 1793879700,
+    "h": "Wheels Up הזמינה שישה מטוסי Phenom 300E חדשים",
+    "u": "https://www.tradingview.com/news/prnewswire:a974b65b04f9c:0-wheels-up-to-further-expand-premium-fleet-with-order-of-six-factory-new-embraer-phenom-300e-jets/"
+   },
+   {
+    "t": 1793360100,
+    "h": "שינוי ביחס ה־ADS: פיצול של 4 ל־1 שנכנס לתוקף ב־16 בנובמבר",
+    "u": "https://www.tradingview.com/news/prnewswire:828b4108c7dd0:0-embraer-announces-change-in-ads-ratio/"
+   },
+   {
+    "t": 1792979717,
+    "h": "לולה ניצח בבחירות בברזיל, וקרנות הסל על ברזיל ירדו",
+    "u": "https://www.tradingview.com/news/benzinga:a308910ce094b:0-lula-beats-fl-vio-bolsonaro-in-brazil-election-keeping-latin-america-s-biggest-economy-at-odds-with-trump-brazil-etfs-sink-overnight/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־10 בנובמבר 2026, בעוד 4 ימים.",
+   "פיצול ADS של 4 ל־1 ב־16 בנובמבר: המחיר למניה יתחלק ב־4, והשווי הכולל לא ישתנה."
+  ],
+  "sector": "תעופה: ביקוש חזק למטוסי מנהלים ולמטוסים אזוריים. מושפעת גם מהפוליטיקה בברזיל ומהיחסים עם ארה\"ב."
+ },
+ "NYSE:SNOW": {
+  "about": "Snowflake מספקת פלטפורמת ענן לאחסון וניתוח נתונים (Data Cloud) לארגונים, ומתרחבת לכלי AI על גבי הנתונים.",
+  "news": [
+   {
+    "t": 1793898540,
+    "h": "Zacks: המניה עלתה ב־32% מתחילת השנה, לקנות, למכור או להחזיק?",
+    "u": "https://www.tradingview.com/news/zacks:4453a7ab3094b:0-snowflake-soars-32-year-to-date-buy-sell-or-hold-the-stock/"
+   },
+   {
+    "t": 1793628900,
+    "h": "תציג בכנסי משקיעים בשבועות הקרובים",
+    "u": "https://www.tradingview.com/news/business_wire:14729d85c11cb:0-snowflake-to-present-at-upcoming-investor-conferences/"
+   },
+   {
+    "t": 1793721979,
+    "h": "USA Cycling בחרה ב־Snowflake לניתוח אסטרטגיית מרוצים לקראת אולימפיאדת LA28",
+    "u": "https://www.tradingview.com/news/reuters.com,2026:newsml_FWN46K1B2:0-usa-cycling-selects-snowflake-to-accelerate-race-strategy-on-the-road-to-the-la28-games/"
+   }
+  ],
+  "events": [
+   "השתתפות בכנסי משקיעים בנובמבר.",
+   "דוח רבעוני צפוי ב־2 בדצמבר 2026."
+  ],
+  "sector": "תוכנת נתונים ו־AI: נפגעה במכירה של מניות ה־AI. המניה ירדה בחדות מהשיא, אבל עדיין מעל SMA150 ו־SMA200."
+ },
+ "NASDAQ:TEM": {
+  "about": "Tempus AI היא חברת רפואה מבוססת AI: בדיקות גנומיות לסרטן, מאגר נתונים קליניים ענק ושירותי נתונים לחברות תרופות.",
+  "news": [
+   {
+    "t": 1793723700,
+    "h": "MarketBeat: המניה זינקה אחרי דוח שעקף את הציפיות, אבל האם הראלי יחזיק?",
+    "u": "https://www.tradingview.com/news/marketbeat:3ba653be0094b:0-tempus-ai-surges-on-earnings-beat-but-can-the-rally-last/"
+   },
+   {
+    "t": 1793734800,
+    "h": "Freedom Capital ממשיכה ב־Hold ומעלה יעד ל־89 דולר (מ־73)",
+    "u": "https://www.tradingview.com/news/tradingview:08607b32b87a6:0-freedom-capital-markets-maintains-tempus-ai-at-hold-raises-price-target-to-89-from-73/"
+   },
+   {
+    "t": 1793750114,
+    "h": "TEM מופיעה ברשימת המניות שננסי פלוסי מחזיקה, והיא לא מתמודדת לבחירה מחדש",
+    "u": "https://www.tradingview.com/news/benzinga:8c1b85a8c094b:0-nancy-pelosi-isn-t-running-for-re-election-in-2026-midterms-say-goodbye-to-her-stock-picks-in-two-months/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־2 במרץ 2027."
+  ],
+  "sector": "בריאות דיגיטלית ו־AI: מניה תנודתית (ATR של כ־8.7%), שמושפעת גם מהסנטימנט הכללי כלפי AI."
+ },
+ "NASDAQ:CBRS": {
+  "about": "Cerebras Systems מפתחת שבבי AI ענקיים (Wafer-Scale) ומחשבי-על לאימון והרצה של מודלים, ומתחרה ב־Nvidia. היא הונפקה לאחרונה.",
+  "news": [
+   {
+    "t": 1793650321,
+    "h": "Benzinga: המניה בשפל של כל הזמנים, מה קורה?",
+    "u": "https://www.tradingview.com/news/benzinga:df2eee07c094b:0-cerebras-stock-hits-all-time-low-what-s-happening/"
+   },
+   {
+    "t": 1793655385,
+    "h": "UBS ממשיכה ב־Buy אבל מורידה יעד ל־250 דולר (מ־330)",
+    "u": "https://www.tradingview.com/news/tradingview:641f23674245d:0-ubs-maintains-cerebras-systems-at-buy-lowers-price-target-to-250-from-330/"
+   },
+   {
+    "t": 1793961397,
+    "h": "הודעה על קרן ממונפת פי 3 על Cerebras בבורסת לונדון",
+    "u": "https://www.tradingview.com/news/reuters.com,2026-11-06:newsml_RSF1779Ca:0-reg-leverage-shares-plc-leverage-3x-cbr3-leverage-3x-cbr3-notice-of-original-meeting-3x-cerebras/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־12 בנובמבר 2026, בעוד 6 ימים. זה אחד הדוחות הראשונים שלה כחברה ציבורית."
+  ],
+  "sector": "שבבי AI: הענף נמצא תחת מכירה חדה. CBRS ירדה ב־77% מהשיא וב־6.11 קפצה ב־9.4%. התנודתיות גבוהה מאוד."
+ },
+ "NASDAQ:ARCC": {
+  "about": "Ares Capital היא חברת BDC (חברת הלוואות לעסקים) הגדולה בארה\"ב. היא מלווה לחברות בינוניות ומחלקת דיבידנד גבוה.",
+  "news": [
+   {
+    "t": 1793617200,
+    "h": "ירידה ברווחי רבעון 3 והסכם לרכישת MidCap Financial",
+    "u": "https://www.tradingview.com/news/tradingview:9499bd0660778:0-weekly-recap-q3-earnings-decline-and-midcap-acquisition-agreement/"
+   },
+   {
+    "t": 1793391300,
+    "h": "MidCap Financial ביטלה את שיחת הדוח שלה בגלל הרכישה הצפויה",
+    "u": "https://www.tradingview.com/news/globenewswire:42a993dc9094b:0-midcap-financial-investment-corporation-cancels-earnings-conference-call-due-to-pending-acquisition/"
+   }
+  ],
+  "events": [
+   "השלמת רכישת MidCap Financial (MFIC).",
+   "דוח רבעוני צפוי ב־10 בפברואר 2027."
+  ],
+  "sector": "אשראי פרטי: הענף צומח, אבל ירידת ריבית לוחצת על הרווחים, ויש חששות לאיכות האשראי."
+ },
+ "NYSE:NRP": {
+  "about": "Natural Resource Partners היא שותפות (LP) שמחזיקה זכויות במכרות פחם, מינרלים וסודה אש, ומקבלת תמלוגים מהכרייה.",
+  "news": [
+   {
+    "t": 1793976120,
+    "h": "המניה עלתה מעט למרות ירידה ברווח לעומת השנה שעברה ברבעון 3",
+    "u": "https://www.tradingview.com/news/zacks:8494f4247094b:0-nrp-stock-gains-marginally-despite-y-y-earnings-decline-in-q3/"
+   },
+   {
+    "t": 1793815261,
+    "h": "דוח רבעון 3: הכנסות של 48.9 מיליון דולר ורווח נקי של 26 מיליון",
+    "u": "https://www.tradingview.com/news/tradingview:46a2a50218daf:0-natural-resource-partners-3q-2026-revenue-48-9m-net-income-26m-eps-1-95-10-q-summary/"
+   },
+   {
+    "t": 1793804394,
+    "h": "תזרים המזומנים החופשי תמך בחלוקה של 2.34 דולר ליחידה, והחוב ירד ל־14.3 מיליון",
+    "u": "https://www.tradingview.com/news/urn:summary_document_report:quartr.com:4448482:0-nrp-free-cash-flow-supported-a-2-34-unit-distribution-as-debt-fell-to-14-3-million/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־4 במרץ 2027."
+  ],
+  "sector": "סחורות ופחם: מחירי הפחם והסודה אש לוחצים על הרווחים. המניה נתמכת בחלוקה גבוהה ובחוב נמוך. הנפח נמוך מאוד (כ־19 אלף מניות ביום)."
+ },
+ "NYSE:OWL": {
+  "about": "Blue Owl Capital היא מנהלת השקעות אלטרנטיביות: אשראי פרטי, השקעות בחברות ניהול (GP Stakes) ונדל\"ן, כולל מרכזי נתונים.",
+  "news": [
+   {
+    "t": 1793845675,
+    "h": "הכריזה על דיבידנד של 0.31 דולר למניה ועוד דיבידנד מיוחד של 0.01 דולר",
+    "u": "https://www.tradingview.com/news/seekingalpha:a0cb6384f094b:0-blue-owl-capital-declares-0-31-share-supplemental-dividend-of-0-01-share/"
+   },
+   {
+    "t": 1793865215,
+    "h": "דיווחה על החזקה של 4.6% ב־Bridgepoint Group",
+    "u": "https://www.tradingview.com/news/reuters.com,2026:newsml_FWN46M0VN:0-blue-owl-capital-reports-4-6-stake-in-bridgepoint-group-filing/"
+   },
+   {
+    "t": 1793893295,
+    "h": "ברשימת מניות פיננסים זולות עם הצמיחה הגבוהה ביותר בהשקעות ההון",
+    "u": "https://www.tradingview.com/news/seekingalpha:e0b701084094b:0-seven-undervalued-financial-stocks-with-the-highest-year-over-year-capex-growth/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־17 בפברואר 2027."
+  ],
+  "sector": "אשראי פרטי ונכסים אלטרנטיביים: הענף תחת לחץ, והמניה ירדה ב־42% מהשיא. החשיפה למרכזי נתונים קשורה לשאלות על השקעות ה־AI."
+ },
+ "NASDAQ:MNST": {
+  "about": "Monster Beverage מייצרת משקאות אנרגיה (Monster, Reign, Bang) ומפיצה אותם בעולם, בעיקר דרך שותפות ההפצה עם Coca-Cola.",
+  "news": [
+   {
+    "t": 1793975640,
+    "h": "דוח רבעון 3: הרווח עמד בציפיות והמכירות עקפו, בזכות צמיחה בינלאומית",
+    "u": "https://www.tradingview.com/news/zacks:b77709660094b:0-mnst-q3-earnings-meet-estimates-sales-beat-on-global-growth/"
+   },
+   {
+    "t": 1793992242,
+    "h": "StockStory: למה המניה יורדת היום",
+    "u": "https://www.tradingview.com/news/stockstory:a3b00cec1094b:0-why-monster-mnst-shares-are-trading-lower-today/"
+   },
+   {
+    "t": 1793974680,
+    "h": "Wells Fargo מעלה יעד ל־52 דולר (מ־50), ו־Piper Sandler ממשיכה ב־Overweight",
+    "u": "https://www.tradingview.com/news/DJN_DN20261106008090:0-monster-beverage-price-target-raised-to-52-00-share-from-50-00-by-wells-fargo/"
+   }
+  ],
+  "events": [
+   "הדוח פורסם השבוע. הדוח הבא צפוי ב־4 במרץ 2027."
+  ],
+  "sector": "משקאות ומוצרי צריכה: צמיחה בחו\"ל, והמכירות בארה\"ב נמצאות במעקב. המניה ירדה ב־3.6% ב־6.11 למרות האנליסטים החיוביים."
+ },
+ "NASDAQ:GOOGL": {
+  "about": "Alphabet היא חברת האם של Google: מנוע החיפוש והפרסום, YouTube, הענן Google Cloud, מודלי Gemini ופרויקטים כמו Waymo.",
+  "news": [
+   {
+    "t": 1793993812,
+    "h": "Crusoe: גוגל רכשה את אתר מרכז הנתונים שלה בדרום־מזרח ויומינג",
+    "u": "https://www.tradingview.com/news/reuters.com,2026:newsml_FWN46N3KX:0-crusoe-says-google-has-acquired-it-s-data-center-site-in-southeast-wyoming/"
+   },
+   {
+    "t": 1793977440,
+    "h": "WSJ: מרווחי ה־CDS של חברות הטכנולוגיה בשיא של חמש שנים",
+    "u": "https://www.tradingview.com/news/DJN_DN20261106008636:0-tech-credit-default-spreads-are-at-five-year-highs-wsj/"
+   },
+   {
+    "t": 1793981314,
+    "h": "בום מרכזי הנתונים נתקל במכשולים פוליטיים חדשים",
+    "u": "https://www.tradingview.com/news/seekingalpha:59a38ab08094b:0-data-center-boom-faces-new-political-roadblocks/"
+   },
+   {
+    "t": 1793914652,
+    "h": "Barchart: המדדים צללו בגלל מכירה מסיבית של מניות שבבים ו־AI",
+    "u": "https://www.tradingview.com/news/barchart:4808260b3094b:0-stock-indexes-routed-on-capitulation-out-of-chipmakers-and-ai-stocks/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־2 בפברואר 2027."
+  ],
+  "sector": "ענקיות הטכנולוגיה ו־AI: השוק מטיל ספק בהיקף ההשקעות במרכזי נתונים. GOOGL מתחת לכל הממוצעים וירדה ב־30% מהשיא."
+ },
+ "NASDAQ:MSTR": {
+  "about": "Strategy (לשעבר MicroStrategy) היא בפועל חברת אחזקות ביטקוין: היא מגייסת הון וחוב וקונה ביטקוין, ויש לה גם עסק קטן של תוכנה.",
+  "news": [
+   {
+    "t": 1793973848,
+    "h": "הדמוקרטים דוחפים לשכתב את חוק CLARITY ולהרחיב את סמכויות ה־SEC על הקריפטו",
+    "u": "https://www.tradingview.com/news/benzinga:817e02e7b094b:0-democrats-reportedly-push-clarity-act-rewrite-to-expand-sec-powers/"
+   },
+   {
+    "t": 1793901705,
+    "h": "Siebert: החברה עשויה לרכוש 190 אלף ביטקוין עד רבעון 3 של 2027",
+    "u": "https://www.tradingview.com/news/cryptobriefing:599c6097d094b:0-siebert-projects-strategy-could-acquire-190-000-bitcoin-by-q3-2027/"
+   },
+   {
+    "t": 1793896804,
+    "h": "Benzinga: האם ההימור על ביטקוין פוגע בבעלי המניות?",
+    "u": "https://www.tradingview.com/news/benzinga:e16fa341f094b:0-is-strategy-s-bitcoin-bet-hurting-shareholders-here-s-what-investors-should-know/"
+   }
+  ],
+  "events": [
+   "דוח רבעוני צפוי ב־10 בפברואר 2027.",
+   "הקונגרס החדש והרגולציה על הקריפטו."
+  ],
+  "sector": "קריפטו: המניה זזה בעיקר לפי מחיר הביטקוין. קונגרס דמוקרטי עלול להחמיר את הרגולציה. היא ירדה ב־49% מהשיא."
+ }
+};
+const SNAP = Date.parse("2026-11-06");
+const stocks = rows.filter(r => r.group !== INDEX_GROUP && r.x);
+let selSym = stocks[0]?.sym;
+const hdate = t => new Date(t * 1000).toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" });
+
+function standing(x) {
+  const out = [], tr = trend(x);
+  out.push(`מגמה ${tr[0] === "אין SMA200" ? "לא מוגדרת (אין עדיין SMA200)" : `<b>${tr[0]}</b>`}: המחיר ${x.close > x.EMA20 ? "מעל" : "מתחת ל"}־EMA20 ו${x.close > x.EMA50 ? "מעל" : "מתחת ל"}־EMA50.`);
+  const ma = (v, n) => v == null ? `אין עדיין נתון ל־SMA${n}.` : `${x.close > v ? "מעל" : "מתחת ל"}־SMA${n} (<span class="num">${f(v)}</span>), במרחק של <span class="num ${sign(x.close - v)}">${pct((x.close / v - 1) * 100)}</span>.`;
+  out.push(ma(x.SMA150, 150) + " " + ma(x.SMA200, 200));
+  const p = x["ADX+DI"], m = x["ADX-DI"];
+  const str = x.ADX >= 25 ? "מגמה חזקה" : x.ADX >= 20 ? "מגמה מתהווה" : "אין מגמה ברורה (דשדוש)";
+  out.push(`עוצמת מגמה (<bdi dir="ltr">ADX</bdi>) <span class="num">${f(x.ADX, 1)}</span>: ${str}. ${p != null ? (p > m ? `הקונים מובילים: <bdi dir="ltr">+DI</bdi> <span class="num up">${f(p, 1)}</span> מול <bdi dir="ltr">−DI</bdi> <span class="num down">${f(m, 1)}</span>.` : `המוכרים מובילים: <bdi dir="ltr">−DI</bdi> <span class="num down">${f(m, 1)}</span> מול <bdi dir="ltr">+DI</bdi> <span class="num up">${f(p, 1)}</span>.`) : ""}`);
+  const rz = x.RSI >= 70 ? "קנוי־יתר" : x.RSI <= 30 ? "מכור־יתר" : x.RSI >= 55 ? "מומנטום חיובי" : x.RSI <= 45 ? "מומנטום חלש" : "ניטרלי";
+  out.push(`מומנטום (<bdi dir="ltr">RSI</bdi>) <span class="num">${f(x.RSI, 1)}</span>: ${rz}.`);
+  const rp = (x.close - x.price_52_week_low) / (x.price_52_week_high - x.price_52_week_low) * 100;
+  out.push(`במרחק <span class="num">${pct((x.close / x.price_52_week_high - 1) * 100)}</span> משיא 52 השבועות (<span class="num">${f(x.price_52_week_high)}</span>). המחיר נמצא ב־<span class="num">${f(rp, 0)}%</span> מהטווח השנתי.`);
+  out.push(`תנודתיות יומית (<bdi dir="ltr">ATR</bdi>) <span class="num">${f(x.ATR)}</span>, שהם <span class="num">${f(x.ATR / x.close * 100, 1)}%</span> מהמחיר.`);
+  out.push(`נפח יחסי (<bdi dir="ltr">RVOL</bdi>) <span class="num">${f(x.relative_volume_10d_calc)}</span>: ${x.relative_volume_10d_calc >= 1.2 ? "נפח גבוה מהרגיל" : "נפח רגיל או נמוך"}. דירוג טכני של TradingView: <b><bdi dir="ltr">${rating(x["Recommend.All"])[0]}</bdi></b>.`);
+  return out;
+}
+
+function renderProfile() {
+  const v = document.getElementById("view-prof");
+  const r = stocks.find(s => s.sym === selSym) || stocks[0]; if (!r) { v.innerHTML = ""; return; }
+  const x = r.x, P = PROFILES[r.sym] || {}, M = PROFILES._market;
+  const idx = stocks.indexOf(r);
+  const er = x.earnings_release_next_date, days = er ? Math.round((er * 1000 - SNAP) / 864e5) : null;
+  v.innerHTML = `
+    <div class="pbar">
+      <button type="button" id="pprev" aria-label="הטיקר הקודם">→ הקודם</button>
+      <select id="psel" aria-label="בחירת טיקר">${groupNames.map(g => `<optgroup label="${g}">${stocks.filter(s => s.group === g).map(s => `<option value="${s.sym}" ${s.sym === r.sym ? "selected" : ""}>${s.tk}: ${s.x.description}</option>`).join("")}</optgroup>`).join("")}</select>
+      <button type="button" id="pnext" aria-label="הטיקר הבא">הבא ←</button>
+    </div>
+    <div class="phead">
+      <div><h2>${r.tk}</h2><div class="nm2">${x.description}</div></div>
+      <div><div class="label">מחיר</div><span class="num px">${f(x.close)}</span> <span class="num ${sign(x.change)}">${pct(x.change)}</span></div>
+      <div><div class="label">קבוצה</div>${r.group}</div>
+      <div><div class="label">סקטור</div>${x.sector || "—"}</div>
+      <div><div class="label">שווי שוק</div><span class="num">${big(x.market_cap_basic)}</span></div>
+      <div><span class="pill ${trend(x)[1]}">${trend(x)[0]}</span> <span class="pill ${rating(x["Recommend.All"])[1]}">${rating(x["Recommend.All"])[0]}</span></div>
+    </div>
+    <div class="pgrid">
+      <div class="card"><h3>מה החברה עושה</h3><p>${P.about || "אין תיאור זמין."}</p></div>
+      <div class="card"><h3>איפה היא עומדת בשוק</h3><ul>${standing(x).map(s => `<li>${s}</li>`).join("")}</ul></div>
+      <div class="card"><h3>אירועים קרובים</h3><ul>
+        ${er ? `<li><b>דוח רבעוני:</b> <span class="num">${dateOf(er)}</span>${days >= 0 ? `, בעוד <span class="num">${days}</span> ימים` : ""}${days >= 0 && days <= 14 ? ` <span class="pill p-mid">קרוב</span>` : ""}</li>` : ""}
+        ${(P.events || []).filter(e => !/^דוח רבעוני צפוי/.test(e)).map(e => `<li>${e}</li>`).join("")}
+      </ul></div>
+      <div class="card"><h3>חדשות אחרונות על החברה</h3><ul class="news">${(P.news || []).slice().sort((a, b) => b.t - a.t).map(n => `<li><a href="${n.u}" target="_blank" rel="noopener">${n.h}</a><span class="d">${hdate(n.t)} · TradingView News</span></li>`).join("") || "<li>אין חדשות זמינות.</li>"}</ul></div>
+      <div class="card"><h3>הסקטור</h3><p>${P.sector || "—"}</p></div>
+      <div class="card mkt"><h3>${M.title}</h3><ul>${M.points.map(p => `<li>${p}</li>`).join("")}</ul></div>
+    </div>
+    <p class="src">התיאורים והסיכומים נכתבו בעברית על סמך כותרות החדשות ב־TradingView ונתוני ה־snapshot. הם אינם המלצת השקעה. לחיצה על כותרת פותחת את הכתבה המקורית באנגלית.</p>`;
+  document.getElementById("psel").onchange = e => { selSym = e.target.value; renderProfile(); };
+  document.getElementById("pprev").onclick = () => { selSym = stocks[(idx - 1 + stocks.length) % stocks.length].sym; renderProfile(); };
+  document.getElementById("pnext").onclick = () => { selSym = stocks[(idx + 1) % stocks.length].sym; renderProfile(); };
+}
+
+function showTab(t) {
+  const prof = t === "prof";
+  document.getElementById("tab-table").setAttribute("aria-selected", !prof);
+  document.getElementById("tab-prof").setAttribute("aria-selected", prof);
+  document.getElementById("view-table").hidden = prof;
+  document.getElementById("view-prof").hidden = !prof;
+  if (prof) renderProfile(); else renderTable();
+  window.scrollTo({ top: 0 });
+}
+document.getElementById("tab-table").onclick = () => showTab("table");
+document.getElementById("tab-prof").onclick = () => showTab("prof");
+
 renderGroups(); renderTable();
 </script>

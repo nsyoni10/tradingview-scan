@@ -22,6 +22,7 @@ date = sys.argv[2]
 html = (here / "template.html").read_text(encoding="utf-8")
 html = (html.replace("__ORDER__", json.dumps(ORDER, ensure_ascii=False))
             .replace("__DATA__", json.dumps(data, ensure_ascii=False))
+            .replace("__PROFILES__", (here / f"profiles_{date}.json").read_text(encoding="utf-8"))
             .replace("__DATE__", date))
 out = here / f"portfolio_{date}.html"
 out.write_text(html, encoding="utf-8")
