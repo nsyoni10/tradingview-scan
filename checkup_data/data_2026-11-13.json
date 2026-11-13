@@ -127,22 +127,22 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 109.42,
-     "touch": 2,
+     "p": 107.11,
+     "touch": 4,
      "weekly": false,
-     "old": false
+     "old": true
     },
     {
-     "p": 101.15,
-     "touch": 2,
+     "p": 101.08,
+     "touch": 4,
      "weekly": true,
-     "old": false
+     "old": true
     },
     {
-     "p": 99.85,
-     "touch": 2,
+     "p": 99.95,
+     "touch": 3,
      "weekly": false,
-     "old": false
+     "old": true
     }
    ],
    "sr_res": [],
@@ -284,20 +284,13 @@
      "old": true
     },
     {
-     "p": 159.19,
-     "touch": 2,
-     "weekly": true,
+     "p": 140.39,
+     "touch": 6,
+     "weekly": false,
      "old": true
     }
    ],
-   "sr_res": [
-    {
-     "p": 189.59,
-     "touch": 2,
-     "weekly": false,
-     "old": false
-    }
-   ],
+   "sr_res": [],
    "news_level": "none",
    "news": ""
   },
@@ -444,10 +437,10 @@
    ],
    "sr_res": [
     {
-     "p": 109.42,
-     "touch": 2,
-     "weekly": true,
-     "old": false
+     "p": 108.83,
+     "touch": 7,
+     "weekly": false,
+     "old": true
     }
    ],
    "news_level": "none",
@@ -576,12 +569,6 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 86.17,
-     "touch": 2,
-     "weekly": true,
-     "old": false
-    },
-    {
      "p": 80.64,
      "touch": 4,
      "weekly": true,
@@ -592,6 +579,12 @@
      "touch": 4,
      "weekly": true,
      "old": false
+    },
+    {
+     "p": 72.34,
+     "touch": 4,
+     "weekly": false,
+     "old": true
     }
    ],
    "sr_res": [
@@ -728,12 +721,6 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 120.0,
-     "touch": 2,
-     "weekly": false,
-     "old": true
-    },
-    {
      "p": 116.57,
      "touch": 3,
      "weekly": true,
@@ -741,6 +728,12 @@
     },
     {
      "p": 114.36,
+     "touch": 3,
+     "weekly": true,
+     "old": true
+    },
+    {
+     "p": 109.91,
      "touch": 3,
      "weekly": true,
      "old": true
@@ -752,18 +745,6 @@
      "touch": 3,
      "weekly": false,
      "old": false
-    },
-    {
-     "p": 136.58,
-     "touch": 2,
-     "weekly": true,
-     "old": true
-    },
-    {
-     "p": 140.17,
-     "touch": 2,
-     "weekly": false,
-     "old": true
     }
    ],
    "news_level": "yellow",
@@ -892,10 +873,10 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 133.26,
-     "touch": 2,
+     "p": 132.87,
+     "touch": 4,
      "weekly": true,
-     "old": false
+     "old": true
     },
     {
      "p": 116.81,
@@ -904,10 +885,10 @@
      "old": false
     },
     {
-     "p": 111.12,
-     "touch": 2,
+     "p": 110.94,
+     "touch": 4,
      "weekly": true,
-     "old": false
+     "old": true
     }
    ],
    "sr_res": [],
@@ -1049,8 +1030,8 @@
      "old": false
     },
     {
-     "p": 285.37,
-     "touch": 2,
+     "p": 279.23,
+     "touch": 4,
      "weekly": true,
      "old": true
     }
@@ -1061,12 +1042,6 @@
      "touch": 4,
      "weekly": false,
      "old": false
-    },
-    {
-     "p": 325.57,
-     "touch": 2,
-     "weekly": true,
-     "old": true
     },
     {
      "p": 341.69,
@@ -1207,10 +1182,10 @@
      "old": true
     },
     {
-     "p": 101.45,
-     "touch": 2,
+     "p": 101.58,
+     "touch": 6,
      "weekly": true,
-     "old": false
+     "old": true
     },
     {
      "p": 100.5,
@@ -1219,14 +1194,7 @@
      "old": true
     }
    ],
-   "sr_res": [
-    {
-     "p": 109.46,
-     "touch": 2,
-     "weekly": true,
-     "old": true
-    }
-   ],
+   "sr_res": [],
    "news_level": "none",
    "news": ""
   },
@@ -1353,16 +1321,16 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 219.17,
-     "touch": 2,
+     "p": 209.08,
+     "touch": 3,
      "weekly": true,
-     "old": false
+     "old": true
     },
     {
-     "p": 207.51,
-     "touch": 2,
+     "p": 202.5,
+     "touch": 3,
      "weekly": false,
-     "old": false
+     "old": true
     },
     {
      "p": 196.5,
@@ -1498,32 +1466,25 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
+     "p": 593.88,
+     "touch": 3,
+     "weekly": false,
+     "old": true
+    },
+    {
      "p": 549.23,
      "touch": 4,
      "weekly": true,
      "old": false
     },
     {
-     "p": 497.0,
-     "touch": 2,
+     "p": 498.65,
+     "touch": 4,
      "weekly": true,
-     "old": false
-    },
-    {
-     "p": 488.6,
-     "touch": 2,
-     "weekly": true,
-     "old": false
+     "old": true
     }
    ],
-   "sr_res": [
-    {
-     "p": 612.75,
-     "touch": 2,
-     "weekly": true,
-     "old": false
-    }
-   ],
+   "sr_res": [],
    "news_level": "none",
    "news": ""
   },
@@ -1810,20 +1771,8 @@
    ],
    "sr_res": [
     {
-     "p": 119.54,
-     "touch": 2,
-     "weekly": true,
-     "old": false
-    },
-    {
-     "p": 130.83,
-     "touch": 2,
-     "weekly": false,
-     "old": false
-    },
-    {
-     "p": 135.73,
-     "touch": 2,
+     "p": 166.78,
+     "touch": 4,
      "weekly": true,
      "old": true
     }
@@ -1960,14 +1909,14 @@
      "old": false
     },
     {
-     "p": 148.78,
-     "touch": 2,
+     "p": 134.51,
+     "touch": 5,
      "weekly": true,
      "old": true
     },
     {
-     "p": 142.82,
-     "touch": 2,
+     "p": 132.25,
+     "touch": 4,
      "weekly": true,
      "old": true
     }
@@ -1977,12 +1926,6 @@
      "p": 169.57,
      "touch": 5,
      "weekly": true,
-     "old": false
-    },
-    {
-     "p": 181.18,
-     "touch": 2,
-     "weekly": false,
      "old": false
     }
    ],
@@ -2110,21 +2053,8 @@
    "sup": 309.79998779296875,
    "sup_src": "שפל יומי 10/09/26",
    "sup_from": "קו 50%",
-   "sr_sup": [
-    {
-     "p": 262.32,
-     "touch": 2,
-     "weekly": true,
-     "old": false
-    }
-   ],
+   "sr_sup": [],
    "sr_res": [
-    {
-     "p": 342.11,
-     "touch": 2,
-     "weekly": true,
-     "old": true
-    },
     {
      "p": 372.98,
      "touch": 3,
@@ -2132,9 +2062,9 @@
      "old": true
     },
     {
-     "p": 419.0,
-     "touch": 2,
-     "weekly": false,
+     "p": 681.2,
+     "touch": 4,
+     "weekly": true,
      "old": true
     }
    ],
@@ -2262,38 +2192,13 @@
    "sup": 96.43000030517578,
    "sup_src": "שפל שבועי 07/06/24 + שפל יומי 30/07/26",
    "sup_from": "סגירה",
-   "sr_sup": [
-    {
-     "p": 87.87,
-     "touch": 2,
-     "weekly": true,
-     "old": false
-    },
-    {
-     "p": 84.23,
-     "touch": 2,
-     "weekly": true,
-     "old": true
-    }
-   ],
+   "sr_sup": [],
    "sr_res": [
     {
      "p": 97.37,
      "touch": 3,
      "weekly": false,
      "old": true
-    },
-    {
-     "p": 101.05,
-     "touch": 2,
-     "weekly": true,
-     "old": false
-    },
-    {
-     "p": 104.17,
-     "touch": 2,
-     "weekly": false,
-     "old": false
     }
    ],
    "news_level": "none",
@@ -2422,22 +2327,22 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 583.71,
-     "touch": 2,
-     "weekly": true,
-     "old": true
-    },
-    {
      "p": 561.92,
      "touch": 4,
      "weekly": false,
      "old": true
     },
     {
-     "p": 545.41,
-     "touch": 2,
+     "p": 534.21,
+     "touch": 3,
      "weekly": true,
-     "old": false
+     "old": true
+    },
+    {
+     "p": 518.27,
+     "touch": 4,
+     "weekly": false,
+     "old": true
     }
    ],
    "sr_res": [],
@@ -2567,20 +2472,8 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 584.73,
-     "touch": 2,
-     "weekly": true,
-     "old": false
-    },
-    {
-     "p": 438.87,
-     "touch": 2,
-     "weekly": true,
-     "old": false
-    },
-    {
-     "p": 266.96,
-     "touch": 2,
+     "p": 194.07,
+     "touch": 13,
      "weekly": true,
      "old": true
     }
@@ -2884,18 +2777,6 @@
    ],
    "sr_res": [
     {
-     "p": 332.79,
-     "touch": 2,
-     "weekly": true,
-     "old": true
-    },
-    {
-     "p": 336.53,
-     "touch": 2,
-     "weekly": true,
-     "old": false
-    },
-    {
      "p": 348.48,
      "touch": 3,
      "weekly": true,
@@ -3029,9 +2910,9 @@
    "sr_sup": [
     {
      "p": 64.76,
-     "touch": 2,
+     "touch": 4,
      "weekly": false,
-     "old": false
+     "old": true
     },
     {
      "p": 61.44,
@@ -3049,9 +2930,9 @@
    "sr_res": [
     {
      "p": 72.77,
-     "touch": 2,
+     "touch": 4,
      "weekly": false,
-     "old": false
+     "old": true
     },
     {
      "p": 75.11,
@@ -3192,22 +3073,22 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 266.45,
-     "touch": 2,
-     "weekly": false,
-     "old": false
-    },
-    {
      "p": 257.67,
      "touch": 4,
      "weekly": false,
      "old": false
     },
     {
-     "p": 219.51,
-     "touch": 2,
+     "p": 219.49,
+     "touch": 4,
      "weekly": true,
-     "old": false
+     "old": true
+    },
+    {
+     "p": 215.75,
+     "touch": 9,
+     "weekly": true,
+     "old": true
     }
    ],
    "sr_res": [],
@@ -3343,16 +3224,16 @@
      "old": false
     },
     {
-     "p": 83.59,
-     "touch": 2,
+     "p": 83.63,
+     "touch": 7,
      "weekly": false,
-     "old": false
+     "old": true
     },
     {
-     "p": 74.4,
-     "touch": 3,
+     "p": 82.67,
+     "touch": 5,
      "weekly": true,
-     "old": false
+     "old": true
     }
    ],
    "sr_res": [
@@ -3489,12 +3370,6 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 193.32,
-     "touch": 2,
-     "weekly": true,
-     "old": true
-    },
-    {
      "p": 188.26,
      "touch": 7,
      "weekly": true,
@@ -3505,6 +3380,12 @@
      "touch": 4,
      "weekly": true,
      "old": true
+    },
+    {
+     "p": 174.59,
+     "touch": 4,
+     "weekly": true,
+     "old": false
     }
    ],
    "sr_res": [],

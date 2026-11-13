@@ -2,7 +2,7 @@
 
   python3 yahoo_data.py build  OUT.json DATE [SYM ...]   fallback when TradingView is unreachable:
                                                         builds the full checkup JSON (same fields as TV)
-  python3 yahoo_data.py levels JSON                     adds correction / discount fields and 3 daily supports + 3 resistances (pivots 10/10, >=2 touches, 6 months)
+  python3 yahoo_data.py levels JSON                     adds correction / discount fields and 3 daily supports + 3 resistances (pivots 10/10, >=3 touches, 6 months)
   python3 yahoo_data.py news   JSON                     prints headlines since the last bar's close (16:00 ET)
 
 Without SYM, build reads checkup_data/red_list.txt (the last Red list read from TradingView).
@@ -116,7 +116,7 @@ def swing_highs(df, k):
 
 PIVOT_BARS = 10      # pivot = highest high / lowest low of 10 bars on each side (TradingView Pivots High Low style)
 TOUCH_BARS = 3       # a touch = a smaller turning point (3 bars on each side) inside the level's zone
-MIN_TOUCHES = 2      # a level needs at least 2 touches
+MIN_TOUCHES = 3      # a level needs at least 3 touches
 LOOKBACK = (126, 252)  # 6 months first; if a side has fewer than 3 levels, extend to 1 year
 
 
