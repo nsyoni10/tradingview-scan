@@ -146,6 +146,38 @@ def news_cell(d):
     return "—"
 
 
+WEEKLY = "★ שבועי"
+
+
+def sr_cells(d, c, sup, res):
+    """3 תמיכות מתחת לסגירה ו-3 התנגדויות מעליה, ביומי (yahoo_data.py levels).
+    רמה שיושבת גם על רמה שבועית מסומנת ★ ונצבעת. בלי השדות — הרמות הישנות (Pivot, EMA, שיא/שפל)."""
+    def cell(p, wk=False, touch=None):
+        t = f"{p:.2f} ({(p / c - 1) * 100:+.1f}%)"
+        if touch and touch > 1:
+            t += f" ×{touch}"
+        return t + (f" {WEEKLY}" if wk else "")
+    if "sr_sup" in d:
+        s3 = [cell(x["p"], x["weekly"], x["touch"]) for x in d["sr_sup"]]
+        r3 = [cell(x["p"], x["weekly"], x["touch"]) for x in d["sr_res"]]
+    else:
+        s3 = [cell(x[0]) for x in sup[:3]]
+        r3 = [cell(x[0]) for x in res[:3]]
+    pad = lambda l: (l + ["אין"] * 3)[:3]
+    return pad(s3) + pad(r3)
+
+
+def corr_cells(d, c):
+    """תיקון: משיא 3 החודשים (תחילת התיקון) לשפל שאחריו. מתחת ל-50% = דיסקאונט."""
+    if d.get("corr_mid") is None:
+        return [""] * 4
+    return [
+        "דיסקאונט" if d["zone"] == "discount" else "פרמיום",
+        d["corr_mid"], f"{d['corr_hi']:.2f} ({d['corr_hi_date'][8:10]}/{d['corr_hi_date'][5:7]})",
+        f"{d['corr_lo']:.2f} ({d['corr_lo_date'][8:10]}/{d['corr_lo_date'][5:7]})",
+    ]
+
+
 def build(data, out):
     wb = Workbook()
     ws = wb.active
@@ -153,11 +185,12 @@ def build(data, out):
     ws.sheet_view.rightToLeft = True
 
     headers = [
-        "טיקר", "סטטוס", "בולינגר יומי (σ)", "בולינגר שבועי (σ)", "ציון כניסה", "חדשות", "מעל SMA150", "RVOL ≥ 1.2", "כיוון", "סגירה", "שינוי %",
+        "טיקר", "סטטוס", "בולינגר יומי (σ)", "בולינגר שבועי (σ)", "ציון כניסה", "חדשות",
+        "תמיכה 1", "תמיכה 2", "תמיכה 3", "התנגדות 1", "התנגדות 2", "התנגדות 3",
+        "אזור", "קו 50%", "תחילת התיקון", "שפל התיקון",
+        "מעל SMA150", "RVOL ≥ 1.2", "כיוון", "סגירה", "שינוי %",
         "SMA150", "RVOL", "ATR", "ATR %", "ADX", "+DI", "-DI", "CCI", "EMA20", "EMA50",
         "צבע נר", "מרובוזו (3 ימים)", "דפוס נר",
-        "התנגדות 1", "מקור R1", "מרחק R1 (ATR)", "התנגדות 2",
-        "תמיכה 1", "מקור S1", "מרחק S1 (ATR)", "תמיכה 2",
         "נפח ממוצע 10י", "הערות",
     ]
     ws.append(headers)
@@ -186,23 +219,16 @@ def build(data, out):
         if d["RVOL"] >= RVOL_MIN and d["last"][3] < d["last"][0]:
             notes.append("ווליום גבוה על נר אדום — מכירה")
 
-        def lvl(lst, i):
-            return (lst[i][0], lst[i][1]) if len(lst) > i else (None, "")
-
-        r1, r1n = lvl(res, 0)
-        r2, _ = lvl(res, 1)
-        s1, s1n = lvl(sup, 0)
-        s2, _ = lvl(sup, 1)
         rows.append([
-            sym.split(":")[1], STATUS[st], bd, bw, sc, news_cell(d), OK if above else BAD, OK if rvol_ok else BAD,
+            sym.split(":")[1], STATUS[st], bd, bw, sc, news_cell(d),
+            *sr_cells(d, c, sup, res), *corr_cells(d, c),
+            OK if above else BAD, OK if rvol_ok else BAD,
             ("▲ +DI" if d["DIp"] > d["DIm"] else "▼ -DI") + f" | ADX {d['ADX']:.0f}" + (" עולה" if d["ADX"] > d.get("ADX1", d["ADX"]) else " יורד"),
             c, (c / pc - 1) * 100, d["SMA150"], d["RVOL"],
             d["ATR"], d["ATR"] / c * 100, d["ADX"], d["DIp"], d["DIm"], d["CCI"],
             d["EMA20"], d["EMA50"], cd["color"],
             "—" if maru is None else ("היום" if maru == 0 else f"לפני {maru} ימים" if maru > 1 else "אתמול"),
             cd["tags"],
-            r1, r1n, (r1 - c) / d["ATR"] if r1 else None, r2,
-            s1, s1n, (c - s1) / d["ATR"] if s1 else None, s2,
             d["vol10"], "; ".join([f"סטטוס: {st_why}"] + notes),
         ])
 
@@ -221,9 +247,8 @@ def build(data, out):
     H = {h: i for i, h in enumerate(headers)}
 
     fmt = {h: "+0.00;-0.00" for h in ("בולינגר יומי (σ)", "בולינגר שבועי (σ)", "שינוי %")}
-    fmt.update({h: "0.00" for h in ("סגירה", "SMA150", "RVOL", "ATR", "EMA20", "EMA50", "התנגדות 1",
-                                    "התנגדות 2", "תמיכה 1", "תמיכה 2")})
-    fmt.update({h: "0.0" for h in ("ATR %", "ADX", "+DI", "-DI", "מרחק R1 (ATR)", "מרחק S1 (ATR)")})
+    fmt.update({h: "0.00" for h in ("סגירה", "SMA150", "RVOL", "ATR", "EMA20", "EMA50", "קו 50%")})
+    fmt.update({h: "0.0" for h in ("ATR %", "ADX", "+DI", "-DI", )})
     fmt.update({"CCI": "0", "נפח ממוצע 10י": "#,##0"})
     fmt = {H[h] + 1: f for h, f in fmt.items()}
     green, red = PatternFill("solid", fgColor="C6EFCE"), PatternFill("solid", fgColor="FFC7CE")
@@ -249,6 +274,13 @@ def build(data, out):
             row[H["חדשות"]].fill = red
         elif nv.startswith(NEWS_YELLOW):
             row[H["חדשות"]].fill = PatternFill("solid", fgColor="FFEB9C")
+        z = row[H["אזור"]].value
+        row[H["אזור"]].fill = green if z == "דיסקאונט" else red if z == "פרמיום" else PatternFill()
+        wk_fill = PatternFill("solid", fgColor="BDD7EE")
+        for h in ("תמיכה 1", "תמיכה 2", "תמיכה 3", "התנגדות 1", "התנגדות 2", "התנגדות 3"):
+            if WEEKLY in str(row[H[h]].value):
+                row[H[h]].fill = wk_fill
+                row[H[h]].font = Font(bold=True)
         for h in ("דפוס נר", "חדשות", "הערות"):
             row[H[h]].alignment = Alignment(horizontal="right", vertical="center", wrap_text=True)
 
@@ -260,7 +292,7 @@ def build(data, out):
                        end_type="num", end_value=100, end_color="63BE7B"))
 
     widths = {"טיקר": 8, "סטטוס": 16, "בולינגר יומי (σ)": 11, "בולינגר שבועי (σ)": 11, "ציון כניסה": 9,
-              "חדשות": 45, "כיוון": 16, "מרובוזו (3 ימים)": 12, "דפוס נר": 30, "מקור R1": 18, "מקור S1": 18, "הערות": 50}
+              "חדשות": 45, **{h: 22 for h in ("תמיכה 1", "תמיכה 2", "תמיכה 3", "התנגדות 1", "התנגדות 2", "התנגדות 3")}, "תחילת התיקון": 15, "שפל התיקון": 15, "כיוון": 16, "מרובוזו (3 ימים)": 12, "דפוס נר": 30, "הערות": 50}
     widths = {H[h] + 1: w for h, w in widths.items()}
     for i in range(1, len(headers) + 1):
         ws.column_dimensions[get_column_letter(i)].width = widths.get(i, 10)
@@ -269,7 +301,7 @@ def build(data, out):
     ex = wb.create_sheet("הסבר")
     ex.sheet_view.rightToLeft = True
     lines = [
-        ("מקור", f"רשימת המעקב '{data.get('watchlist', 'Red list')}' בטריידינגוויו, גרף יומי. נר אחרון: {data.get('bar_date', data['date'])}"),
+        ("מקור", f"רשימת המעקב '{data.get('watchlist', 'Red list')}', נתונים מ-{'Yahoo Finance (אינדיקטורים מחושבים)' if data.get('source') == 'yahoo' else 'טריידינגוויו'}, גרף יומי. נר אחרון: {data.get('bar_date', data['date'])}"),
         ("סטטוס", "✅ יש מקום: טובה בשבועי וביומי (בתוך רצועת בולינגר), +DI מעל -DI, ADX ≥ 20 | "
                    "🔵 כמעט שם: כמו ✅ אבל ADX מתחת ל-20 ועולה | "
                    "👁 מעקב: טובה בשבועי, מתוחה ביומי — להשאיר ב-Red list ולבדוק שוב מחר עד שתבשיל | "
@@ -285,8 +317,10 @@ def build(data, out):
         ("מרובוזו", "נר ירוק עם גוף ≥ 85% מהטווח וגוף ≥ 0.5 ATR, באחד מ-3 ימי המסחר האחרונים"),
         ("פטיש / איש תלוי", "צל תחתון ≥ 2× גוף, צל עליון ≤ 30% מהטווח. במגמה עולה = איש תלוי, אחרת = פטיש"),
         ("נר 2/3", "נר ירוק שגופו ≥ 2/3 מטווח הנר, אחרי נר אדום"),
-        ("תמיכה/התנגדות", "Pivot חודשי, שיא/שפל חודש ו-3 חודשים, EMA20/50, גבוה/נמוך של 2 הנרות האחרונים. "
-                          "רמות במרחק < 0.25 ATR מאוחדות"),
+        ("תמיכה/התנגדות 1-3", "ביומי: 3 התמיכות הקרובות מתחת לסגירה ו-3 ההתנגדויות הקרובות מעליה, לפי הסדר. "
+                              "רמה = שיא או שפל נדנדה יומי (3 נרות מכל צד) בשנה האחרונה; נקודות במרחק עד 0.25 ATR = רמה אחת (רוחב רמה עד 0.5 ATR). "
+                              "בתא: מחיר, מרחק % מהסגירה, ×N = מספר הנגיעות. ★ שבועי (רקע כחול) = אותה רמה היא גם "
+                              "שיא/שפל נדנדה בגרף השבועי (3 שבועות מכל צד, 3 שנים, עד 0.15 ATR) — רמה חזקה יותר. 'אין' = אין רמה יומית בשנה האחרונה בכיוון הזה"),
         ("ציון כניסה 0-100", "כיוון 30 (+DI>-DI 15, ADX≥20 10 / 18-20 5, ADX עולה 5 — רק כש-+DI>-DI) | "
                              "נר עם עוצמה 25 (מרובוזו היום 15 / ב-3 ימים 10 + דפוס נר אחרון עד 10) | "
                              "ווליום על נר ירוק 15 | CCI יוצא מתיקון 15 | מעל SMA150 10 | לא מתוח מעל EMA20 5"),
@@ -294,6 +328,9 @@ def build(data, out):
                    "⚠ = חדשות מהותיות שעלולות להפיל את המניה (מתחרה, רגולציה, הורדת תחזית) | "
                    "ℹ = חדשות שכדאי לדעת | — = נבדק, אין חדשות מהותיות | ריק = לא נבדק. "
                    "הציון והסטטוס לא משתנים לפי החדשות — לבדוק את העמודה לפני כניסה"),
+        ("תיקון ודיסקאונט", "תחילת התיקון = השיא הגבוה ב-3 החודשים האחרונים. שפל התיקון = הנמוך ביותר מאז. "
+                            "קו 50% = אמצע הטווח. סגירה מתחת לקו = דיסקאונט (ירוק), מעליו = פרמיום (אדום). "
+                            "זה קירוב אוטומטי: אם התיקון האמיתי התחיל לפני יותר מ-3 חודשים, צריך לבדוק בגרף"),
         ("שים לב", "הציון הוא כלי מיון, לא המלצת השקעה"),
     ]
     for k, v in lines:

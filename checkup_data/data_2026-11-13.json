@@ -116,7 +116,40 @@
    "L3M": 101.1500015258789,
    "vol10": 8571080.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 120.80000305175781,
+   "corr_hi_date": "2026-11-05",
+   "corr_lo": 113.79000091552734,
+   "corr_lo_date": "2026-11-06",
+   "corr_mid": 117.29500198364258,
+   "zone": "premium",
+   "sup": 111.54000091552734,
+   "sup_src": "שפל שבועי 15/08/25 + שפל יומי 05/01/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 116.01,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 114.29,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 113.09,
+     "touch": 4,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 120.8,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NASDAQ:NTRS": {
    "bars": [
@@ -231,7 +264,50 @@
    "L3M": 159.41000366210938,
    "vol10": 1093880.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 193.88999938964844,
+   "corr_hi_date": "2026-08-17",
+   "corr_lo": 159.41000366210938,
+   "corr_lo_date": "2026-10-14",
+   "corr_mid": 176.6500015258789,
+   "zone": "premium",
+   "sup": 175.0800018310547,
+   "sup_src": "שפל שבועי 24/07/26 + שפל יומי 23/07/26 + שפל יומי 16/09/26 + SMA150",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 174.42,
+     "touch": 4,
+     "weekly": false
+    },
+    {
+     "p": 172.27,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 170.35,
+     "touch": 5,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 178.7,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 180.6,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 182.26,
+     "touch": 2,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:CLX": {
    "bars": [
@@ -346,7 +422,50 @@
    "L3M": 79.12000274658203,
    "vol10": 4702720.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 109.83000183105469,
+   "corr_hi_date": "2026-11-10",
+   "corr_lo": 102.1500015258789,
+   "corr_lo_date": "2026-11-11",
+   "corr_mid": 105.9900016784668,
+   "zone": "premium",
+   "sup": 104.30000305175781,
+   "sup_src": "שפל יומי 17/08/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 107.99,
+     "touch": 6,
+     "weekly": false
+    },
+    {
+     "p": 104.9,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 100.73,
+     "touch": 5,
+     "weekly": true
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 109.15,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 112.66,
+     "touch": 2,
+     "weekly": false
+    },
+    {
+     "p": 115.47,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:DAL": {
    "bars": [
@@ -461,7 +580,50 @@
    "L3M": 74.13999938964844,
    "vol10": 6590710.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 92.5199966430664,
+   "corr_hi_date": "2026-11-10",
+   "corr_lo": 86.41000366210938,
+   "corr_lo_date": "2026-11-12",
+   "corr_mid": 89.46500015258789,
+   "zone": "discount",
+   "sup": 85.27999877929688,
+   "sup_src": "שפל יומי 08/07/26",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 85.48,
+     "touch": 4,
+     "weekly": false
+    },
+    {
+     "p": 83.83,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 80.52,
+     "touch": 4,
+     "weekly": true
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 87.39,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 89.69,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 92.21,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:APO": {
    "bars": [
@@ -576,7 +738,50 @@
    "L3M": 109.91000366210938,
    "vol10": 4491930.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 140.07000732421875,
+   "corr_hi_date": "2026-08-17",
+   "corr_lo": 109.91000366210938,
+   "corr_lo_date": "2026-10-22",
+   "corr_mid": 124.99000549316406,
+   "zone": "discount",
+   "sup": 120.0,
+   "sup_src": "שפל יומי 30/04/26",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 120.09,
+     "touch": 2,
+     "weekly": false
+    },
+    {
+     "p": 116.81,
+     "touch": 3,
+     "weekly": true
+    },
+    {
+     "p": 114.7,
+     "touch": 1,
+     "weekly": true
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 122.58,
+     "touch": 6,
+     "weekly": false
+    },
+    {
+     "p": 125.88,
+     "touch": 5,
+     "weekly": true
+    },
+    {
+     "p": 129.92,
+     "touch": 5,
+     "weekly": false
+    }
+   ]
   },
   "NASDAQ:DLTR": {
    "bars": [
@@ -691,7 +896,45 @@
    "L3M": 111.12000274658203,
    "vol10": 2498650.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 148.5399932861328,
+   "corr_hi_date": "2026-11-05",
+   "corr_lo": 130.85000610351562,
+   "corr_lo_date": "2026-11-06",
+   "corr_mid": 139.69499969482422,
+   "zone": "premium",
+   "sup": 130.85000610351562,
+   "sup_src": "שפל יומי 06/11/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 138.91,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 137.07,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 135.08,
+     "touch": 2,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 142.4,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 148.54,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:FDX": {
    "bars": [
@@ -806,7 +1049,50 @@
    "L3M": 279.2300109863281,
    "vol10": 1700710.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 340.8299865722656,
+   "corr_hi_date": "2026-08-26",
+   "corr_lo": 279.2300109863281,
+   "corr_lo_date": "2026-09-25",
+   "corr_mid": 310.0299987792969,
+   "zone": "premium",
+   "sup": 308.0338439941406,
+   "sup_src": "שפל יומי 28/04/26 + SMA200 + שפל יומי 06/11/26 + שפל יומי 10/09/26 + שפל יומי 24/06/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 316.57,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 308.43,
+     "touch": 4,
+     "weekly": false
+    },
+    {
+     "p": 305.32,
+     "touch": 6,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 320.95,
+     "touch": 6,
+     "weekly": false
+    },
+    {
+     "p": 324.93,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 332.0,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NASDAQ:TROW": {
    "bars": [
@@ -921,7 +1207,50 @@
    "L3M": 98.04000091552734,
    "vol10": 2154470.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 114.37999725341797,
+   "corr_hi_date": "2026-11-05",
+   "corr_lo": 107.44999694824219,
+   "corr_lo_date": "2026-11-06",
+   "corr_mid": 110.91499710083008,
+   "zone": "discount",
+   "sup": 107.62999725341797,
+   "sup_src": "שפל שבועי 17/01/25 + SMA150 + שפל שבועי 26/04/24",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 107.06,
+     "touch": 4,
+     "weekly": true
+    },
+    {
+     "p": 105.79,
+     "touch": 5,
+     "weekly": false
+    },
+    {
+     "p": 104.4,
+     "touch": 1,
+     "weekly": true
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 108.25,
+     "touch": 4,
+     "weekly": false
+    },
+    {
+     "p": 109.43,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 110.54,
+     "touch": 3,
+     "weekly": false
+    }
+   ]
   },
   "NASDAQ:CTAS": {
    "bars": [
@@ -1036,7 +1365,40 @@
    "L3M": 191.08999633789062,
    "vol10": 1834680.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 233.4600067138672,
+   "corr_hi_date": "2026-11-05",
+   "corr_lo": 220.16000366210938,
+   "corr_lo_date": "2026-11-06",
+   "corr_mid": 226.81000518798828,
+   "zone": "premium",
+   "sup": 220.16000366210938,
+   "sup_src": "שפל יומי 06/11/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 226.69,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 219.67,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 209.27,
+     "touch": 3,
+     "weekly": true
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 233.46,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:LMT": {
    "bars": [
@@ -1151,7 +1513,50 @@
    "L3M": 497.0,
    "vol10": 1478960.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 657.0,
+   "corr_hi_date": "2026-10-30",
+   "corr_lo": 561.8499755859375,
+   "corr_lo_date": "2026-11-06",
+   "corr_mid": 609.4249877929688,
+   "zone": "discount",
+   "sup": 595.0,
+   "sup_src": "שפל יומי 05/02/26 + שפל יומי 30/03/26",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 594.22,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 575.41,
+     "touch": 2,
+     "weekly": false
+    },
+    {
+     "p": 561.85,
+     "touch": 1,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 605.25,
+     "touch": 2,
+     "weekly": false
+    },
+    {
+     "p": 611.55,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 634.96,
+     "touch": 3,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:CCI": {
    "bars": [
@@ -1266,7 +1671,50 @@
    "L3M": 65.31999969482422,
    "vol10": 4200720.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 93.5,
+   "corr_hi_date": "2026-11-05",
+   "corr_lo": 86.5,
+   "corr_lo_date": "2026-11-10",
+   "corr_mid": 90.0,
+   "zone": "discount",
+   "sup": 88.5999984741211,
+   "sup_src": "שפל יומי 03/06/26 + שפל יומי 24/11/25",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 89.2,
+     "touch": 6,
+     "weekly": false
+    },
+    {
+     "p": 87.54,
+     "touch": 4,
+     "weekly": true
+    },
+    {
+     "p": 85.14,
+     "touch": 4,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 91.61,
+     "touch": 6,
+     "weekly": true
+    },
+    {
+     "p": 93.44,
+     "touch": 4,
+     "weekly": true
+    },
+    {
+     "p": 95.07,
+     "touch": 1,
+     "weekly": true
+    }
+   ]
   },
   "NASDAQ:INSM": {
    "bars": [
@@ -1381,7 +1829,50 @@
    "L3M": 92.62999725341797,
    "vol10": 3648230.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 131.10000610351562,
+   "corr_hi_date": "2026-08-19",
+   "corr_lo": 92.62999725341797,
+   "corr_lo_date": "2026-10-23",
+   "corr_mid": 111.8650016784668,
+   "zone": "premium",
+   "sup": 105.06999969482422,
+   "sup_src": "שפל יומי 16/07/26 + שפל יומי 26/05/26 + שפל יומי 18/05/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 117.29,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 110.96,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 104.85,
+     "touch": 3,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 119.54,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 122.27,
+     "touch": 4,
+     "weekly": false
+    },
+    {
+     "p": 130.97,
+     "touch": 2,
+     "weekly": false
+    }
+   ]
   },
   "NASDAQ:NBIX": {
    "bars": [
@@ -1496,7 +1987,50 @@
    "L3M": 132.25,
    "vol10": 1772610.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 174.58999633789062,
+   "corr_hi_date": "2026-11-11",
+   "corr_lo": 168.08999633789062,
+   "corr_lo_date": "2026-11-11",
+   "corr_mid": 171.33999633789062,
+   "zone": "discount",
+   "sup": 169.00999450683594,
+   "sup_src": "שפל יומי 16/07/26",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 165.46,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 162.39,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 159.51,
+     "touch": 6,
+     "weekly": true
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 169.5,
+     "touch": 5,
+     "weekly": true
+    },
+    {
+     "p": 181.09,
+     "touch": 2,
+     "weekly": false
+    },
+    {
+     "p": 186.12,
+     "touch": 1,
+     "weekly": true
+    }
+   ]
   },
   "NASDAQ:INTU": {
    "bars": [
@@ -1611,7 +2145,50 @@
    "L3M": 262.32000732421875,
    "vol10": 3030280.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 372.9800109863281,
+   "corr_hi_date": "2026-08-24",
+   "corr_lo": 262.32000732421875,
+   "corr_lo_date": "2026-09-28",
+   "corr_mid": 317.65000915527344,
+   "zone": "premium",
+   "sup": 309.79998779296875,
+   "sup_src": "שפל יומי 10/09/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 336.94,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 322.57,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 319.02,
+     "touch": 1,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 342.21,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 349.0,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 358.03,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:KKR": {
    "bars": [
@@ -1726,7 +2303,50 @@
    "L3M": 84.2300033569336,
    "vol10": 4871460.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 113.62999725341797,
+   "corr_hi_date": "2026-08-17",
+   "corr_lo": 84.2300033569336,
+   "corr_lo_date": "2026-10-14",
+   "corr_mid": 98.93000030517578,
+   "zone": "discount",
+   "sup": 96.43000030517578,
+   "sup_src": "שפל שבועי 07/06/24 + שפל יומי 30/07/26",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 95.59,
+     "touch": 4,
+     "weekly": false
+    },
+    {
+     "p": 93.65,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 91.82,
+     "touch": 5,
+     "weekly": true
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 97.26,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 98.64,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 101.1,
+     "touch": 2,
+     "weekly": true
+    }
+   ]
   },
   "NYSE:MA": {
    "bars": [
@@ -1841,7 +2461,40 @@
    "L3M": 545.4099731445312,
    "vol10": 3395400.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 681.989990234375,
+   "corr_hi_date": "2026-11-05",
+   "corr_lo": 638.010009765625,
+   "corr_lo_date": "2026-11-06",
+   "corr_mid": 660.0,
+   "zone": "discount",
+   "sup": 638.010009765625,
+   "sup_src": "שפל יומי 06/11/26",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 638.01,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 633.29,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 605.0,
+     "touch": 1,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 681.99,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NASDAQ:AMD": {
    "bars": [
@@ -1956,7 +2609,50 @@
    "L3M": 402.1000061035156,
    "vol10": 47452950.0,
    "news_level": "yellow",
-   "news": "Nvidia CEO crisis (Huang resigned, asked to testify before the Senate); Nvidia rebounding in pre-market — 13/11 09:10 ET"
+   "news": "Nvidia CEO crisis (Huang resigned, asked to testify before the Senate); Nvidia rebounding in pre-market — 13/11 09:10 ET",
+   "corr_hi": 658.52001953125,
+   "corr_hi_date": "2026-10-06",
+   "corr_lo": 402.1000061035156,
+   "corr_lo_date": "2026-11-05",
+   "corr_mid": 530.3100128173828,
+   "zone": "premium",
+   "sup": 502.6000061035156,
+   "sup_src": "שפל יומי 22/10/26 + שפל יומי 08/07/26 + שפל יומי 29/06/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 579.37,
+     "touch": 3,
+     "weekly": true
+    },
+    {
+     "p": 559.9,
+     "touch": 4,
+     "weekly": false
+    },
+    {
+     "p": 546.44,
+     "touch": 1,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 596.07,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 639.0,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 658.52,
+     "touch": 1,
+     "weekly": true
+    }
+   ]
   },
   "NYSE:ANET": {
    "bars": [
@@ -2071,7 +2767,45 @@
    "L3M": 158.34500122070312,
    "vol10": 11142990.0,
    "news_level": "yellow",
-   "news": "Exposed to the Nvidia crisis; Piper Sandler: top pick — 12/11 18:11 ET"
+   "news": "Exposed to the Nvidia crisis; Piper Sandler: top pick — 12/11 18:11 ET",
+   "corr_hi": 217.41000366210938,
+   "corr_hi_date": "2026-10-09",
+   "corr_lo": 158.34500122070312,
+   "corr_lo_date": "2026-11-05",
+   "corr_mid": 187.87750244140625,
+   "zone": "premium",
+   "sup": 187.02999877929688,
+   "sup_src": "שפל יומי 10/08/26 + שפל יומי 14/09/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 206.13,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 200.07,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 188.6,
+     "touch": 6,
+     "weekly": true
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 212.78,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 217.41,
+     "touch": 1,
+     "weekly": true
+    }
+   ]
   },
   "NYSE:GE": {
    "bars": [
@@ -2186,7 +2920,50 @@
    "L3M": 278.3699951171875,
    "vol10": 4914410.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 375.5799865722656,
+   "corr_hi_date": "2026-08-18",
+   "corr_lo": 278.3699951171875,
+   "corr_lo_date": "2026-10-23",
+   "corr_mid": 326.97499084472656,
+   "zone": "premium",
+   "sup": 323.72440017700194,
+   "sup_src": "SMA200",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 329.24,
+     "touch": 2,
+     "weekly": false
+    },
+    {
+     "p": 319.16,
+     "touch": 4,
+     "weekly": true
+    },
+    {
+     "p": 309.38,
+     "touch": 7,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 332.64,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 337.57,
+     "touch": 2,
+     "weekly": true
+    },
+    {
+     "p": 342.73,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:CVNA": {
    "bars": [
@@ -2301,7 +3078,50 @@
    "L3M": 55.915000915527344,
    "vol10": 12169080.0,
    "news_level": "yellow",
-   "news": "Insider sale ~$2.4M (SEC Form 4) — 12/11 17:24 ET"
+   "news": "Insider sale ~$2.4M (SEC Form 4) — 12/11 17:24 ET",
+   "corr_hi": 78.4800033569336,
+   "corr_hi_date": "2026-11-04",
+   "corr_lo": 70.1449966430664,
+   "corr_lo_date": "2026-11-05",
+   "corr_mid": 74.3125,
+   "zone": "discount",
+   "sup": 70.63999938964844,
+   "sup_src": "שפל יומי 01/09/26 + שפל שבועי 12/09/25",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 69.31,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 66.07,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 64.4,
+     "touch": 5,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 71.32,
+     "touch": 5,
+     "weekly": false
+    },
+    {
+     "p": 73.27,
+     "touch": 3,
+     "weekly": false
+    },
+    {
+     "p": 75.87,
+     "touch": 5,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:ALL": {
    "bars": [
@@ -2416,7 +3236,50 @@
    "L3M": 219.50999450683594,
    "vol10": 1757460.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 281.1099853515625,
+   "corr_hi_date": "2026-11-05",
+   "corr_lo": 251.0399932861328,
+   "corr_lo_date": "2026-11-09",
+   "corr_mid": 266.07498931884766,
+   "zone": "premium",
+   "sup": 255.4499969482422,
+   "sup_src": "שפל יומי 12/08/26 + שפל יומי 04/08/26",
+   "sup_from": "קו 50%",
+   "sr_sup": [
+    {
+     "p": 266.51,
+     "touch": 2,
+     "weekly": false
+    },
+    {
+     "p": 262.19,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 259.07,
+     "touch": 2,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 275.39,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 277.22,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 281.11,
+     "touch": 1,
+     "weekly": false
+    }
+   ]
   },
   "NYSE:GM": {
    "bars": [
@@ -2531,7 +3394,50 @@
    "L3M": 74.58999633789062,
    "vol10": 7629310.0,
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "corr_hi": 93.69999694824219,
+   "corr_hi_date": "2026-11-04",
+   "corr_lo": 86.08000183105469,
+   "corr_lo_date": "2026-11-06",
+   "corr_mid": 89.88999938964844,
+   "zone": "discount",
+   "sup": 86.08000183105469,
+   "sup_src": "שפל יומי 06/11/26 + שפל יומי 04/08/26",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 85.46,
+     "touch": 8,
+     "weekly": true
+    },
+    {
+     "p": 83.32,
+     "touch": 9,
+     "weekly": false
+    },
+    {
+     "p": 81.4,
+     "touch": 1,
+     "weekly": false
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 87.88,
+     "touch": 6,
+     "weekly": true
+    },
+    {
+     "p": 89.74,
+     "touch": 1,
+     "weekly": false
+    },
+    {
+     "p": 91.85,
+     "touch": 1,
+     "weekly": true
+    }
+   ]
   },
   "NYSE:MRSH": {
    "bars": [
@@ -2646,7 +3552,40 @@
    "L3M": 166.47999572753906,
    "vol10": 2269460.0,
    "news_level": "yellow",
-   "news": "Mizuho raises target to $218 from $200 — 13/11 06:29 ET"
+   "news": "Mizuho raises target to $218 from $200 — 13/11 06:29 ET",
+   "corr_hi": 214.0,
+   "corr_hi_date": "2026-11-05",
+   "corr_lo": 202.35000610351562,
+   "corr_lo_date": "2026-11-06",
+   "corr_mid": 208.1750030517578,
+   "zone": "discount",
+   "sup": 202.35000610351562,
+   "sup_src": "שפל יומי 06/11/26 + שפל שבועי 31/05/24",
+   "sup_from": "סגירה",
+   "sr_sup": [
+    {
+     "p": 202.35,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 200.33,
+     "touch": 1,
+     "weekly": true
+    },
+    {
+     "p": 198.49,
+     "touch": 1,
+     "weekly": true
+    }
+   ],
+   "sr_res": [
+    {
+     "p": 214.0,
+     "touch": 1,
+     "weekly": true
+    }
+   ]
   }
  }
 }
