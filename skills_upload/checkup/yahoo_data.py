@@ -2,7 +2,7 @@
 
   python3 yahoo_data.py build  OUT.json DATE [SYM ...]   fallback when TradingView is unreachable:
                                                         builds the full checkup JSON (same fields as TV)
-  python3 yahoo_data.py levels JSON                     adds correction / discount fields and 3 daily supports + 3 resistances
+  python3 yahoo_data.py levels JSON                     adds correction / discount fields and 3 daily supports + 3 resistances (pivots 10/10, >=2 touches, 6 months)
   python3 yahoo_data.py news   JSON                     prints headlines since the last bar's close (16:00 ET)
 
 Without SYM, build reads checkup_data/red_list.txt (the last Red list read from TradingView).
@@ -114,27 +114,53 @@ def swing_highs(df, k):
             if h[i] == max(h[i - k:i + k + 1])]
 
 
-def sr_levels(d, w, atr, close, n=3):
-    """Daily support/resistance: swing highs and lows (3 bars on each side) of the last year.
-    Points within 0.25 ATR are one level (a level spans at most 0.5 ATR; price = average, touches = count).
-    A level is marked weekly when a weekly swing high/low (3 weeks each side, 3 years) sits within 0.15 ATR of it.
-    Returns the n nearest supports below the close and the n nearest resistances above it."""
-    year = d.tail(252)
-    pts = sorted(v for _, v in swing_lows(year, 3) + swing_highs(year, 3))
-    zones = []
-    for v in pts:
-        if zones and v - zones[-1][-1] <= 0.25 * atr and v - zones[-1][0] <= 0.5 * atr:
-            zones[-1].append(v)
-        else:
-            zones.append([v])
+PIVOT_BARS = 10      # pivot = highest high / lowest low of 10 bars on each side (TradingView Pivots High Low style)
+TOUCH_BARS = 3       # a touch = a smaller turning point (3 bars on each side) inside the level's zone
+MIN_TOUCHES = 2      # a level needs at least 2 touches
+LOOKBACK = (126, 252)  # 6 months first; if a side has fewer than 3 levels, extend to 1 year
+
+
+def sr_levels(d, w, atr, close, n=3, min_touches=MIN_TOUCHES):
+    """Daily support/resistance.
+    1. Pivots: swing highs/lows with PIVOT_BARS bars on each side, in the last 6 months.
+    2. Pivots within 0.25 ATR are one level (span at most 0.5 ATR); price = their average.
+    3. Touches: turning points (TOUCH_BARS bars each side, highs and lows) within 0.25 ATR of the level's zone.
+       Levels with fewer than MIN_TOUCHES touches are dropped.
+    4. If a side has fewer than n levels, the 6-12 month window is added (marked 'old').
+    5. Weekly: a weekly swing high/low (3 weeks each side, 3 years) within 0.15 ATR of the level."""
     wk = [v for _, v in swing_lows(w.tail(156), 3) + swing_highs(w.tail(156), 3)]
-    lv = []
-    for z in zones:
-        p = sum(z) / len(z)
-        lv.append({"p": round(p, 2), "touch": len(z), "weekly": any(abs(p - x) <= 0.15 * atr for x in wk)})
-    sup = sorted([x for x in lv if x["p"] < close], key=lambda x: -x["p"])[:n]
-    res = sorted([x for x in lv if x["p"] > close], key=lambda x: x["p"])[:n]
-    return {"sr_sup": sup, "sr_res": res}
+
+    def levels(lb):
+        part = d.tail(lb)
+        piv = sorted(v for _, v in swing_lows(part, PIVOT_BARS) + swing_highs(part, PIVOT_BARS))
+        small = [v for _, v in swing_lows(part, TOUCH_BARS) + swing_highs(part, TOUCH_BARS)]
+        zones = []
+        for v in piv:
+            if zones and v - zones[-1][-1] <= 0.25 * atr and v - zones[-1][0] <= 0.5 * atr:
+                zones[-1].append(v)
+            else:
+                zones.append([v])
+        out = []
+        for z in zones:
+            lo, hi = z[0] - 0.25 * atr, z[-1] + 0.25 * atr
+            p = sum(z) / len(z)
+            out.append({"p": round(p, 2), "touch": sum(lo <= x <= hi for x in small),
+                        "weekly": any(abs(p - x) <= 0.15 * atr for x in wk), "old": lb > LOOKBACK[0]})
+        return [x for x in out if x["touch"] >= min_touches]
+
+    def side(lv, below):
+        f = (lambda x: x["p"] < close) if below else (lambda x: x["p"] > close)
+        return sorted(filter(f, lv), key=lambda x: -x["p"] if below else x["p"])
+
+    six = levels(LOOKBACK[0])
+    year = [x for x in levels(LOOKBACK[1]) if all(abs(x["p"] - y["p"]) > 0.25 * atr for y in six)]
+    res = {}
+    for key, below in (("sr_sup", True), ("sr_res", False)):
+        got = side(six, below)
+        if len(got) < n:
+            got = side(got + side(year, below), below)
+        res[key] = got[:n]
+    return res
 
 
 def correction(d, w, atr, close):
