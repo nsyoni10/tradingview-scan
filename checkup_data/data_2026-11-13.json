@@ -127,27 +127,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 107.11,
-     "touch": 4,
+     "name": "R1",
+     "p": 115.83,
      "weekly": false,
-     "old": true
+     "wname": ""
     },
     {
-     "p": 101.08,
-     "touch": 4,
+     "name": "P",
+     "p": 108.49,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "S1",
+     "p": 103.6,
      "weekly": true,
-     "old": true
-    },
-    {
-     "p": 99.95,
-     "touch": 3,
-     "weekly": false,
-     "old": true
+     "wname": "S3"
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R2",
+     "p": 120.72,
+     "weekly": true,
+     "wname": "R1"
+    },
+    {
+     "name": "R3",
+     "p": 128.06,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R4",
+     "p": 135.4,
+     "weekly": true,
+     "wname": "R4"
+    }
+   ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 94.33,
+    "S4": 98.69,
+    "S3": 103.05,
+    "S2": 107.41,
+    "S1": 112.08,
+    "P": 116.44,
+    "R1": 121.11,
+    "R2": 125.47,
+    "R3": 130.14,
+    "R4": 134.81,
+    "R5": 139.48
+   }
   },
   "NASDAQ:NTRS": {
    "bars": [
@@ -272,27 +304,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 175.08,
-     "touch": 3,
+     "name": "R1",
+     "p": 175.7,
      "weekly": false,
-     "old": false
+     "wname": ""
     },
     {
-     "p": 173.19,
-     "touch": 4,
+     "name": "P",
+     "p": 167.56,
      "weekly": true,
-     "old": true
+     "wname": "S1"
     },
     {
-     "p": 140.39,
-     "touch": 6,
+     "name": "S1",
+     "p": 161.01,
      "weekly": false,
-     "old": true
+     "wname": ""
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R2",
+     "p": 182.25,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 190.39,
+     "weekly": true,
+     "wname": "R3"
+    },
+    {
+     "name": "R4",
+     "p": 198.54,
+     "weekly": true,
+     "wname": "R5"
+    }
+   ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 144.85,
+    "S4": 151.14,
+    "S3": 157.43,
+    "S2": 163.71,
+    "S1": 168.24,
+    "P": 174.52,
+    "R1": 179.05,
+    "R2": 185.33,
+    "R3": 189.86,
+    "R4": 194.38,
+    "R5": 198.9
+   }
   },
   "NYSE:CLX": {
    "bars": [
@@ -417,34 +481,53 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 100.73,
-     "touch": 3,
+     "name": "R3",
+     "p": 104.47,
      "weekly": true,
-     "old": false
+     "wname": "R1"
     },
     {
-     "p": 92.44,
-     "touch": 3,
+     "name": "R2",
+     "p": 97.63,
      "weekly": false,
-     "old": false
+     "wname": ""
     },
     {
-     "p": 87.91,
-     "touch": 3,
-     "weekly": true,
-     "old": false
+     "name": "R1",
+     "p": 92.81,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "sr_res": [
     {
-     "p": 108.83,
-     "touch": 7,
+     "name": "R4",
+     "p": 111.32,
      "weekly": false,
-     "old": true
+     "wname": ""
+    },
+    {
+     "name": "R5",
+     "p": 118.17,
+     "weekly": true,
+     "wname": "R3"
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 69.51,
+    "S4": 74.18,
+    "S3": 78.85,
+    "S2": 83.53,
+    "S1": 91.74,
+    "P": 96.42,
+    "R1": 104.63,
+    "R2": 109.31,
+    "R3": 117.52,
+    "R4": 125.74,
+    "R5": 133.96
+   }
   },
   "NYSE:DAL": {
    "bars": [
@@ -569,34 +652,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 80.64,
-     "touch": 4,
+     "name": "R1",
+     "p": 86.17,
      "weekly": true,
-     "old": false
+     "wname": "P"
     },
     {
-     "p": 76.19,
-     "touch": 4,
-     "weekly": true,
-     "old": false
-    },
-    {
-     "p": 72.34,
-     "touch": 4,
+     "name": "P",
+     "p": 80.15,
      "weekly": false,
-     "old": true
+     "wname": ""
+    },
+    {
+     "name": "S1",
+     "p": 74.14,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "sr_res": [
     {
-     "p": 95.35,
-     "touch": 3,
+     "name": "R2",
+     "p": 92.18,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 98.2,
      "weekly": true,
-     "old": false
+     "wname": "R3"
+    },
+    {
+     "name": "R4",
+     "p": 104.21,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 68.37,
+    "S4": 71.84,
+    "S3": 75.31,
+    "S2": 78.77,
+    "S1": 82.99,
+    "P": 86.45,
+    "R1": 90.67,
+    "R2": 94.13,
+    "R3": 98.35,
+    "R4": 102.56,
+    "R5": 106.77
+   }
   },
   "NYSE:APO": {
    "bars": [
@@ -721,34 +829,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 116.57,
-     "touch": 3,
-     "weekly": true,
-     "old": false
+     "name": "R1",
+     "p": 120.71,
+     "weekly": false,
+     "wname": ""
     },
     {
-     "p": 114.36,
-     "touch": 3,
-     "weekly": true,
-     "old": true
+     "name": "P",
+     "p": 115.31,
+     "weekly": false,
+     "wname": ""
     },
     {
-     "p": 109.91,
-     "touch": 3,
+     "name": "S1",
+     "p": 110.44,
      "weekly": true,
-     "old": true
+     "wname": "S1"
     }
    ],
    "sr_res": [
     {
-     "p": 122.44,
-     "touch": 3,
+     "name": "R2",
+     "p": 125.58,
      "weekly": false,
-     "old": false
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 130.98,
+     "weekly": true,
+     "wname": "R2"
+    },
+    {
+     "name": "R4",
+     "p": 136.38,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "news_level": "yellow",
-   "news": "Autonomous Research raises target to $168 from $158 — 13/11 09:16 ET"
+   "news": "Autonomous Research raises target to $168 from $158 — 13/11 09:16 ET",
+   "piv_w": {
+    "S5": 82.54,
+    "S4": 89.91,
+    "S3": 97.28,
+    "S2": 104.64,
+    "S1": 110.7,
+    "P": 118.06,
+    "R1": 124.12,
+    "R2": 131.48,
+    "R3": 137.54,
+    "R4": 143.59,
+    "R5": 149.64
+   }
   },
   "NASDAQ:DLTR": {
    "bars": [
@@ -873,27 +1006,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 132.87,
-     "touch": 4,
-     "weekly": true,
-     "old": true
+     "name": "P",
+     "p": 126.85,
+     "weekly": false,
+     "wname": ""
     },
     {
-     "p": 116.81,
-     "touch": 7,
+     "name": "S1",
+     "p": 118.14,
      "weekly": true,
-     "old": false
+     "wname": "S2"
     },
     {
-     "p": 110.94,
-     "touch": 4,
-     "weekly": true,
-     "old": true
+     "name": "S2",
+     "p": 102.42,
+     "weekly": false,
+     "wname": ""
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R1",
+     "p": 142.57,
+     "weekly": true,
+     "wname": "R1"
+    },
+    {
+     "name": "R2",
+     "p": 151.28,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 167.0,
+     "weekly": true,
+     "wname": "R4"
+    }
+   ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 84.06,
+    "S4": 95.76,
+    "S3": 107.46,
+    "S2": 119.15,
+    "S1": 125.15,
+    "P": 136.84,
+    "R1": 142.84,
+    "R2": 154.53,
+    "R3": 160.53,
+    "R4": 166.52,
+    "R5": 172.51
+   }
   },
   "NYSE:FDX": {
    "bars": [
@@ -1018,40 +1183,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 308.77,
-     "touch": 5,
+     "name": "P",
+     "p": 305.24,
      "weekly": false,
-     "old": true
+     "wname": ""
     },
     {
-     "p": 303.53,
-     "touch": 4,
+     "name": "S1",
+     "p": 292.03,
      "weekly": true,
-     "old": false
+     "wname": "S2"
     },
     {
-     "p": 279.23,
-     "touch": 4,
-     "weekly": true,
-     "old": true
+     "name": "S2",
+     "p": 270.77,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "sr_res": [
     {
-     "p": 322.13,
-     "touch": 4,
+     "name": "R1",
+     "p": 326.5,
      "weekly": false,
-     "old": false
+     "wname": ""
     },
     {
-     "p": 341.69,
-     "touch": 3,
+     "name": "R2",
+     "p": 339.71,
      "weekly": true,
-     "old": false
+     "wname": "R2"
+    },
+    {
+     "name": "R3",
+     "p": 360.97,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 242.69,
+    "S4": 258.86,
+    "S3": 275.03,
+    "S2": 291.19,
+    "S1": 299.67,
+    "P": 315.83,
+    "R1": 324.31,
+    "R2": 340.47,
+    "R3": 348.95,
+    "R4": 357.42,
+    "R5": 365.89
+   }
   },
   "NASDAQ:TROW": {
    "bars": [
@@ -1176,27 +1360,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 107.01,
-     "touch": 4,
-     "weekly": true,
-     "old": true
+     "name": "R1",
+     "p": 108.17,
+     "weekly": false,
+     "wname": ""
     },
     {
-     "p": 101.58,
-     "touch": 6,
-     "weekly": true,
-     "old": true
+     "name": "P",
+     "p": 103.1,
+     "weekly": false,
+     "wname": ""
     },
     {
-     "p": 100.5,
-     "touch": 3,
+     "name": "S1",
+     "p": 98.84,
      "weekly": true,
-     "old": true
+     "wname": "S2"
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R2",
+     "p": 112.43,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 117.5,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R4",
+     "p": 122.56,
+     "weekly": false,
+     "wname": ""
+    }
+   ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 83.76,
+    "S4": 88.99,
+    "S3": 94.22,
+    "S2": 99.44,
+    "S1": 103.93,
+    "P": 109.15,
+    "R1": 113.64,
+    "R2": 118.86,
+    "R3": 123.35,
+    "R4": 127.83,
+    "R5": 132.31
+   }
   },
   "NASDAQ:CTAS": {
    "bars": [
@@ -1321,27 +1537,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 209.08,
-     "touch": 3,
+     "name": "P",
+     "p": 212.79,
      "weekly": true,
-     "old": true
+     "wname": "S2"
     },
     {
-     "p": 202.5,
-     "touch": 3,
+     "name": "S1",
+     "p": 198.88,
      "weekly": false,
-     "old": true
+     "wname": ""
     },
     {
-     "p": 196.5,
-     "touch": 4,
-     "weekly": true,
-     "old": false
+     "name": "S2",
+     "p": 177.95,
+     "weekly": false,
+     "wname": ""
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R1",
+     "p": 233.72,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R2",
+     "p": 247.63,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 268.56,
+     "weekly": false,
+     "wname": ""
+    }
+   ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 187.6,
+    "S4": 195.74,
+    "S3": 203.88,
+    "S2": 212.01,
+    "S1": 217.19,
+    "P": 225.32,
+    "R1": 230.5,
+    "R2": 238.63,
+    "R3": 243.81,
+    "R4": 248.98,
+    "R5": 254.15
+   }
   },
   "NYSE:LMT": {
    "bars": [
@@ -1466,27 +1714,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 593.88,
-     "touch": 3,
+     "name": "P",
+     "p": 596.98,
      "weekly": false,
-     "old": true
+     "wname": ""
     },
     {
-     "p": 549.23,
-     "touch": 4,
+     "name": "S1",
+     "p": 536.97,
      "weekly": true,
-     "old": false
+     "wname": "S1"
     },
     {
-     "p": 498.65,
-     "touch": 4,
-     "weekly": true,
-     "old": true
+     "name": "S2",
+     "p": 436.98,
+     "weekly": false,
+     "wname": ""
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R1",
+     "p": 696.97,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R2",
+     "p": 756.98,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 856.97,
+     "weekly": false,
+     "wname": ""
+    }
+   ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 341.12,
+    "S4": 396.3,
+    "S3": 451.48,
+    "S2": 506.67,
+    "S1": 536.87,
+    "P": 592.06,
+    "R1": 622.26,
+    "R2": 677.45,
+    "R3": 707.65,
+    "R4": 737.86,
+    "R5": 768.07
+   }
   },
   "NYSE:CCI": {
    "bars": [
@@ -1611,34 +1891,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 85.47,
-     "touch": 3,
+     "name": "P",
+     "p": 81.82,
      "weekly": false,
-     "old": true
+     "wname": ""
     },
     {
-     "p": 84.21,
-     "touch": 4,
+     "name": "S1",
+     "p": 72.19,
      "weekly": true,
-     "old": true
+     "wname": "S4"
     },
     {
-     "p": 83.26,
-     "touch": 4,
-     "weekly": true,
-     "old": true
+     "name": "S2",
+     "p": 55.69,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "sr_res": [
     {
-     "p": 91.84,
-     "touch": 7,
-     "weekly": true,
-     "old": true
+     "name": "R1",
+     "p": 98.32,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R2",
+     "p": 107.95,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 124.45,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 67.44,
+    "S4": 71.86,
+    "S3": 76.28,
+    "S2": 80.71,
+    "S1": 84.65,
+    "P": 89.08,
+    "R1": 93.02,
+    "R2": 97.45,
+    "R3": 101.39,
+    "R4": 105.34,
+    "R5": 109.29
+   }
   },
   "NASDAQ:INSM": {
    "bars": [
@@ -1763,22 +2068,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 117.15,
-     "touch": 3,
+     "name": "P",
+     "p": 107.19,
+     "weekly": true,
+     "wname": "S1"
+    },
+    {
+     "name": "S1",
+     "p": 98.02,
+     "weekly": true,
+     "wname": "S2"
+    },
+    {
+     "name": "S2",
+     "p": 83.45,
      "weekly": false,
-     "old": false
+     "wname": ""
     }
    ],
    "sr_res": [
     {
-     "p": 166.78,
-     "touch": 4,
+     "name": "R1",
+     "p": 121.76,
      "weekly": true,
-     "old": true
+     "wname": "R2"
+    },
+    {
+     "name": "R2",
+     "p": 130.93,
+     "weekly": true,
+     "wname": "R3"
+    },
+    {
+     "name": "R3",
+     "p": 145.5,
+     "weekly": true,
+     "wname": "R5"
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 86.42,
+    "S4": 90.49,
+    "S3": 94.56,
+    "S2": 98.62,
+    "S1": 106.52,
+    "P": 110.58,
+    "R1": 118.48,
+    "R2": 122.54,
+    "R3": 130.44,
+    "R4": 138.33,
+    "R5": 146.22
+   }
   },
   "NASDAQ:NBIX": {
    "bars": [
@@ -1903,34 +2245,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 160.43,
-     "touch": 3,
+     "name": "R2",
+     "p": 159.53,
      "weekly": true,
-     "old": false
+     "wname": "P"
     },
     {
-     "p": 134.51,
-     "touch": 5,
-     "weekly": true,
-     "old": true
+     "name": "R1",
+     "p": 152.82,
+     "weekly": false,
+     "wname": ""
     },
     {
-     "p": 132.25,
-     "touch": 4,
-     "weekly": true,
-     "old": true
+     "name": "P",
+     "p": 142.53,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "sr_res": [
     {
-     "p": 169.57,
-     "touch": 5,
-     "weekly": true,
-     "old": false
+     "name": "R3",
+     "p": 169.82,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R4",
+     "p": 180.1,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R5",
+     "p": 190.38,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 102.84,
+    "S4": 113.07,
+    "S3": 123.3,
+    "S2": 133.52,
+    "S1": 149.08,
+    "P": 159.3,
+    "R1": 174.86,
+    "R2": 185.08,
+    "R3": 200.64,
+    "R4": 216.19,
+    "R5": 231.74
+   }
   },
   "NASDAQ:INTU": {
    "bars": [
@@ -2053,23 +2420,61 @@
    "sup": 309.79998779296875,
    "sup_src": "שפל יומי 10/09/26",
    "sup_from": "קו 50%",
-   "sr_sup": [],
-   "sr_res": [
+   "sr_sup": [
     {
-     "p": 372.98,
-     "touch": 3,
-     "weekly": true,
-     "old": true
+     "name": "P",
+     "p": 325.48,
+     "weekly": false,
+     "wname": ""
     },
     {
-     "p": 681.2,
-     "touch": 4,
+     "name": "S1",
+     "p": 292.92,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "S2",
+     "p": 244.76,
+     "weekly": false,
+     "wname": ""
+    }
+   ],
+   "sr_res": [
+    {
+     "name": "R1",
+     "p": 373.64,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R2",
+     "p": 406.2,
      "weekly": true,
-     "old": true
+     "wname": "R4"
+    },
+    {
+     "name": "R3",
+     "p": 454.36,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 259.51,
+    "S4": 278.36,
+    "S3": 297.21,
+    "S2": 316.05,
+    "S1": 328.78,
+    "P": 347.62,
+    "R1": 360.35,
+    "R2": 379.19,
+    "R3": 391.92,
+    "R4": 404.64,
+    "R5": 417.36
+   }
   },
   "NYSE:KKR": {
    "bars": [
@@ -2192,17 +2597,61 @@
    "sup": 96.43000030517578,
    "sup_src": "שפל שבועי 07/06/24 + שפל יומי 30/07/26",
    "sup_from": "סגירה",
-   "sr_sup": [],
+   "sr_sup": [
+    {
+     "name": "P",
+     "p": 91.63,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "S1",
+     "p": 86.99,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "S2",
+     "p": 79.59,
+     "weekly": true,
+     "wname": "S4"
+    }
+   ],
    "sr_res": [
     {
-     "p": 97.37,
-     "touch": 3,
+     "name": "R1",
+     "p": 99.03,
+     "weekly": true,
+     "wname": "P"
+    },
+    {
+     "name": "R2",
+     "p": 103.67,
      "weekly": false,
-     "old": true
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 111.07,
+     "weekly": true,
+     "wname": "R3"
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 73.91,
+    "S4": 79.24,
+    "S3": 84.57,
+    "S2": 89.89,
+    "S1": 93.19,
+    "P": 98.51,
+    "R1": 101.81,
+    "R2": 107.13,
+    "R3": 110.43,
+    "R4": 113.72,
+    "R5": 117.01
+   }
   },
   "NYSE:MA": {
    "bars": [
@@ -2327,27 +2776,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 561.92,
-     "touch": 4,
+     "name": "P",
+     "p": 609.22,
      "weekly": false,
-     "old": true
+     "wname": ""
     },
     {
-     "p": 534.21,
-     "touch": 3,
-     "weekly": true,
-     "old": true
+     "name": "S1",
+     "p": 574.2,
+     "weekly": false,
+     "wname": ""
     },
     {
-     "p": 518.27,
-     "touch": 4,
+     "name": "S2",
+     "p": 510.39,
      "weekly": false,
-     "old": true
+     "wname": ""
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R1",
+     "p": 673.03,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R2",
+     "p": 708.05,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 771.86,
+     "weekly": false,
+     "wname": ""
+    }
+   ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 540.32,
+    "S4": 564.74,
+    "S3": 589.16,
+    "S2": 613.59,
+    "S1": 633.14,
+    "P": 657.57,
+    "R1": 677.12,
+    "R2": 701.55,
+    "R3": 721.1,
+    "R4": 740.66,
+    "R5": 760.22
+   }
   },
   "NASDAQ:AMD": {
    "bars": [
@@ -2472,15 +2953,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 194.07,
-     "touch": 13,
-     "weekly": true,
-     "old": true
+     "name": "P",
+     "p": 551.84,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "S1",
+     "p": 445.17,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "S2",
+     "p": 385.53,
+     "weekly": false,
+     "wname": ""
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R1",
+     "p": 611.48,
+     "weekly": true,
+     "wname": "R3"
+    },
+    {
+     "name": "R2",
+     "p": 718.15,
+     "weekly": true,
+     "wname": "R5"
+    },
+    {
+     "name": "R3",
+     "p": 777.79,
+     "weekly": false,
+     "wname": ""
+    }
+   ],
    "news_level": "yellow",
-   "news": "Nvidia CEO crisis; AMD down ~3% pre-market (24/7 Wall St.) — 13/11 09:15 ET"
+   "news": "Nvidia CEO crisis; AMD down ~3% pre-market (24/7 Wall St.) — 13/11 09:15 ET",
+   "piv_w": {
+    "S5": 164.66,
+    "S4": 224.02,
+    "S3": 283.38,
+    "S2": 342.74,
+    "S1": 395.89,
+    "P": 455.25,
+    "R1": 508.4,
+    "R2": 567.76,
+    "R3": 620.91,
+    "R4": 674.06,
+    "R5": 727.21
+   }
   },
   "NYSE:ANET": {
    "bars": [
@@ -2605,34 +3130,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 189.82,
-     "touch": 5,
+     "name": "R1",
+     "p": 201.89,
      "weekly": true,
-     "old": false
+     "wname": "R2"
     },
     {
-     "p": 181.27,
-     "touch": 3,
+     "name": "P",
+     "p": 184.38,
      "weekly": true,
-     "old": false
+     "wname": "R1"
     },
     {
-     "p": 177.48,
-     "touch": 5,
-     "weekly": true,
-     "old": false
+     "name": "S1",
+     "p": 151.34,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "sr_res": [
     {
-     "p": 216.15,
-     "touch": 3,
-     "weekly": true,
-     "old": false
+     "name": "R2",
+     "p": 234.93,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 252.44,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R4",
+     "p": 269.96,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "news_level": "yellow",
-   "news": "Exposed to the Nvidia crisis; Piper Sandler: top pick — 12/11 18:11 ET"
+   "news": "Exposed to the Nvidia crisis; Piper Sandler: top pick — 12/11 18:11 ET",
+   "piv_w": {
+    "S5": 94.46,
+    "S4": 110.43,
+    "S3": 126.4,
+    "S2": 142.37,
+    "S1": 156.59,
+    "P": 172.56,
+    "R1": 186.77,
+    "R2": 202.74,
+    "R3": 216.96,
+    "R4": 231.17,
+    "R5": 245.38
+   }
   },
   "NYSE:GE": {
    "bars": [
@@ -2757,34 +3307,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 320.16,
-     "touch": 4,
+     "name": "R1",
+     "p": 322.52,
      "weekly": true,
-     "old": true
+     "wname": "P"
     },
     {
-     "p": 310.0,
-     "touch": 6,
+     "name": "P",
+     "p": 300.45,
      "weekly": false,
-     "old": true
+     "wname": ""
     },
     {
-     "p": 306.8,
-     "touch": 3,
-     "weekly": true,
-     "old": true
+     "name": "S1",
+     "p": 279.72,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "sr_res": [
     {
-     "p": 348.48,
-     "touch": 3,
+     "name": "R2",
+     "p": 343.25,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R3",
+     "p": 365.32,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R4",
+     "p": 387.4,
      "weekly": true,
-     "old": true
+     "wname": "R5"
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 260.05,
+    "S4": 272.08,
+    "S3": 284.11,
+    "S2": 296.14,
+    "S1": 309.69,
+    "P": 321.72,
+    "R1": 335.27,
+    "R2": 347.3,
+    "R3": 360.85,
+    "R4": 374.4,
+    "R5": 387.95
+   }
   },
   "NYSE:CVNA": {
    "bars": [
@@ -2909,46 +3484,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 64.76,
-     "touch": 4,
-     "weekly": false,
-     "old": true
+     "name": "P",
+     "p": 64.68,
+     "weekly": true,
+     "wname": "S2"
     },
     {
-     "p": 61.44,
-     "touch": 5,
+     "name": "S1",
+     "p": 59.52,
      "weekly": true,
-     "old": false
+     "wname": "S3"
     },
     {
-     "p": 56.02,
-     "touch": 3,
+     "name": "S2",
+     "p": 50.76,
      "weekly": true,
-     "old": false
+     "wname": "S5"
     }
    ],
    "sr_res": [
     {
-     "p": 72.77,
-     "touch": 4,
-     "weekly": false,
-     "old": true
-    },
-    {
-     "p": 75.11,
-     "touch": 3,
-     "weekly": false,
-     "old": true
-    },
-    {
-     "p": 76.8,
-     "touch": 3,
+     "name": "R1",
+     "p": 73.45,
      "weekly": true,
-     "old": false
+     "wname": "P"
+    },
+    {
+     "name": "R2",
+     "p": 78.61,
+     "weekly": true,
+     "wname": "R1"
+    },
+    {
+     "name": "R3",
+     "p": 87.37,
+     "weekly": true,
+     "wname": "R3"
     }
    ],
    "news_level": "yellow",
-   "news": "Insider sale ~$2.4M (SEC Form 4) — 12/11 17:24 ET"
+   "news": "Insider sale ~$2.4M (SEC Form 4) — 12/11 17:24 ET",
+   "piv_w": {
+    "S5": 50.51,
+    "S4": 55.21,
+    "S3": 59.91,
+    "S2": 64.6,
+    "S1": 69.09,
+    "P": 73.78,
+    "R1": 78.27,
+    "R2": 82.96,
+    "R3": 87.45,
+    "R4": 91.93,
+    "R5": 96.41
+   }
   },
   "NYSE:ALL": {
    "bars": [
@@ -3073,27 +3661,59 @@
    "sup_from": "קו 50%",
    "sr_sup": [
     {
-     "p": 257.67,
-     "touch": 4,
+     "name": "P",
+     "p": 247.4,
+     "weekly": true,
+     "wname": "S1"
+    },
+    {
+     "name": "S1",
+     "p": 231.98,
      "weekly": false,
-     "old": false
+     "wname": ""
     },
     {
-     "p": 219.49,
-     "touch": 4,
-     "weekly": true,
-     "old": true
-    },
-    {
-     "p": 215.75,
-     "touch": 9,
-     "weekly": true,
-     "old": true
+     "name": "S2",
+     "p": 204.09,
+     "weekly": false,
+     "wname": ""
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R1",
+     "p": 275.29,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R2",
+     "p": 290.71,
+     "weekly": true,
+     "wname": "R2"
+    },
+    {
+     "name": "R3",
+     "p": 318.6,
+     "weekly": false,
+     "wname": ""
+    }
+   ],
    "news_level": "yellow",
-   "news": "Autonomous Research raises target to $230 from $224 — 13/11 09:16 ET"
+   "news": "Autonomous Research raises target to $230 from $224 — 13/11 09:16 ET",
+   "piv_w": {
+    "S5": 184.56,
+    "S4": 202.11,
+    "S3": 219.66,
+    "S2": 237.21,
+    "S1": 246.01,
+    "P": 263.56,
+    "R1": 272.36,
+    "R2": 289.91,
+    "R3": 298.71,
+    "R4": 307.51,
+    "R5": 316.31
+   }
   },
   "NYSE:GM": {
    "bars": [
@@ -3218,34 +3838,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 85.41,
-     "touch": 7,
+     "name": "P",
+     "p": 83.34,
      "weekly": true,
-     "old": false
+     "wname": "S1"
     },
     {
-     "p": 83.63,
-     "touch": 7,
+     "name": "S1",
+     "p": 78.65,
      "weekly": false,
-     "old": true
+     "wname": ""
     },
     {
-     "p": 82.67,
-     "touch": 5,
-     "weekly": true,
-     "old": true
+     "name": "S2",
+     "p": 69.91,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "sr_res": [
     {
-     "p": 87.86,
-     "touch": 4,
+     "name": "R1",
+     "p": 92.08,
+     "weekly": false,
+     "wname": ""
+    },
+    {
+     "name": "R2",
+     "p": 96.77,
      "weekly": true,
-     "old": false
+     "wname": "R2"
+    },
+    {
+     "name": "R3",
+     "p": 105.51,
+     "weekly": false,
+     "wname": ""
     }
    ],
    "news_level": "none",
-   "news": ""
+   "news": "",
+   "piv_w": {
+    "S5": 65.87,
+    "S4": 70.92,
+    "S3": 75.97,
+    "S2": 81.03,
+    "S1": 83.59,
+    "P": 88.65,
+    "R1": 91.21,
+    "R2": 96.27,
+    "R3": 98.83,
+    "R4": 101.4,
+    "R5": 103.97
+   }
   },
   "NYSE:MRSH": {
    "bars": [
@@ -3370,27 +4015,59 @@
    "sup_from": "סגירה",
    "sr_sup": [
     {
-     "p": 188.26,
-     "touch": 7,
-     "weekly": true,
-     "old": true
+     "name": "P",
+     "p": 189.93,
+     "weekly": false,
+     "wname": ""
     },
     {
-     "p": 183.79,
-     "touch": 4,
+     "name": "S1",
+     "p": 177.17,
      "weekly": true,
-     "old": true
+     "wname": "S4"
     },
     {
-     "p": 174.59,
-     "touch": 4,
-     "weekly": true,
-     "old": false
+     "name": "S2",
+     "p": 153.71,
+     "weekly": false,
+     "wname": ""
     }
    ],
-   "sr_res": [],
+   "sr_res": [
+    {
+     "name": "R1",
+     "p": 213.39,
+     "weekly": true,
+     "wname": "R1"
+    },
+    {
+     "name": "R2",
+     "p": 226.15,
+     "weekly": true,
+     "wname": "R3"
+    },
+    {
+     "name": "R3",
+     "p": 249.61,
+     "weekly": false,
+     "wname": ""
+    }
+   ],
    "news_level": "yellow",
-   "news": "Mizuho raises target to $218 from $200 — 13/11 06:29 ET"
+   "news": "Mizuho raises target to $218 from $200 — 13/11 06:29 ET",
+   "piv_w": {
+    "S5": 168.23,
+    "S4": 176.08,
+    "S3": 183.93,
+    "S2": 191.78,
+    "S1": 198.3,
+    "P": 206.15,
+    "R1": 212.67,
+    "R2": 220.52,
+    "R3": 227.04,
+    "R4": 233.56,
+    "R5": 240.08
+   }
   }
  }
 }

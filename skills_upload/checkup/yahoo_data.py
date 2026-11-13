@@ -2,7 +2,7 @@
 
   python3 yahoo_data.py build  OUT.json DATE [SYM ...]   fallback when TradingView is unreachable:
                                                         builds the full checkup JSON (same fields as TV)
-  python3 yahoo_data.py levels JSON                     adds correction / discount fields and 3 daily supports + 3 resistances (pivots 10/10, >=3 touches, 6 months)
+  python3 yahoo_data.py levels JSON                     adds correction / discount fields and 3 daily supports + 3 resistances (TradingView Pivot Points Standard, Traditional, monthly + weekly mark)
   python3 yahoo_data.py news   JSON                     prints headlines since the last bar's close (16:00 ET)
 
 Without SYM, build reads checkup_data/red_list.txt (the last Red list read from TradingView).
@@ -114,53 +114,38 @@ def swing_highs(df, k):
             if h[i] == max(h[i - k:i + k + 1])]
 
 
-PIVOT_BARS = 10      # pivot = highest high / lowest low of 10 bars on each side (TradingView Pivots High Low style)
-TOUCH_BARS = 3       # a touch = a smaller turning point (3 bars on each side) inside the level's zone
-MIN_TOUCHES = 3      # a level needs at least 3 touches
-LOOKBACK = (126, 252)  # 6 months first; if a side has fewer than 3 levels, extend to 1 year
+def traditional(H, L, C):
+    """TradingView 'Pivot Points Standard', type Traditional (the indicator's default), from the previous period's H/L/C."""
+    P = (H + L + C) / 3
+    return {"S5": 4 * P - (4 * H - L), "S4": 3 * P - (3 * H - L), "S3": 2 * P - (2 * H - L),
+            "S2": P - (H - L), "S1": 2 * P - H, "P": P, "R1": 2 * P - L, "R2": P + (H - L),
+            "R3": 2 * P + (H - 2 * L), "R4": 3 * P + (H - 3 * L), "R5": 4 * P + (H - 4 * L)}
 
 
-def sr_levels(d, w, atr, close, n=3, min_touches=MIN_TOUCHES):
-    """Daily support/resistance.
-    1. Pivots: swing highs/lows with PIVOT_BARS bars on each side, in the last 6 months.
-    2. Pivots within 0.25 ATR are one level (span at most 0.5 ATR); price = their average.
-    3. Touches: turning points (TOUCH_BARS bars each side, highs and lows) within 0.25 ATR of the level's zone.
-       Levels with fewer than MIN_TOUCHES touches are dropped.
-    4. If a side has fewer than n levels, the 6-12 month window is added (marked 'old').
-    5. Weekly: a weekly swing high/low (3 weeks each side, 3 years) within 0.15 ATR of the level."""
-    wk = [v for _, v in swing_lows(w.tail(156), 3) + swing_highs(w.tail(156), 3)]
+def prev_period(d, key):
+    """H/L/C of the period before the one containing the last bar (key = month or ISO week)."""
+    keys = [key(x) for x in d.index]
+    cur = keys[-1]
+    prev = max(k for k in keys if k < cur)
+    part = d[[k == prev for k in keys]]
+    return float(part.h.max()), float(part.l.min()), float(part.c.iloc[-1])
 
-    def levels(lb):
-        part = d.tail(lb)
-        piv = sorted(v for _, v in swing_lows(part, PIVOT_BARS) + swing_highs(part, PIVOT_BARS))
-        small = [v for _, v in swing_lows(part, TOUCH_BARS) + swing_highs(part, TOUCH_BARS)]
-        zones = []
-        for v in piv:
-            if zones and v - zones[-1][-1] <= 0.25 * atr and v - zones[-1][0] <= 0.5 * atr:
-                zones[-1].append(v)
-            else:
-                zones.append([v])
-        out = []
-        for z in zones:
-            lo, hi = z[0] - 0.25 * atr, z[-1] + 0.25 * atr
-            p = sum(z) / len(z)
-            out.append({"p": round(p, 2), "touch": sum(lo <= x <= hi for x in small),
-                        "weekly": any(abs(p - x) <= 0.15 * atr for x in wk), "old": lb > LOOKBACK[0]})
-        return [x for x in out if x["touch"] >= min_touches]
 
-    def side(lv, below):
-        f = (lambda x: x["p"] < close) if below else (lambda x: x["p"] > close)
-        return sorted(filter(f, lv), key=lambda x: -x["p"] if below else x["p"])
-
-    six = levels(LOOKBACK[0])
-    year = [x for x in levels(LOOKBACK[1]) if all(abs(x["p"] - y["p"]) > 0.25 * atr for y in six)]
-    res = {}
-    for key, below in (("sr_sup", True), ("sr_res", False)):
-        got = side(six, below)
-        if len(got) < n:
-            got = side(got + side(year, below), below)
-        res[key] = got[:n]
-    return res
+def sr_levels(d, w, atr, close, n=3):
+    """Exactly what TradingView draws with Pivot Points Standard, Traditional, Pivots Timeframe = Auto on a
+    daily chart (= 1M): levels of the current month from the previous month's H/L/C.
+    Returns the n levels below the close and the n levels above it.
+    Weekly mark: the same indicator with Pivots Timeframe = 1W; a monthly level is marked when a weekly level
+    is within 0.25 ATR of it (the tolerance is the only parameter that is not TradingView's)."""
+    m = traditional(*prev_period(d, lambda x: (x.year, x.month)))
+    wk = traditional(*prev_period(d, lambda x: x.isocalendar()[:2]))
+    lv = []
+    for name, p in m.items():
+        near = [k for k, v in wk.items() if abs(v - p) <= 0.25 * atr]
+        lv.append({"name": name, "p": round(p, 2), "weekly": bool(near), "wname": near[0] if near else ""})
+    sup = sorted([x for x in lv if x["p"] < close], key=lambda x: -x["p"])[:n]
+    res = sorted([x for x in lv if x["p"] > close], key=lambda x: x["p"])[:n]
+    return {"sr_sup": sup, "sr_res": res, "piv_w": {k: round(v, 2) for k, v in wk.items()}}
 
 
 def correction(d, w, atr, close):
