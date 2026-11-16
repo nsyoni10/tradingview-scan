@@ -31,13 +31,15 @@ ACCOUNT = 6800            # גודל התיק ב-$
 RISK_PCT = 0.01           # סיכון לטרייד: 1% מהתיק
 MAX_TRADES = 5            # הכסף צריך להספיק ל-5-6 טריידים ביום → תקרת פוזיציה = תיק / 5
 MIN_RR = 3.0              # יחס רווח לסיכון מינימלי
-MIN_ROOM_ATR = 1.0        # ההתנגדות הקרובה חייבת להיות לפחות ATR אחד מעל המחיר
+MIN_ROOM_ATR = 1.0        # הרמה הראשונה מעל המחיר חייבת להיות לפחות ATR אחד מעליו
 STOP_MIN_ATR = 1.0        # הסטופ: הרמה הראשונה שנמצאת לפחות ATR אחד מתחת למחיר
 YES, NO = "כן", "לא"
+PLAN_HEADERS = ["אפשר לסחור", "יעד", "סטופ", "יחס רווח/סיכון", "מניות", "פוזיציה $", "סיכון $", "רווח ביעד $"]
 
 
 def trade_plan(d, st):
-    """יעד, סטופ וגודל פוזיציה לפי כללי הכסף. מחזיר dict; ok=True רק כשאפשר לסחור."""
+    """יעד, סטופ וגודל פוזיציה לפי כללי הכסף. ok=True רק כשאפשר לסחור.
+    רמות: Pivot חודשי (P, R1, R2, S1, S2), שיא/שפל חודש ו-3 חודשים, EMA20/50 — בלי גבוה/נמוך של הנרות האחרונים."""
     c, a = d["last"][3], d["ATR"]
     lv = [d[k] for k in ("PP", "R1", "R2", "S1", "S2", "H1M", "L1M", "H3M", "L3M", "EMA20", "EMA50")]
     above = sorted(x for x in lv if x > c)
@@ -169,6 +171,52 @@ def status(d):
     return 1, bd, bw, "טובה בשבועי וביומי, +DI מעל -DI, ADX מתחת ל-20 ועולה"
 
 
+NEWS_RED, NEWS_YELLOW = "⚠", "ℹ"
+
+
+def news_cell(d):
+    """עמודת החדשות: news_level = red / yellow / none, news = טקסט קצר. בלי news_level = לא נבדק."""
+    lvl = d.get("news_level")
+    if lvl is None:
+        return ""
+    txt = d.get("news", "").strip()
+    if lvl == "red":
+        return f"{NEWS_RED} {txt}"
+    if lvl == "yellow":
+        return f"{NEWS_YELLOW} {txt}"
+    return "—"
+
+
+WEEKLY = "★ שבועי"
+
+
+def sr_cells(d, c, sup, res):
+    """3 רמות מתחת לסגירה ו-3 מעליה — Pivot Points Standard של טריידינגוויו (Traditional, חודשי).
+    רמה שגם רמה שבועית יושבת עליה מסומנת ★ ונצבעת. בלי השדות — הרמות הישנות."""
+    def cell(x):
+        t = f"{x['name']} {x['p']:.2f} ({(x['p'] / c - 1) * 100:+.1f}%)"
+        return t + (f" {WEEKLY} ({x['wname']})" if x.get("weekly") else "")
+    if d.get("sr_sup") and "name" in d["sr_sup"][0]:
+        s3 = [cell(x) for x in d["sr_sup"]]
+        r3 = [cell(x) for x in d.get("sr_res", [])]
+    else:
+        s3 = [f"{x[0]:.2f}" for x in sup[:3]]
+        r3 = [f"{x[0]:.2f}" for x in res[:3]]
+    pad = lambda l: (l + ["אין"] * 3)[:3]
+    return pad(s3) + pad(r3)
+
+
+def corr_cells(d, c):
+    """תיקון: משיא 3 החודשים (תחילת התיקון) לשפל שאחריו. מתחת ל-50% = דיסקאונט."""
+    if d.get("corr_mid") is None:
+        return [""] * 4
+    return [
+        "דיסקאונט" if d["zone"] == "discount" else "פרמיום",
+        d["corr_mid"], f"{d['corr_hi']:.2f} ({d['corr_hi_date'][8:10]}/{d['corr_hi_date'][5:7]})",
+        f"{d['corr_lo']:.2f} ({d['corr_lo_date'][8:10]}/{d['corr_lo_date'][5:7]})",
+    ]
+
+
 def build(data, out):
     wb = Workbook()
     ws = wb.active
@@ -176,13 +224,15 @@ def build(data, out):
     ws.sheet_view.rightToLeft = True
 
     headers = [
-        "טיקר", "סטטוס", "בולינגר יומי (σ)", "בולינגר שבועי (σ)", "ציון כניסה", "מעל SMA150", "RVOL ≥ 1.2", "כיוון", "סגירה", "שינוי %",
+        "טיקר", "סטטוס", "בולינגר יומי (σ)", "בולינגר שבועי (σ)", "ציון כניסה", "חדשות",
+        "תמיכה 1", "תמיכה 2", "תמיכה 3", "התנגדות 1", "התנגדות 2", "התנגדות 3",
+        "אזור", "קו 50%", "תחילת התיקון", "שפל התיקון",
+        "מעל SMA150", "RVOL ≥ 1.2", "כיוון", "סגירה", "שינוי %",
         "SMA150", "RVOL", "ATR", "ATR %", "ADX", "+DI", "-DI", "CCI", "EMA20", "EMA50",
         "צבע נר", "מרובוזו (3 ימים)", "דפוס נר",
-        "התנגדות 1", "מקור R1", "מרחק R1 (ATR)", "התנגדות 2",
-        "תמיכה 1", "מקור S1", "מרחק S1 (ATR)", "תמיכה 2",
         "נפח ממוצע 10י", "הערות",
-        "אפשר לסחור", "יעד", "סטופ", "יחס רווח/סיכון", "מניות", "פוזיציה $", "סיכון $", "רווח ביעד $",
+        "התנגדות קרובה", "מקור התנגדות קרובה", "תמיכה קרובה", "מקור תמיכה קרובה",
+        *PLAN_HEADERS,
     ]
     ws.append(headers)
 
@@ -210,32 +260,27 @@ def build(data, out):
         if d["RVOL"] >= RVOL_MIN and d["last"][3] < d["last"][0]:
             notes.append("ווליום גבוה על נר אדום — מכירה")
 
-        def lvl(lst, i):
-            return (lst[i][0], lst[i][1]) if len(lst) > i else (None, "")
-
-        r1, r1n = lvl(res, 0)
-        r2, _ = lvl(res, 1)
-        s1, s1n = lvl(sup, 0)
-        s2, _ = lvl(sup, 1)
         rows.append([
-            sym.split(":")[1], STATUS[st], bd, bw, sc, OK if above else BAD, OK if rvol_ok else BAD,
+            sym.split(":")[1], STATUS[st], bd, bw, sc, news_cell(d),
+            *sr_cells(d, c, sup, res), *corr_cells(d, c),
+            OK if above else BAD, OK if rvol_ok else BAD,
             ("▲ +DI" if d["DIp"] > d["DIm"] else "▼ -DI") + f" | ADX {d['ADX']:.0f}" + (" עולה" if d["ADX"] > d.get("ADX1", d["ADX"]) else " יורד"),
             c, (c / pc - 1) * 100, d["SMA150"], d["RVOL"],
             d["ATR"], d["ATR"] / c * 100, d["ADX"], d["DIp"], d["DIm"], d["CCI"],
             d["EMA20"], d["EMA50"], cd["color"],
             "—" if maru is None else ("היום" if maru == 0 else f"לפני {maru} ימים" if maru > 1 else "אתמול"),
             cd["tags"],
-            r1, r1n, (r1 - c) / d["ATR"] if r1 else None, r2,
-            s1, s1n, (c - s1) / d["ATR"] if s1 else None, s2,
             d["vol10"], "; ".join([f"סטטוס: {st_why}"] + notes),
         ])
+        # התנגדות / תמיכה קרובה: הרמה הצמודה הישנה (כולל גבוה/נמוך של 2 הנרות האחרונים) — לא יעד
+        rows[-1] += [res[0][0] if res else None, res[0][1] if res else "", sup[0][0] if sup else None, sup[0][1] if sup else ""]
         tp = trade_plan(d, st)
         rows[-1] += [YES if tp["ok"] else f"{NO} — {tp['why']}", tp["target"], tp["stop"], tp["rr"],
                      tp["shares"], tp["pos"], tp["risk"], tp["profit"]]
 
-    # קודם מה שאפשר לסחור בו (לפי ציון), אחר כך כל השאר כמו קודם
+    # קודם מה שאפשר לסחור בו (לפי ציון), אחר כך כל השאר לפי סטטוס וציון
     T = headers.index("אפשר לסחור")
-    rows.sort(key=lambda r: (r[T] != YES, STATUS.index(r[1]), -r[4]) if r[T] != YES else (False, 0, -r[4]))
+    rows.sort(key=lambda r: (r[T] != YES, 0 if r[T] == YES else STATUS.index(r[1]), -r[4]))
     for r in rows:
         ws.append(r)
 
@@ -250,9 +295,8 @@ def build(data, out):
     H = {h: i for i, h in enumerate(headers)}
 
     fmt = {h: "+0.00;-0.00" for h in ("בולינגר יומי (σ)", "בולינגר שבועי (σ)", "שינוי %")}
-    fmt.update({h: "0.00" for h in ("סגירה", "SMA150", "RVOL", "ATR", "EMA20", "EMA50", "התנגדות 1",
-                                    "התנגדות 2", "תמיכה 1", "תמיכה 2", "יעד", "סטופ")})
-    fmt.update({h: "0.0" for h in ("ATR %", "ADX", "+DI", "-DI", "מרחק R1 (ATR)", "מרחק S1 (ATR)")})
+    fmt.update({h: "0.00" for h in ("סגירה", "SMA150", "RVOL", "ATR", "EMA20", "EMA50", "קו 50%", "יעד", "סטופ", "התנגדות קרובה", "תמיכה קרובה")})
+    fmt.update({h: "0.0" for h in ("ATR %", "ADX", "+DI", "-DI", )})
     fmt.update({"CCI": "0", "נפח ממוצע 10י": "#,##0", "יחס רווח/סיכון": "0.0", "מניות": "0",
                 "פוזיציה $": "#,##0", "סיכון $": "#,##0", "רווח ביעד $": "#,##0"})
     fmt = {H[h] + 1: f for h, f in fmt.items()}
@@ -274,11 +318,23 @@ def build(data, out):
         row[H["מרובוזו (3 ימים)"]].fill = green if row[H["מרובוזו (3 ימים)"]].value != "—" else PatternFill()
         v = row[H["צבע נר"]].value
         row[H["צבע נר"]].fill = green if v == "ירוק" else red if v == "אדום" else PatternFill()
+        nv = row[H["חדשות"]].value or ""
+        if nv.startswith(NEWS_RED):
+            row[H["חדשות"]].fill = red
+        elif nv.startswith(NEWS_YELLOW):
+            row[H["חדשות"]].fill = PatternFill("solid", fgColor="FFEB9C")
+        z = row[H["אזור"]].value
+        row[H["אזור"]].fill = green if z == "דיסקאונט" else red if z == "פרמיום" else PatternFill()
+        wk_fill = PatternFill("solid", fgColor="BDD7EE")
+        for h in ("תמיכה 1", "תמיכה 2", "תמיכה 3", "התנגדות 1", "התנגדות 2", "התנגדות 3"):
+            if WEEKLY in str(row[H[h]].value):
+                row[H[h]].fill = wk_fill
+                row[H[h]].font = Font(bold=True)
         can = row[H["אפשר לסחור"]].value == YES
-        for h in ("אפשר לסחור", "יעד", "סטופ", "יחס רווח/סיכון", "מניות", "פוזיציה $", "סיכון $", "רווח ביעד $"):
+        for h in PLAN_HEADERS:
             row[H[h]].fill = green if can else PatternFill("solid", fgColor="D9D9D9")
         row[H["אפשר לסחור"]].font = Font(bold=True)
-        for h in ("דפוס נר", "הערות"):
+        for h in ("דפוס נר", "חדשות", "הערות"):
             row[H[h]].alignment = Alignment(horizontal="right", vertical="center", wrap_text=True)
 
     last = ws.max_row
@@ -289,7 +345,7 @@ def build(data, out):
                        end_type="num", end_value=100, end_color="63BE7B"))
 
     widths = {"טיקר": 8, "סטטוס": 16, "בולינגר יומי (σ)": 11, "בולינגר שבועי (σ)": 11, "ציון כניסה": 9,
-              "כיוון": 16, "מרובוזו (3 ימים)": 12, "דפוס נר": 30, "מקור R1": 18, "מקור S1": 18, "הערות": 50, "אפשר לסחור": 30}
+              "חדשות": 45, **{h: 22 for h in ("תמיכה 1", "תמיכה 2", "תמיכה 3", "התנגדות 1", "התנגדות 2", "התנגדות 3")}, "תחילת התיקון": 15, "שפל התיקון": 15, "כיוון": 16, "מרובוזו (3 ימים)": 12, "דפוס נר": 30, "הערות": 50, "אפשר לסחור": 30, "מקור התנגדות קרובה": 22, "מקור תמיכה קרובה": 22}
     widths = {H[h] + 1: w for h, w in widths.items()}
     for i in range(1, len(headers) + 1):
         ws.column_dimensions[get_column_letter(i)].width = widths.get(i, 10)
@@ -298,7 +354,7 @@ def build(data, out):
     ex = wb.create_sheet("הסבר")
     ex.sheet_view.rightToLeft = True
     lines = [
-        ("מקור", f"רשימת המעקב '{data.get('watchlist', 'Red list')}' בטריידינגוויו, גרף יומי. נר אחרון: {data.get('bar_date', data['date'])}"),
+        ("מקור", f"רשימת המעקב '{data.get('watchlist', 'Red list')}', נתונים מ-{'Yahoo Finance (אינדיקטורים מחושבים)' if data.get('source') == 'yahoo' else 'טריידינגוויו'}, גרף יומי. נר אחרון: {data.get('bar_date', data['date'])}"),
         ("סטטוס", "✅ יש מקום: טובה בשבועי וביומי (בתוך רצועת בולינגר), +DI מעל -DI, ADX ≥ 20 | "
                    "🔵 כמעט שם: כמו ✅ אבל ADX מתחת ל-20 ועולה | "
                    "👁 מעקב: טובה בשבועי, מתוחה ביומי — להשאיר ב-Red list ולבדוק שוב מחר עד שתבשיל | "
@@ -314,16 +370,23 @@ def build(data, out):
         ("מרובוזו", "נר ירוק עם גוף ≥ 85% מהטווח וגוף ≥ 0.5 ATR, באחד מ-3 ימי המסחר האחרונים"),
         ("פטיש / איש תלוי", "צל תחתון ≥ 2× גוף, צל עליון ≤ 30% מהטווח. במגמה עולה = איש תלוי, אחרת = פטיש"),
         ("נר 2/3", "נר ירוק שגופו ≥ 2/3 מטווח הנר, אחרי נר אדום"),
-        ("תמיכה/התנגדות", "Pivot חודשי, שיא/שפל חודש ו-3 חודשים, EMA20/50, גבוה/נמוך של 2 הנרות האחרונים. "
-                          "רמות במרחק < 0.25 ATR מאוחדות"),
-        ("ציון כניסה 0-100", "כיוון 30 (+DI>-DI 15, ADX≥20 10 / 18-20 5, ADX עולה 5 — רק כש-+DI>-DI) | "
-                             "נר עם עוצמה 25 (מרובוזו היום 15 / ב-3 ימים 10 + דפוס נר אחרון עד 10) | "
-                             "ווליום על נר ירוק 15 | CCI יוצא מתיקון 15 | מעל SMA150 10 | לא מתוח מעל EMA20 5"),
-        ("תוכנית מסחר", f"תוספת בסוף הטבלה. תיק ${ACCOUNT:,}, סיכון {RISK_PCT:.0%} לטרייד (${ACCOUNT * RISK_PCT:.0f}), "
-                        f"פוזיציה עד ${ACCOUNT / MAX_TRADES:,.0f}. יעד = הרמה הרחוקה ביותר מעל המחיר (Pivot חודשי, שיא חודש / 3 חודשים). "
-                        f"סטופ = הרמה הראשונה שנמצאת לפחות ATR אחד מתחת למחיר. 'אפשר לסחור' = סטטוס ✅/🔵, "
-                        f"התנגדות קרובה לפחות {MIN_ROOM_ATR:g} ATR מעל המחיר, יחס רווח/סיכון {MIN_RR:g} ומעלה. "
-                        "המחירים הם סגירת הנר האחרון — הכניסה בפועל תהיה שונה"),
+        ("תמיכה/התנגדות 1-3", "בדיוק האינדיקטור Pivot Points Standard של טריידינגוויו בהגדרות ברירת המחדל: Type = Traditional, "
+                              "Pivots Timeframe = Auto (בגרף יומי = חודשי). הרמות של החודש הנוכחי מחושבות מהשיא, השפל והסגירה של החודש הקודם: "
+                              "P = (H+L+C)/3, R1 = 2P−L, S1 = 2P−H, R2 = P+(H−L), S2 = P−(H−L), R3 = 2P+(H−2L), S3 = 2P−(2H−L), "
+                              "R4 = 3P+(H−3L), S4 = 3P−(3H−L), R5 = 4P+(H−4L), S5 = 4P−(4H−L). "
+                              "בגיליון: 3 הרמות הקרובות מתחת לסגירה ו-3 מעליה, לפי הסדר. "
+                              "★ שבועי (רקע כחול) = אותו אינדיקטור עם Pivots Timeframe = 1W נותן רמה במרחק עד 0.25 ATR (בסוגריים: איזו רמה שבועית)"),
+        ("תיקון ודיסקאונט", "תחילת התיקון = השיא הגבוה ב-3 החודשים האחרונים. שפל התיקון = הנמוך ביותר מאז. "
+                            "קו 50% = אמצע הטווח. סגירה מתחת לקו = דיסקאונט (ירוק), מעליו = פרמיום (אדום). "
+                            "זה קירוב אוטומטי: אם התיקון האמיתי התחיל לפני יותר מ-3 חודשים, צריך לבדוק בגרף"),
+        ("התנגדות / תמיכה קרובה", "הרמה הצמודה ביותר למחיר מכל המקורות (כולל גבוה/נמוך של 2 הנרות האחרונים, EMA20/50, Pivot חודשי). "
+                                    "זו לא רמת יעד — רק מה שיושב קרוב למחיר"),
+        ("תוכנית מסחר", f"תיק ${ACCOUNT:,}, סיכון {RISK_PCT:.0%} לטרייד (${ACCOUNT * RISK_PCT:.0f}), פוזיציה עד ${ACCOUNT / MAX_TRADES:,.0f}. "
+                        "יעד = הרמה הרחוקה ביותר מעל המחיר מתוך: Pivot חודשי (P, R1, R2), שיא חודש, שיא 3 חודשים, EMA20/50. "
+                        f"סטופ = הרמה הראשונה מאותן רמות שנמצאת לפחות {STOP_MIN_ATR:g} ATR מתחת למחיר. "
+                        f"'אפשר לסחור' = סטטוס ✅/🔵, הרמה הראשונה מעל המחיר רחוקה לפחות {MIN_ROOM_ATR:g} ATR, יחס רווח/סיכון {MIN_RR:g} ומעלה. "
+                        "מניות = הקטן מבין: סיכון חלקי מרחק הסטופ, ותקרת הפוזיציה חלקי המחיר. "
+                        "המחיר הוא סגירת הנר האחרון — הכניסה בפועל תהיה שונה"),
         ("שים לב", "הציון הוא כלי מיון, לא המלצת השקעה"),
     ]
     for k, v in lines:
@@ -359,4 +422,4 @@ if __name__ == "__main__":
         rows = build(json.load(f), dst)
     for r in rows:
         f = lambda v: "  —  " if v is None else f"{v:+5.2f}"
-        print(f"{r[0]:6} {r[1]:16} יומי {f(r[2])} שבועי {f(r[3])} ציון {r[4]:3} | {r[-9]}")
+        print(f"{r[0]:6} {r[1]:16} יומי {f(r[2])} שבועי {f(r[3])} ציון {r[4]:3} | {r[-13]}")
