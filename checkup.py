@@ -26,6 +26,45 @@ MARU_MIN_ATR = 0.5    # ...וגוף ≥ 0.5 ATR (נר עם עוצמה, לא נר
 MARU_DAYS = 3         # מחפשים מרובוזו ב-3 ימי המסחר האחרונים
 OK, BAD = "✅", "❌"
 
+# ── תוכנית מסחר: כללי הכסף של המשתמש (16/11/2026) ─────────────────────
+ACCOUNT = 6800            # גודל התיק ב-$
+RISK_PCT = 0.01           # סיכון לטרייד: 1% מהתיק
+MAX_TRADES = 5            # הכסף צריך להספיק ל-5-6 טריידים ביום → תקרת פוזיציה = תיק / 5
+MIN_RR = 3.0              # יחס רווח לסיכון מינימלי
+MIN_ROOM_ATR = 1.0        # ההתנגדות הקרובה חייבת להיות לפחות ATR אחד מעל המחיר
+STOP_MIN_ATR = 1.0        # הסטופ: הרמה הראשונה שנמצאת לפחות ATR אחד מתחת למחיר
+YES, NO = "כן", "לא"
+
+
+def trade_plan(d, st):
+    """יעד, סטופ וגודל פוזיציה לפי כללי הכסף. מחזיר dict; ok=True רק כשאפשר לסחור."""
+    c, a = d["last"][3], d["ATR"]
+    lv = [d[k] for k in ("PP", "R1", "R2", "S1", "S2", "H1M", "L1M", "H3M", "L3M", "EMA20", "EMA50")]
+    above = sorted(x for x in lv if x > c)
+    below = sorted((x for x in lv if x <= c - STOP_MIN_ATR * a), reverse=True)
+    p = dict(ok=False, why="", target=None, stop=None, rr=None, shares=None, pos=None, risk=None, profit=None)
+    if not above or not below:
+        p["why"] = "אין רמה ליעד" if not above else "אין רמה לסטופ"
+        return p
+    near, target, stop = above[0], above[-1], below[0]
+    risk_ps = c - stop
+    rr = (target - c) / risk_ps
+    shares = int(min(ACCOUNT * RISK_PCT // risk_ps, ACCOUNT / MAX_TRADES // c))
+    p.update(target=target, stop=stop, rr=rr, shares=shares, pos=shares * c,
+             risk=shares * risk_ps, profit=shares * (target - c))
+    room = (near - c) / a
+    if st > 1:
+        p["why"] = "הסטטוס לא מאפשר לונג"
+    elif room < MIN_ROOM_ATR:
+        p["why"] = f"התנגדות קרובה מדי ({room:.2f} ATR)"
+    elif rr < MIN_RR:
+        p["why"] = f"יחס נמוך ({rr:.1f})"
+    elif shares < 1:
+        p["why"] = "מניה אחת יקרה מתקרת הפוזיציה"
+    else:
+        p["ok"] = True
+    return p
+
 
 # ── ווליום: יום אחרון מול ממוצע 10 הימים שלפניו (בלי היום עצמו) ────────
 def rvol(d):
@@ -143,6 +182,7 @@ def build(data, out):
         "התנגדות 1", "מקור R1", "מרחק R1 (ATR)", "התנגדות 2",
         "תמיכה 1", "מקור S1", "מרחק S1 (ATR)", "תמיכה 2",
         "נפח ממוצע 10י", "הערות",
+        "אפשר לסחור", "יעד", "סטופ", "יחס רווח/סיכון", "מניות", "פוזיציה $", "סיכון $", "רווח ביעד $",
     ]
     ws.append(headers)
 
@@ -189,8 +229,13 @@ def build(data, out):
             s1, s1n, (c - s1) / d["ATR"] if s1 else None, s2,
             d["vol10"], "; ".join([f"סטטוס: {st_why}"] + notes),
         ])
+        tp = trade_plan(d, st)
+        rows[-1] += [YES if tp["ok"] else f"{NO} — {tp['why']}", tp["target"], tp["stop"], tp["rr"],
+                     tp["shares"], tp["pos"], tp["risk"], tp["profit"]]
 
-    rows.sort(key=lambda r: (STATUS.index(r[1]), -r[4]))
+    # קודם מה שאפשר לסחור בו (לפי ציון), אחר כך כל השאר כמו קודם
+    T = headers.index("אפשר לסחור")
+    rows.sort(key=lambda r: (r[T] != YES, STATUS.index(r[1]), -r[4]) if r[T] != YES else (False, 0, -r[4]))
     for r in rows:
         ws.append(r)
 
@@ -206,9 +251,10 @@ def build(data, out):
 
     fmt = {h: "+0.00;-0.00" for h in ("בולינגר יומי (σ)", "בולינגר שבועי (σ)", "שינוי %")}
     fmt.update({h: "0.00" for h in ("סגירה", "SMA150", "RVOL", "ATR", "EMA20", "EMA50", "התנגדות 1",
-                                    "התנגדות 2", "תמיכה 1", "תמיכה 2")})
+                                    "התנגדות 2", "תמיכה 1", "תמיכה 2", "יעד", "סטופ")})
     fmt.update({h: "0.0" for h in ("ATR %", "ADX", "+DI", "-DI", "מרחק R1 (ATR)", "מרחק S1 (ATR)")})
-    fmt.update({"CCI": "0", "נפח ממוצע 10י": "#,##0"})
+    fmt.update({"CCI": "0", "נפח ממוצע 10י": "#,##0", "יחס רווח/סיכון": "0.0", "מניות": "0",
+                "פוזיציה $": "#,##0", "סיכון $": "#,##0", "רווח ביעד $": "#,##0"})
     fmt = {H[h] + 1: f for h, f in fmt.items()}
     green, red = PatternFill("solid", fgColor="C6EFCE"), PatternFill("solid", fgColor="FFC7CE")
     for row in ws.iter_rows(min_row=2):
@@ -228,6 +274,10 @@ def build(data, out):
         row[H["מרובוזו (3 ימים)"]].fill = green if row[H["מרובוזו (3 ימים)"]].value != "—" else PatternFill()
         v = row[H["צבע נר"]].value
         row[H["צבע נר"]].fill = green if v == "ירוק" else red if v == "אדום" else PatternFill()
+        can = row[H["אפשר לסחור"]].value == YES
+        for h in ("אפשר לסחור", "יעד", "סטופ", "יחס רווח/סיכון", "מניות", "פוזיציה $", "סיכון $", "רווח ביעד $"):
+            row[H[h]].fill = green if can else PatternFill("solid", fgColor="D9D9D9")
+        row[H["אפשר לסחור"]].font = Font(bold=True)
         for h in ("דפוס נר", "הערות"):
             row[H[h]].alignment = Alignment(horizontal="right", vertical="center", wrap_text=True)
 
@@ -239,7 +289,7 @@ def build(data, out):
                        end_type="num", end_value=100, end_color="63BE7B"))
 
     widths = {"טיקר": 8, "סטטוס": 16, "בולינגר יומי (σ)": 11, "בולינגר שבועי (σ)": 11, "ציון כניסה": 9,
-              "כיוון": 16, "מרובוזו (3 ימים)": 12, "דפוס נר": 30, "מקור R1": 18, "מקור S1": 18, "הערות": 50}
+              "כיוון": 16, "מרובוזו (3 ימים)": 12, "דפוס נר": 30, "מקור R1": 18, "מקור S1": 18, "הערות": 50, "אפשר לסחור": 30}
     widths = {H[h] + 1: w for h, w in widths.items()}
     for i in range(1, len(headers) + 1):
         ws.column_dimensions[get_column_letter(i)].width = widths.get(i, 10)
@@ -269,6 +319,11 @@ def build(data, out):
         ("ציון כניסה 0-100", "כיוון 30 (+DI>-DI 15, ADX≥20 10 / 18-20 5, ADX עולה 5 — רק כש-+DI>-DI) | "
                              "נר עם עוצמה 25 (מרובוזו היום 15 / ב-3 ימים 10 + דפוס נר אחרון עד 10) | "
                              "ווליום על נר ירוק 15 | CCI יוצא מתיקון 15 | מעל SMA150 10 | לא מתוח מעל EMA20 5"),
+        ("תוכנית מסחר", f"תוספת בסוף הטבלה. תיק ${ACCOUNT:,}, סיכון {RISK_PCT:.0%} לטרייד (${ACCOUNT * RISK_PCT:.0f}), "
+                        f"פוזיציה עד ${ACCOUNT / MAX_TRADES:,.0f}. יעד = הרמה הרחוקה ביותר מעל המחיר (Pivot חודשי, שיא חודש / 3 חודשים). "
+                        f"סטופ = הרמה הראשונה שנמצאת לפחות ATR אחד מתחת למחיר. 'אפשר לסחור' = סטטוס ✅/🔵, "
+                        f"התנגדות קרובה לפחות {MIN_ROOM_ATR:g} ATR מעל המחיר, יחס רווח/סיכון {MIN_RR:g} ומעלה. "
+                        "המחירים הם סגירת הנר האחרון — הכניסה בפועל תהיה שונה"),
         ("שים לב", "הציון הוא כלי מיון, לא המלצת השקעה"),
     ]
     for k, v in lines:
@@ -304,4 +359,4 @@ if __name__ == "__main__":
         rows = build(json.load(f), dst)
     for r in rows:
         f = lambda v: "  —  " if v is None else f"{v:+5.2f}"
-        print(f"{r[0]:6} {r[1]:16} יומי {f(r[2])} שבועי {f(r[3])} ציון {r[4]:3} | {r[-1]}")
+        print(f"{r[0]:6} {r[1]:16} יומי {f(r[2])} שבועי {f(r[3])} ציון {r[4]:3} | {r[-9]}")
